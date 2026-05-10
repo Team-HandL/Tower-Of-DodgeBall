@@ -279,13 +279,13 @@ document.addEventListener('keydown',e=>{
   keys[e.key]=true;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
   if(gameState!=='playing') return;
-  if(e.key==='z'||e.key==='Z'){
+  if(e.key==='z'||e.key==='Z'||e.code==='KeyZ'){
     if(player.grogyTime>0) return;
     if(!player.hasBall&&ball.owner!=='npc'&&dist(ball,player)<ball.r+player.r+32){
       if(!ball.flying||ball.bounces>0) pickUpBall('player');
     }
   }
-  if(e.key==='x'||e.key==='X'){
+  if(e.key==='x'||e.key==='X'||e.code==='KeyX'){
     if(player.grogyTime>0) return;
     if(player.hasBall) doThrow(player,npc.x+(Math.random()-0.5)*20,npc.y+(Math.random()-0.5)*20,340,'player');
   }
