@@ -3,8 +3,11 @@ import { rectHit, dist } from './physics.js';
 import { applyHit } from './actions.js';
 import { OBSTACLES } from '../design/map-01/obstacles.js';
 
-const RESTITUTION = 0.65;
-const FRICTION    = 0.85;
+const RESTITUTION     = 0.45;
+const FRICTION        = 0.80;
+const STOP_SPD        = 40;
+const AIR_DRAG        = 0.25;
+const BOUNCE_DRAG_INC = 0.20;
 
 function resolveObstacle(ball, o) {
   const left   = ball.x + ball.r - o.x;
@@ -31,6 +34,10 @@ export function updateBall(dt) {
 
   ball.x += ball.vx * dt;
   ball.y += ball.vy * dt;
+
+  const drag = 1 - (AIR_DRAG + ball.bounces * BOUNCE_DRAG_INC) * dt;
+  ball.vx *= drag;
+  ball.vy *= drag;
 
   let bounced = false;
   OBSTACLES.forEach(o => {
@@ -63,7 +70,7 @@ export function updateBall(dt) {
   }
 
   if (bounced) { ball.bounces++; npc.dodgeDir = null; }
-  if (Math.hypot(ball.vx, ball.vy) < 18) {
+  if (Math.hypot(ball.vx, ball.vy) < STOP_SPD) {
     ball.flying = false; ball.vx = 0; ball.vy = 0; ball.thrownBy = null;
   }
 
