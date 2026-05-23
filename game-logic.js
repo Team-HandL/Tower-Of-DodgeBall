@@ -5,6 +5,10 @@ import { updateBall } from './game-logic/ballPhysics.js';
 import { draw } from './game-logic/renderer.js';
 import { updateHPUI, showOverlay, hideOverlay } from './game-logic/overlay.js';
 import { setupInput } from './game-logic/input.js';
+import { loadAssets } from './design/assets.js';
+
+// 페이지 로드 시 이미지 미리 로드 (게임 시작 전 완료)
+loadAssets();
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
