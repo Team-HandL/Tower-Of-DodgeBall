@@ -35,12 +35,16 @@ function loop(ts) {
 
   if (player.grogyTime <= 0) {
     let dx = 0, dy = 0;
-    if (state.keys['ArrowUp'])    dy = -1;
-    if (state.keys['ArrowDown'])  dy = 1;
-    if (state.keys['ArrowLeft'])  dx = -1;
-    if (state.keys['ArrowRight']) dx = 1;
-    if (dx || dy) { const d = Math.hypot(dx, dy); player.facing = { x: dx / d, y: dy / d }; moveEntity(player, dx / d, dy / d, SPD * dt); }
+    if (state.keys['w'] || state.keys['W']) dy = -1;
+    if (state.keys['s'] || state.keys['S']) dy = 1;
+    if (state.keys['a'] || state.keys['A']) dx = -1;
+    if (state.keys['d'] || state.keys['D']) dx = 1;
+    if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, SPD * dt); }
   }
+
+  const mdx = state.mouse.x - player.x, mdy = state.mouse.y - player.y;
+  const md = Math.hypot(mdx, mdy);
+  if (md > 5) player.facing = { x: mdx / md, y: mdy / md };
 
   if (player.hasBall) { state.ball.x = player.x; state.ball.y = player.y; }
   if (npc.hasBall)    { state.ball.x = npc.x;    state.ball.y = npc.y; }

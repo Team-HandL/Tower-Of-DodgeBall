@@ -7,6 +7,7 @@ export const state = {
   npc: null,
   ball: null,
   keys: null,
+  mouse: { x: 0, y: 0 },
   gameState: null,
   animId: null,
   last: null,
