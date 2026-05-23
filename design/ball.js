@@ -1,11 +1,12 @@
 export function drawBall(ctx, ball, player, npc) {
   if (player.hasBall) {
-    ctx.strokeStyle = 'rgba(239,159,39,0.3)';
+    const { facing } = player;
+    ctx.strokeStyle = 'rgba(239,159,39,0.35)';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 4]);
     ctx.beginPath();
     ctx.moveTo(player.x, player.y);
-    ctx.lineTo(npc.x, npc.y);
+    ctx.lineTo(player.x + facing.x * 220, player.y + facing.y * 220);
     ctx.stroke();
     ctx.setLineDash([]);
   }

@@ -39,7 +39,7 @@ function loop(ts) {
     if (state.keys['ArrowDown'])  dy = 1;
     if (state.keys['ArrowLeft'])  dx = -1;
     if (state.keys['ArrowRight']) dx = 1;
-    if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, SPD * dt); }
+    if (dx || dy) { const d = Math.hypot(dx, dy); player.facing = { x: dx / d, y: dy / d }; moveEntity(player, dx / d, dy / d, SPD * dt); }
   }
 
   if (player.hasBall) { state.ball.x = player.x; state.ball.y = player.y; }

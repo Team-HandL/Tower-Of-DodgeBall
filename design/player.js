@@ -29,6 +29,26 @@ export function drawPlayer(ctx, player, npc, ball) {
 
   ctx.globalAlpha = 1;
 
+  // Facing direction arrow
+  const { facing } = player;
+  const aStart = player.r + 3, aEnd = player.r + 20;
+  ctx.strokeStyle = groggy ? 'rgba(100,150,200,0.35)' : 'rgba(100,190,255,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(player.x + facing.x * aStart, player.y + facing.y * aStart);
+  ctx.lineTo(player.x + facing.x * aEnd, player.y + facing.y * aEnd);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const tip = { x: player.x + facing.x * aEnd, y: player.y + facing.y * aEnd };
+  const ang = Math.atan2(facing.y, facing.x);
+  ctx.beginPath();
+  ctx.moveTo(tip.x, tip.y);
+  ctx.lineTo(tip.x - Math.cos(ang - 0.45) * 7, tip.y - Math.sin(ang - 0.45) * 7);
+  ctx.moveTo(tip.x, tip.y);
+  ctx.lineTo(tip.x - Math.cos(ang + 0.45) * 7, tip.y - Math.sin(ang + 0.45) * 7);
+  ctx.stroke();
+
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'center';
 

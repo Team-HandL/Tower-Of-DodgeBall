@@ -13,7 +13,7 @@ export const state = {
 };
 
 export function initState() {
-  state.player = { x: 80,  y: 210, r: 16, hp: 3, hasBall: false, invTime: 0, grogyTime: 0 };
+  state.player = { x: 80,  y: 210, r: 16, hp: 3, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 } };
   state.npc    = { x: 580, y: 210, r: 16, hp: 3, hasBall: true,  invTime: 0, grogyTime: 0,
                    state: 'aim', aimTimer: 1.0, dodgeDir: null };
   state.ball   = { x: 580, y: 210, r: 10, vx: 0, vy: 0, owner: 'npc', thrownBy: null, flying: false, bounces: 0 };

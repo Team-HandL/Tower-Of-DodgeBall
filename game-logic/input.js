@@ -18,7 +18,8 @@ export function setupInput() {
     if (e.key === 'x' || e.key === 'X' || e.key === 'ㅌ') {
       if (player.grogyTime > 0) return;
       if (player.hasBall) {
-        doThrow(player, npc.x + (Math.random() - 0.5) * 20, npc.y + (Math.random() - 0.5) * 20, 340, 'player');
+        const { facing } = player;
+        doThrow(player, player.x + facing.x * 1000, player.y + facing.y * 1000, 340, 'player');
       }
     }
   });
