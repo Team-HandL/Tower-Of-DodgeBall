@@ -35,10 +35,10 @@ function loop(ts) {
 
   if (player.grogyTime <= 0) {
     let dx = 0, dy = 0;
-    if (state.keys['w'] || state.keys['W']) dy = -1;
-    if (state.keys['s'] || state.keys['S']) dy = 1;
-    if (state.keys['a'] || state.keys['A']) dx = -1;
-    if (state.keys['d'] || state.keys['D']) dx = 1;
+    if (state.keys['KeyW']) dy = -1;
+    if (state.keys['KeyS']) dy = 1;
+    if (state.keys['KeyA']) dx = -1;
+    if (state.keys['KeyD']) dx = 1;
     if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, SPD * dt); }
   }
 

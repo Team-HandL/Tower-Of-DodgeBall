@@ -26,10 +26,10 @@ export function setupInput() {
   canvas.addEventListener('mousedown', () => doAction());
 
   document.addEventListener('keydown', e => {
-    state.keys[e.key] = true;
-    if ([' ', 'w', 'W', 'a', 'A', 's', 'S', 'd', 'D'].includes(e.key)) e.preventDefault();
-    if (e.key === ' ') doAction();
+    state.keys[e.code] = true;
+    if (['Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) e.preventDefault();
+    if (e.code === 'Space') doAction();
   });
 
-  document.addEventListener('keyup', e => { state.keys[e.key] = false; });
+  document.addEventListener('keyup', e => { state.keys[e.code] = false; });
 }

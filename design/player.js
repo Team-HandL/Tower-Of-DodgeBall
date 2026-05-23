@@ -52,21 +52,6 @@ export function drawPlayer(ctx, player, npc, ball) {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'center';
 
-  const dBall = Math.hypot(ball.x - player.x, ball.y - player.y);
-  const pickupRange = ball.r + player.r + 32;
-
-  if (!ball.flying && ball.owner === null && dBall < pickupRange && player.grogyTime <= 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx.fillText('Z: 줍기', ball.x, ball.y - 18);
-  }
-  if (ball.flying && ball.bounces > 0 && dBall < pickupRange && player.grogyTime <= 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx.fillText('Z: 잡기', ball.x, ball.y - 18);
-  }
-  if (player.hasBall && player.grogyTime <= 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx.fillText('X: 던지기', player.x, player.y - 28);
-  }
   if (groggy) {
     ctx.fillStyle = 'rgba(239,159,39,0.9)';
     ctx.fillText('그로기!', player.x, player.y - 28);
