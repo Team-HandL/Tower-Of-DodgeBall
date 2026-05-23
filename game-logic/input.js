@@ -20,6 +20,8 @@ function doAction() {
 export function setupInput() {
   const canvas = document.getElementById('gameCanvas');
 
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+
   canvas.addEventListener('mousemove', e => {
     const rect = canvas.getBoundingClientRect();
     state.mouse.x = e.clientX - rect.left;
