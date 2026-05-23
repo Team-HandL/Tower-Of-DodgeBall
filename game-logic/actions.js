@@ -1,5 +1,18 @@
 import { state } from './state.js';
 
+export const CATCH_RANGE = 24;
+
+export function catchBall() {
+  const { ball, player } = state;
+  ball.flying   = false;
+  ball.vx       = 0;
+  ball.vy       = 0;
+  ball.owner    = 'player';
+  ball.thrownBy = null;
+  ball.bounces  = 0;
+  player.hasBall = true;
+}
+
 export function doThrow(from, tx, ty, spd, who) {
   const { ball } = state;
   const dx = tx - from.x, dy = ty - from.y, d = Math.hypot(dx, dy) || 1;
