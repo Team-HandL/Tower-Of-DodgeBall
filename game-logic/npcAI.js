@@ -1,6 +1,6 @@
 import { state, SPD, SAFE_DIST, W, H, NPC_THROW_SPD } from './state.js';
 import { moveEntity, dist, hasLOS } from './physics.js';
-import { doThrow, pickUpBall } from './actions.js';
+import { doThrow, pickUpBall, CATCH_MIN_SPD } from './actions.js';
 
 /** 이동 방향 벡터로 NPC facing 갱신 */
 function setFacing(entity, dx, dy) {
@@ -87,7 +87,9 @@ export function updateNPC(dt) {
   }
   npc.dodgeDir = null;
 
-  if ((ballFree || ballBouncing) && npcCloser) {
+  const fastBounce1 = ball.flying && ball.bounces === 1 && Math.hypot(ball.vx, ball.vy) >= CATCH_MIN_SPD;
+
+  if ((ballFree || ballBouncing) && npcCloser && !fastBounce1) {
     npc.state = 'fetch';
     const dx = ball.x - npc.x, dy = ball.y - npc.y, d = Math.hypot(dx, dy) || 1;
     if (d > 12) {

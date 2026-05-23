@@ -1,19 +1,26 @@
 import { state, THROW_SPD } from './state.js';
 import { dist } from './physics.js';
-import { pickUpBall, doThrow, catchBall, CATCH_RANGE } from './actions.js';
+import { pickUpBall, doThrow, catchBall, CATCH_RANGE, CATCH_MIN_SPD } from './actions.js';
 
 function doAction() {
   if (state.gameState !== 'playing') return;
   const { player, ball } = state;
   if (player.grogyTime > 0) return;
+
+  const ballSpd = Math.hypot(ball.vx, ball.vy);
+  const fastBounce1 = ball.flying && ball.bounces === 1 && ballSpd >= CATCH_MIN_SPD;
+
   if (player.hasBall) {
     const { facing } = player;
     doThrow(player, player.x + facing.x * 1000, player.y + facing.y * 1000, THROW_SPD, 'player');
-  } else if (ball.flying && ball.bounces === 0 && ball.thrownBy === 'npc' &&
+  } else if (ball.flying && ball.thrownBy === 'npc' &&
+             (ball.bounces === 0 || fastBounce1) &&
              dist(ball, player) < ball.r + player.r + CATCH_RANGE) {
     catchBall();
   } else if (ball.owner !== 'npc' && dist(ball, player) < ball.r + player.r + 32) {
-    if (!ball.flying || ball.bounces > 0) pickUpBall('player');
+    if (!ball.flying || ball.bounces > 1 || (ball.bounces === 1 && ballSpd < CATCH_MIN_SPD)) {
+      pickUpBall('player');
+    }
   }
 }
 

@@ -19,4 +19,11 @@ export function draw(ctx) {
   drawBall(ctx, ball, player, npc);
   drawPlayer(ctx, player, npc, ball);
   drawNPC(ctx, npc);
+
+  // DEBUG: 공 속력 표시
+  const spd = Math.hypot(ball.vx, ball.vy);
+  ctx.font = '13px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.textAlign = 'left';
+  ctx.fillText(`ball spd: ${spd.toFixed(0)}  bounces: ${ball.bounces}`, 10, 20);
 }

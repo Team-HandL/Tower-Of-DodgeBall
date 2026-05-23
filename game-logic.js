@@ -53,7 +53,7 @@ function loop(ts) {
   if (player.hasBall) { state.ball.x = player.x; state.ball.y = player.y; }
   if (npc.hasBall)    { state.ball.x = npc.x;    state.ball.y = npc.y; }
 
-  // updateNPC(dt); // TEST: NPC 정지
+  updateNPC(dt); // TEST: NPC 정지
   const result = updateBall(dt);
   if (result) { endGame(result); return; }
 

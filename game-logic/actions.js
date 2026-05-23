@@ -1,6 +1,7 @@
 import { state } from './state.js';
 
-export const CATCH_RANGE = 24;
+export const CATCH_RANGE   = 24;
+export const CATCH_MIN_SPD = 200;
 
 export function catchBall() {
   const { ball, player } = state;
