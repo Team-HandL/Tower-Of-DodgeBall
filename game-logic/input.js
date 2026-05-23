@@ -28,7 +28,7 @@ export function setupInput() {
     state.mouse.y = e.clientY - rect.top;
   });
 
-  canvas.addEventListener('mousedown', () => doAction());
+  document.addEventListener('mousedown', () => doAction());
 
   document.addEventListener('keydown', e => {
     state.keys[e.code] = true;
