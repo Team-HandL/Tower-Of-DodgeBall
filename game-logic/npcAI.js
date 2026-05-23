@@ -1,4 +1,4 @@
-import { state, SPD, SAFE_DIST, W, H } from './state.js';
+import { state, SPD, SAFE_DIST, W, H, NPC_THROW_SPD } from './state.js';
 import { moveEntity, dist, hasLOS } from './physics.js';
 import { doThrow, pickUpBall } from './actions.js';
 
@@ -56,7 +56,7 @@ export function updateNPC(dt) {
         setFacing(npc, dx, dy);
       }
       if (npc.aimTimer <= 0) {
-        doThrow(npc, player.x + (Math.random() - 0.5) * 25, player.y + (Math.random() - 0.5) * 25, 300, 'npc');
+        doThrow(npc, player.x + (Math.random() - 0.5) * 25, player.y + (Math.random() - 0.5) * 25, NPC_THROW_SPD, 'npc');
       }
     } else {
       npc.state = 'reposition';

@@ -1,4 +1,4 @@
-import { state } from './state.js';
+import { state, THROW_SPD } from './state.js';
 import { dist } from './physics.js';
 import { pickUpBall, doThrow, catchBall, CATCH_RANGE } from './actions.js';
 
@@ -8,7 +8,7 @@ function doAction() {
   if (player.grogyTime > 0) return;
   if (player.hasBall) {
     const { facing } = player;
-    doThrow(player, player.x + facing.x * 1000, player.y + facing.y * 1000, 340, 'player');
+    doThrow(player, player.x + facing.x * 1000, player.y + facing.y * 1000, THROW_SPD, 'player');
   } else if (ball.flying && ball.bounces === 0 && ball.thrownBy === 'npc' &&
              dist(ball, player) < ball.r + player.r + CATCH_RANGE) {
     catchBall();
