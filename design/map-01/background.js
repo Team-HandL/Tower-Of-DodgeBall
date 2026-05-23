@@ -1,4 +1,4 @@
-const TILE  = 56;  // 타일 크기 (px) — 더 작게
+const TILE  = 48;  // 타일 크기 (px) — 더 작게
 const GROUT = 2;   // 줄눈 두께 (px)
 
 // 시드 기반 의사난수
