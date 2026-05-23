@@ -1,15 +1,15 @@
-export const TILE = 38; // 타일 한 칸 크기 (background.js 와 동일)
+export const TILE = 56; // 타일 한 칸 크기 (background.js 와 동일)
 
 // ─── 장애물 배치 ────────────────────────────────────────────────
 // 각 그룹 = 이어 붙인 블록들의 타일 좌표 [{c(컬럼), r(로우)}, ...]
-// 타일 1개 = 38 × 38 px
+// 타일 1개 = 56 × 56 px
 //
-// 그리드 참고 (660 × 420 기준)
-//   컬럼: 0 ~ 17  (17 * 38 = 646)
-//   로우:  0 ~ 11  (11 * 38 = 418)
-//   코트 중앙: 컬럼 ≈ 8.7 (x = 330)
-//   플레이어 시작: 컬럼 2, 로우 5 (x=80, y=210)
-//   NPC 시작:     컬럼 15, 로우 5 (x=580, y=210)
+// 그리드 참고 (900 × 600 기준)
+//   컬럼: 0 ~ 23  (23 * 56 = 874)
+//   로우:  0 ~ 15  (15 * 56 = 570)
+//   코트 중앙: 컬럼 ≈ 11.8 (x = 450)
+//   플레이어 시작: 컬럼 2, 로우 7 (x=80, y=300)
+//   NPC 시작:     컬럼 21, 로우 7 (x=820, y=300)
 
 export const OBSTACLE_GROUPS = [
   // 좌측 상단 기둥
@@ -87,7 +87,7 @@ export function drawBlock(ctx, col, row) {
     const cy1 = my  + Math.floor((rand(s + 36) - 0.5) * 8);
 
     ctx.strokeStyle = `rgba(0,0,0,${0.22 + rand(s + 37) * 0.18})`;
-    ctx.lineWidth = 0.6 + rand(s + 38) * 0.6;
+    ctx.lineWidth = 0.6 + rand(s + 56) * 0.6;
     ctx.beginPath();
     ctx.moveTo(cx0, cy0);
     ctx.lineTo(mx, my);
