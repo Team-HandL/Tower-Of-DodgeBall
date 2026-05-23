@@ -52,3 +52,4 @@ design/                 그래픽 모듈
     obstacles.js        장애물 위치/크기 데이터
     npc.js              NPC 캐릭터 그리기
 ```
+test
