@@ -1,6 +1,7 @@
 import { IMGS, getFacingKey } from './assets.js';
 
-const SIZE = 96; // 스프라이트 렌더 크기 (px)
+const SIZE = 96;       // 스프라이트 렌더 크기 (px)
+const ARROW_SIZE = SIZE / 3 + 6; // 화살표 시작 거리 (캐릭터 중심 기준)
 
 export function drawPlayer(ctx, player) {
   const groggy = player.grogyTime > 0;
@@ -30,6 +31,26 @@ export function drawPlayer(ctx, player) {
   }
 
   ctx.globalAlpha = 1;
+
+  // 던지기 방향 화살표
+  const { facing } = player;
+  const aStart = ARROW_SIZE, aEnd = ARROW_SIZE + 20;
+  ctx.strokeStyle = groggy ? 'rgba(80,160,80,0.3)' : 'rgba(80,220,100,0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(player.x + facing.x * aStart, player.y + facing.y * aStart);
+  ctx.lineTo(player.x + facing.x * aEnd,   player.y + facing.y * aEnd);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const tip = { x: player.x + facing.x * aEnd, y: player.y + facing.y * aEnd };
+  const ang = Math.atan2(facing.y, facing.x);
+  ctx.beginPath();
+  ctx.moveTo(tip.x, tip.y);
+  ctx.lineTo(tip.x - Math.cos(ang - 0.45) * 7, tip.y - Math.sin(ang - 0.45) * 7);
+  ctx.moveTo(tip.x, tip.y);
+  ctx.lineTo(tip.x - Math.cos(ang + 0.45) * 7, tip.y - Math.sin(ang + 0.45) * 7);
+  ctx.stroke();
 
   // 그로기 텍스트
   if (groggy) {
