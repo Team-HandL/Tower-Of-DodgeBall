@@ -1,7 +1,7 @@
 export const W = 900, H = 600;
 export const SPD = 140;
-export const THROW_SPD     = 340;
-export const NPC_THROW_SPD = 340;
+export const THROW_SPD     = 450;
+export const NPC_THROW_SPD = 450;
 export const SAFE_DIST = 250;
 
 export const state = {

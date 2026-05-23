@@ -67,14 +67,18 @@ export function updateBall(dt) {
     ball.flying = false; ball.vx = 0; ball.vy = 0; ball.thrownBy = null;
   }
 
-  const canHit = ball.flying && ball.bounces === 0;
-  if (canHit && ball.thrownBy !== 'npc' && dist(ball, npc) < ball.r + npc.r && npc.invTime <= 0) {
-    applyHit(npc, false);
-    if (npc.hp <= 0) return 'win';
-  }
-  if (canHit && ball.thrownBy !== 'player' && dist(ball, player) < ball.r + player.r && player.invTime <= 0) {
-    applyHit(player, true);
-    if (player.hp <= 0) return 'lose';
+  const damage = ball.flying && ball.bounces === 0 ? 1
+               : ball.flying && ball.bounces === 1 ? 0.5
+               : 0;
+  if (damage > 0) {
+    if (ball.thrownBy !== 'npc' && dist(ball, npc) < ball.r + npc.r && npc.invTime <= 0) {
+      applyHit(npc, false, damage);
+      if (npc.hp <= 0) return 'win';
+    }
+    if (ball.thrownBy !== 'player' && dist(ball, player) < ball.r + player.r && player.invTime <= 0) {
+      applyHit(player, true, damage);
+      if (player.hp <= 0) return 'lose';
+    }
   }
 
   return null;

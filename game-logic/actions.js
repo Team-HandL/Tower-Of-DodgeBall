@@ -43,9 +43,9 @@ export function pickUpBall(who) {
   }
 }
 
-export function applyHit(target, isPlayer) {
+export function applyHit(target, isPlayer, damage = 1) {
   const { ball } = state;
-  target.hp = Math.max(0, target.hp - 1);
+  target.hp = Math.max(0, target.hp - damage);
   target.invTime = 1.5;
   target.grogyTime = 0.7;
   target.hasBall = false;

@@ -1,10 +1,16 @@
 import { state } from './state.js';
 
+function dotClass(hp, i) {
+  if (hp >= i)        return 'hp-dot';
+  if (hp >= i - 0.5) return 'hp-dot half';
+  return 'hp-dot empty';
+}
+
 export function updateHPUI() {
   const { player, npc } = state;
   for (let i = 1; i <= 3; i++) {
-    document.getElementById('p' + i).className = 'hp-dot' + (player.hp < i ? ' empty' : '');
-    document.getElementById('n' + i).className = 'hp-dot' + (npc.hp < i ? ' empty' : '');
+    document.getElementById('p' + i).className = dotClass(player.hp, i);
+    document.getElementById('n' + i).className = dotClass(npc.hp, i);
   }
 }
 
