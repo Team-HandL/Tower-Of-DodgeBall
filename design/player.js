@@ -54,7 +54,7 @@ export function drawPlayer(ctx, player) {
 
   // 그로기 텍스트
   if (groggy) {
-    ctx.font = '11px sans-serif';
+    ctx.font = '11px PFStardust, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(239,159,39,0.9)';
     ctx.fillText('그로기!', player.x, player.y - player.r - 18);

@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>피구 게임</title>
 <style>
+@font-face {
+  font-family: 'PFStardust';
+  src: url('./design/assets/fonts/PFStardust.ttf') format('truetype');
+  font-display: block;
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
+body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: 'PFStardust', sans-serif; }
 #gameCanvas { display: block; border-radius: 12px; border: 1px solid #333; }
 #ui { color: #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; width: 900px; }
 .hp-bar { display: flex; gap: 6px; align-items: center; }
@@ -18,7 +23,7 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 #overlay { position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,0.6);border-radius:12px; }
 #overlay h2 { color:#fff;font-size:22px;font-weight:500; }
 #overlay p { color:rgba(255,255,255,0.75);font-size:14px; }
-#overlay button { padding:10px 28px;border:1.5px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;font-size:15px;cursor:pointer; }
+#overlay button { padding:10px 28px;border:1.5px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;font-size:15px;cursor:pointer;font-family:'PFStardust',sans-serif; }
 #overlay button:hover { background:rgba(255,255,255,0.28); }
 .wrap { position:relative; }
 </style>

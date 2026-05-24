@@ -19,7 +19,7 @@ export function loadAssets() {
     const img = new Image();
     img.onload  = () => { IMGS[key] = img; resolve(); };
     img.onerror = () => { console.warn(`Asset missing: ${key}.png`); resolve(); };
-    img.src = `./design/assets/${key}.png`;
+    img.src = `./design/assets/images/${key}.png`;
   })));
 }
 
