@@ -26,7 +26,9 @@ function calcBallDodgeDir() {
 function runFromPlayer(dt, speedMult) {
   const { player, npc } = state;
   const dx = npc.x - player.x, dy = npc.y - player.y, d = Math.hypot(dx, dy) || 1;
-  const cx = (W / 2 - npc.x) * 0.005, cy = (H / 2 - npc.y) * 0.005;
+  // 0.005 → 0.001: 상수가 크면 flee 벡터(크기 1)를 centering force(최대 2.25)가
+  // 역전시켜 flip point(x≈650)에서 facing이 left↔right 매 프레임 교번하는 버그 발생
+  const cx = (W / 2 - npc.x) * 0.001, cy = (H / 2 - npc.y) * 0.001;
   const ex = dx / d + cx, ey = dy / d + cy, ed = Math.hypot(ex, ey) || 1;
   setFacing(npc, ex, ey);
   moveEntity(npc, ex / ed, ey / ed, SPD * (speedMult || 1) * dt);
@@ -114,7 +116,8 @@ export function updateNPC(dt) {
     } else {
       const dx = ball.x - npc.x, dy = ball.y - npc.y, dd = Math.hypot(dx, dy) || 1;
       setFacing(npc, dx, dy);
-      moveEntity(npc, dx / dd, dy / dd, SPD * 0.5 * dt);
+      // dd가 한 프레임 이동거리보다 작으면 overshoot→oscillation 방지
+      if (dd > SPD * 0.5 * dt + 1) moveEntity(npc, dx / dd, dy / dd, SPD * 0.5 * dt);
     }
     return;
   }
