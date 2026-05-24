@@ -13,6 +13,7 @@ export function loadAssets() {
   const keys = [
     'jindo_back', 'jindo_front', 'jindo_left', 'jindo_right',
     'soccer_back', 'soccer_front', 'soccer_left', 'soccer_right',
+    'ball_basic', 'ball_180',
   ];
   return Promise.all(keys.map(key => new Promise(resolve => {
     const img = new Image();

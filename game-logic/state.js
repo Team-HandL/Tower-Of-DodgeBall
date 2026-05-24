@@ -19,7 +19,7 @@ export function initState() {
   state.player = { x: 80,  y: 300, r: 16, hp: 3, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 } };
   state.npc    = { x: 820, y: 300, r: 16, hp: 3, hasBall: false, invTime: 0, grogyTime: 0,
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 } };
-  state.ball   = { x: W / 2, y: H / 2, r: 10, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0 };
+  state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0 };
   state.keys   = {};
   state.gameState = 'playing';
 }

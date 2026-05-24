@@ -53,6 +53,10 @@ function loop(ts) {
   if (player.hasBall) { state.ball.x = player.x; state.ball.y = player.y; }
   if (npc.hasBall)    { state.ball.x = npc.x;    state.ball.y = npc.y; }
 
+  // 공이 날아가는 동안 애니메이션 타이머 누적
+  if (state.ball.flying) state.ball.animTime += dt;
+  else state.ball.animTime = 0;
+
   updateNPC(dt); // TEST: NPC 정지
   const result = updateBall(dt);
   if (result) { endGame(result); return; }
