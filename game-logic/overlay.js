@@ -16,6 +16,8 @@ export function updateHPUI() {
   pb.style.background = hpColor(player.hp, BASE.player.hp);
   nb.style.width      = `${(npc.hp / BASE.npc.hp) * 100}%`;
   nb.style.background = hpColor(npc.hp, BASE.npc.hp);
+  document.getElementById('player-hp-text').textContent = Math.round(player.hp);
+  document.getElementById('npc-hp-text').textContent    = Math.round(npc.hp);
 }
 
 // ─── 오버레이 플로우 (시작/층 진입/승리/패배) ─────────────────────
