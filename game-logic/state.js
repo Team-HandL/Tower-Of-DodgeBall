@@ -21,5 +21,6 @@ export function initState() {
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 } };
   state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0 };
   state.keys   = {};
+  state.timer  = 180;
   state.gameState = 'playing';
 }

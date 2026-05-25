@@ -14,12 +14,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: 'PFStardust', sans-serif; }
 #gameCanvas { display: block; border-radius: 12px; border: 1px solid #333; }
-#ui { color: #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; width: 900px; }
-.hp-bar { display: flex; gap: 6px; align-items: center; }
-.hp-label { font-size: 13px; color: #888; margin-right: 4px; }
-.hp-dot { width: 14px; height: 14px; border-radius: 50%; background: #E24B4A; border: 1.5px solid #A32D2D; }
-.hp-dot.empty { background: #333; border-color: #555; }
-.hp-dot.half  { background: linear-gradient(to right, #E24B4A 50%, #333 50%); border-color: #A32D2D; }
+#ui { color: #ccc; padding: 8px 0; display: flex; justify-content: center; align-items: center; width: 900px; }
 #status { font-size: 12px; color: #888; text-align: center; }
 #overlay { position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,0.6);border-radius:12px; }
 #overlay h2 { color:#fff;font-size:22px;font-weight:500; }
@@ -32,9 +27,7 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 <body>
 
 <div id="ui">
-  <div class="hp-bar"><span class="hp-label">나</span><div class="hp-dot" id="p1"></div><div class="hp-dot" id="p2"></div><div class="hp-dot" id="p3"></div></div>
   <div id="status">WASD 이동 &nbsp;|&nbsp; 스페이스 / 클릭 줍기·던지기</div>
-  <div class="hp-bar"><div class="hp-dot" id="n1"></div><div class="hp-dot" id="n2"></div><div class="hp-dot" id="n3"></div><span class="hp-label">NPC</span></div>
 </div>
 
 <div class="wrap">

@@ -57,7 +57,10 @@ function loop(ts) {
   if (state.ball.flying) state.ball.animTime += dt;
   else state.ball.animTime = 0;
 
-  updateNPC(dt); // TEST: NPC 정지
+  state.timer -= dt;
+  if (state.timer <= 0) { state.timer = 0; endGame('timeout'); return; }
+
+  updateNPC(dt);
   const result = updateBall(dt);
   if (result) { endGame(result); return; }
 
