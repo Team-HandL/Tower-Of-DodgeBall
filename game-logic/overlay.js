@@ -1,5 +1,18 @@
+import { state } from './state.js';
+
+function hpColor(hp) {
+  const r = hp / 3;
+  return `rgb(${Math.round(220 - 160 * r)},${Math.round(40 + 160 * r)},40)`;
+}
+
 export function updateHPUI() {
-  // 캔버스에서 직접 렌더링
+  const { player, npc } = state;
+  const pb = document.getElementById('player-hp-bar');
+  const nb = document.getElementById('npc-hp-bar');
+  pb.style.width      = `${(player.hp / 3) * 100}%`;
+  pb.style.background = hpColor(player.hp);
+  nb.style.width      = `${(npc.hp / 3) * 100}%`;
+  nb.style.background = hpColor(npc.hp);
 }
 
 export function showOverlay(result, onRestart) {
