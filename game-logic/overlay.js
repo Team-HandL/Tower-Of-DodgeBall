@@ -86,20 +86,22 @@ function paint(html, variant) {
 // 1) 최초 시작 화면 — tower.png + 진도 대사
 function renderStart() {
   paint(`
-    <div class="start-stage">
-      <img class="start-tower" src="${IMG}/tower.png" alt="tower"/>
-      <div class="start-jindo start-jindo-back">
-        <div class="speech">여긴 어디..?</div>
-        <img src="${IMG}/jindo_back.png" alt=""/>
-      </div>
-      <div class="start-jindo start-jindo-front">
-        <div class="speech">탑..?</div>
-        <img src="${IMG}/jindo_front.png" alt=""/>
+    <div class="start-top">
+      <img src="${IMG}/tower.png" alt="tower"/>
+    </div>
+    <div class="start-mid" id="ov-start-btn">
+      <div class="start-cta">
+        <div class="arrow">▲</div>
+        <div class="label">탑 오르기 시작</div>
       </div>
     </div>
-    <button class="ov-btn primary" id="ov-start-btn">탑 오르기 시작</button>
+    <div class="start-bot">
+      <img src="${IMG}/jindo_back.png" alt="jindo"/>
+    </div>
   `, 'start');
-  document.getElementById('ov-start-btn').onclick = () => renderFloorIntro();
+  const go = () => renderFloorIntro();
+  document.getElementById('ov-start-btn').onclick = go;
+  document.querySelector('.start-top').onclick = go;
 }
 
 // 2) 층 진입 화면 — NPC 대화 연출
