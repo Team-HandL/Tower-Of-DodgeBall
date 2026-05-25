@@ -19,12 +19,50 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 #player-hp-bar { height: 100%; border-radius: 4px; }
 #npc-hp-bar { height: 100%; border-radius: 4px; position: absolute; right: 0; }
 #status { font-size: 12px; color: #888; text-align: center; }
-#overlay { position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,0.6);border-radius:12px; }
+#overlay { position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,0.72);border-radius:12px;overflow:hidden; }
 #overlay h2 { color:#fff;font-size:22px;font-weight:500; }
-#overlay p { color:rgba(255,255,255,0.75);font-size:14px; }
-#overlay button { padding:10px 28px;border:1.5px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;font-size:15px;cursor:pointer;font-family:'PFStardust',sans-serif; }
-#overlay button:hover { background:rgba(255,255,255,0.28); }
+#overlay p  { color:rgba(255,255,255,0.78);font-size:14px; }
+.ov-btn { padding:10px 28px;border:1.5px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.12);color:#fff;border-radius:8px;font-size:15px;cursor:pointer;font-family:'PFStardust',sans-serif;letter-spacing:0.5px; }
+.ov-btn:hover { background:rgba(255,255,255,0.28); }
+.ov-btn.primary { background:rgba(255,210,90,0.18);border-color:rgba(255,210,90,0.7);color:#FFE3A0; }
+.ov-btn.primary:hover { background:rgba(255,210,90,0.32); }
 .wrap { position:relative; }
+
+/* 1) 시작 화면 */
+.ov-start { gap: 24px; }
+.start-stage { position:relative; width:100%; height:430px; display:flex; align-items:flex-end; justify-content:center; }
+.start-tower { height:380px; image-rendering:pixelated; filter:drop-shadow(0 0 24px rgba(255,210,90,0.25)); }
+.start-jindo { position:absolute; bottom:0; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.start-jindo img { width:72px; image-rendering:pixelated; }
+.start-jindo-back  { left:32%; bottom:18px; }
+.start-jindo-front { right:30%; bottom:8px; }
+.start-jindo .speech { background:rgba(255,255,255,0.92); color:#222; padding:6px 12px; border-radius:14px; font-size:13px; position:relative; }
+.start-jindo .speech::after { content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:rgba(255,255,255,0.92); border-bottom:0; }
+
+/* 2) 층 진입 + 3) 패배 공통: NPC 대화 무대 */
+.floor-title { color:rgba(255,210,90,0.9); font-size:14px; letter-spacing:3px; }
+.npc-stage { display:flex; align-items:center; gap:18px; max-width:680px; }
+.npc-portrait { width:140px; image-rendering:pixelated; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+.bubble { background:rgba(255,255,255,0.94); color:#1a1a1a; padding:14px 18px; border-radius:14px; font-size:15px; line-height:1.5; max-width:420px; position:relative; }
+.bubble::before { content:''; position:absolute; left:-8px; top:24px; border:8px solid transparent; border-right-color:rgba(255,255,255,0.94); border-left:0; }
+
+/* 3) 패배 화면 */
+.result-headline { font-size:28px !important; }
+.result-headline.lose { color:#FF8B8B; }
+.result-headline.win  { color:#FFE3A0; }
+.result-sub { margin-top:-6px; }
+.btn-row { display:flex; gap:12px; margin-top:6px; }
+
+/* 4) 승리 화면 — 카드 */
+.card-hint { color:rgba(255,255,255,0.6) !important; font-size:13px !important; }
+.card-row { display:flex; gap:14px; }
+.upgrade-card { width:160px; padding:18px 14px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.18); border-radius:12px; color:#fff; cursor:pointer; font-family:'PFStardust',sans-serif; transition:transform 0.12s, border-color 0.12s, background 0.12s; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.upgrade-card:hover { transform:translateY(-4px); border-color:rgba(255,210,90,0.8); background:rgba(255,210,90,0.12); }
+.card-emoji { font-size:32px; }
+.card-title { font-size:15px; font-weight:600; }
+.card-desc  { font-size:12px; color:rgba(255,255,255,0.7); }
+.card-desc b { color:#FFE3A0; }
+.buff-status { font-size:11px; color:rgba(255,255,255,0.45); letter-spacing:0.5px; }
 </style>
 </head>
 <body>
@@ -37,11 +75,7 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 
 <div class="wrap">
 <canvas id="gameCanvas" width="900" height="600"></canvas>
-<div id="overlay">
-  <h2>🏐 피구</h2>
-  <p>WASD 이동 &nbsp;·&nbsp; 스페이스 / 클릭 줍기·던지기</p>
-  <button id="startBtn">게임 시작</button>
-</div>
+<div id="overlay"></div>
 </div>
 
 <script type="module" src="./game-logic.js"></script>

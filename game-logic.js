@@ -3,7 +3,7 @@ import { moveEntity } from './game-logic/physics.js';
 import { updateNPC } from './game-logic/npcAI.js';
 import { updateBall } from './game-logic/ballPhysics.js';
 import { draw } from './game-logic/renderer.js';
-import { updateHPUI, showOverlay, hideOverlay } from './game-logic/overlay.js';
+import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow } from './game-logic/overlay.js';
 import { setupInput } from './game-logic/input.js';
 import { loadAssets } from './design/assets.js';
 
@@ -70,4 +70,4 @@ function loop(ts) {
 }
 
 setupInput();
-document.getElementById('startBtn').addEventListener('click', startGame);
+initOverlayFlow(startGame);
