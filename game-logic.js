@@ -1,4 +1,5 @@
-import { state, initState, SPD } from './game-logic/state.js';
+import { state, initState } from './game-logic/state.js';
+import { STATUS } from './game-logic/status.js';
 import { moveEntity } from './game-logic/physics.js';
 import { updateNPC } from './game-logic/npcAI.js';
 import { updateBall } from './game-logic/ballPhysics.js';
@@ -43,7 +44,7 @@ function loop(ts) {
     if (state.keys['KeyS']) dy = 1;
     if (state.keys['KeyA']) dx = -1;
     if (state.keys['KeyD']) dx = 1;
-    if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, SPD * dt); }
+    if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, STATUS.player.spd * dt); }
   }
 
   const mdx = state.mouse.x - player.x, mdy = state.mouse.y - player.y;

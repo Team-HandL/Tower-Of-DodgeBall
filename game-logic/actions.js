@@ -1,8 +1,5 @@
 import { state } from './state.js';
 
-export const CATCH_RANGE   = 24;
-export const CATCH_MIN_SPD = 200;
-
 export function catchBall() {
   const { ball, player } = state;
   ball.flying   = false;
@@ -44,7 +41,7 @@ export function pickUpBall(who) {
   }
 }
 
-export function applyHit(target, isPlayer, damage = 1) {
+export function applyHit(target, isPlayer, damage = 40) {
   const { ball } = state;
   target.hp = Math.max(0, target.hp - damage);
   target.invTime = 1.5;

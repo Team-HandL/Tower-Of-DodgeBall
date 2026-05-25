@@ -1,6 +1,7 @@
 import { state, W, H } from './state.js';
+import { STATUS } from './status.js';
 import { rectHit, dist } from './physics.js';
-import { applyHit, CATCH_MIN_SPD } from './actions.js';
+import { applyHit } from './actions.js';
 import { OBSTACLES } from '../design/map-01/obstacles.js';
 
 const RESTITUTION     = 0.45;
@@ -75,8 +76,10 @@ export function updateBall(dt) {
   }
 
   const ballSpd = Math.hypot(ball.vx, ball.vy);
-  const damage = ball.flying && ball.bounces === 0 ? 1
-               : ball.flying && ball.bounces === 1 && ballSpd >= CATCH_MIN_SPD ? 0.5
+  const attackerStr = ball.thrownBy ? STATUS[ball.thrownBy].str : 100;
+  const baseDmg = attackerStr * 0.4;
+  const damage = ball.flying && ball.bounces === 0 ? baseDmg
+               : ball.flying && ball.bounces === 1 && ballSpd >= STATUS.player.catchMinSpd ? baseDmg * 0.5
                : 0;
   if (damage > 0) {
     if (ball.thrownBy !== 'npc' && dist(ball, npc) < ball.r + npc.r && npc.invTime <= 0) {

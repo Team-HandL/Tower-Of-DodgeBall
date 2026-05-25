@@ -1,7 +1,6 @@
+import { initStatus, BASE } from './status.js';
+
 export const W = 900, H = 600;
-export const SPD = 150;
-export const THROW_SPD     = 500;
-export const NPC_THROW_SPD = 500;
 export const SAFE_DIST = 250;
 
 export const state = {
@@ -16,8 +15,9 @@ export const state = {
 };
 
 export function initState() {
-  state.player = { x: 80,  y: 300, r: 16, hp: 3, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 } };
-  state.npc    = { x: 820, y: 300, r: 16, hp: 3, hasBall: false, invTime: 0, grogyTime: 0,
+  initStatus();
+  state.player = { x: 80,  y: 300, r: 16, hp: BASE.player.hp, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 } };
+  state.npc    = { x: 820, y: 300, r: 16, hp: BASE.npc.hp,    hasBall: false, invTime: 0, grogyTime: 0,
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 } };
   state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0 };
   state.keys   = {};

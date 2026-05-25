@@ -1,9 +1,10 @@
 import { state } from './state.js';
+import { BASE } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
 
-function hpColor(hp) {
-  const r = hp / 3;
+function hpColor(hp, maxHp) {
+  const r = hp / maxHp;
   return `rgb(${Math.round(220 - 160 * r)},${Math.round(40 + 160 * r)},40)`;
 }
 
@@ -11,10 +12,10 @@ export function updateHPUI() {
   const { player, npc } = state;
   const pb = document.getElementById('player-hp-bar');
   const nb = document.getElementById('npc-hp-bar');
-  pb.style.width      = `${(player.hp / 3) * 100}%`;
-  pb.style.background = hpColor(player.hp);
-  nb.style.width      = `${(npc.hp / 3) * 100}%`;
-  nb.style.background = hpColor(npc.hp);
+  pb.style.width      = `${(player.hp / BASE.player.hp) * 100}%`;
+  pb.style.background = hpColor(player.hp, BASE.player.hp);
+  nb.style.width      = `${(npc.hp / BASE.npc.hp) * 100}%`;
+  nb.style.background = hpColor(npc.hp, BASE.npc.hp);
 }
 
 // ─── 오버레이 플로우 (시작/층 진입/승리/패배) ─────────────────────

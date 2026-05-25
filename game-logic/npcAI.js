@@ -1,6 +1,7 @@
-import { state, SPD, SAFE_DIST, W, H, NPC_THROW_SPD } from './state.js';
+import { state, SAFE_DIST, W, H } from './state.js';
+import { STATUS } from './status.js';
 import { moveEntity, dist, hasLOS } from './physics.js';
-import { doThrow, pickUpBall, CATCH_MIN_SPD } from './actions.js';
+import { doThrow, pickUpBall } from './actions.js';
 
 /** 이동 방향 벡터로 NPC facing 갱신 */
 function setFacing(entity, dx, dy) {
@@ -31,7 +32,7 @@ function runFromPlayer(dt, speedMult) {
   const cx = (W / 2 - npc.x) * 0.001, cy = (H / 2 - npc.y) * 0.001;
   const ex = dx / d + cx, ey = dy / d + cy, ed = Math.hypot(ex, ey) || 1;
   setFacing(npc, ex, ey);
-  moveEntity(npc, ex / ed, ey / ed, SPD * (speedMult || 1) * dt);
+  moveEntity(npc, ex / ed, ey / ed, STATUS.npc.spd * (speedMult || 1) * dt);
 }
 
 export function updateNPC(dt) {
@@ -47,24 +48,24 @@ export function updateNPC(dt) {
       if (d > 200) {
         const dx = player.x - npc.x, dy = player.y - npc.y, dd = Math.hypot(dx, dy) || 1;
         setFacing(npc, dx, dy);
-        moveEntity(npc, dx / dd, dy / dd, SPD * dt);
+        moveEntity(npc, dx / dd, dy / dd, STATUS.npc.spd * dt);
       } else if (d < 100) {
         const dx = npc.x - player.x, dy = npc.y - player.y, dd = Math.hypot(dx, dy) || 1;
         setFacing(npc, dx, dy);
-        moveEntity(npc, dx / dd, dy / dd, SPD * dt);
+        moveEntity(npc, dx / dd, dy / dd, STATUS.npc.spd * dt);
       } else {
         // 제자리 조준 — 플레이어 쪽을 바라봄
         const dx = player.x - npc.x, dy = player.y - npc.y;
         setFacing(npc, dx, dy);
       }
       if (npc.aimTimer <= 0) {
-        doThrow(npc, player.x + (Math.random() - 0.5) * 25, player.y + (Math.random() - 0.5) * 25, NPC_THROW_SPD, 'npc');
+        doThrow(npc, player.x + (Math.random() - 0.5) * 25, player.y + (Math.random() - 0.5) * 25, STATUS.npc.velocity, 'npc');
       }
     } else {
       npc.state = 'reposition';
       const dx = player.x - npc.x, dy = player.y - npc.y, d = Math.hypot(dx, dy) || 1;
       setFacing(npc, dx, dy);
-      moveEntity(npc, dx / d, dy / d, SPD * dt);
+      moveEntity(npc, dx / d, dy / d, STATUS.npc.spd * dt);
     }
     return;
   }
@@ -81,7 +82,7 @@ export function updateNPC(dt) {
     if (dir && !npc.dodgeDir) npc.dodgeDir = dir;
     if (npc.dodgeDir) {
       setFacing(npc, npc.dodgeDir.x, npc.dodgeDir.y);
-      moveEntity(npc, npc.dodgeDir.x, npc.dodgeDir.y, SPD * dt);
+      moveEntity(npc, npc.dodgeDir.x, npc.dodgeDir.y, STATUS.npc.spd * dt);
     } else {
       runFromPlayer(dt);
     }
@@ -89,14 +90,14 @@ export function updateNPC(dt) {
   }
   npc.dodgeDir = null;
 
-  const fastBounce1 = ball.flying && ball.bounces === 1 && Math.hypot(ball.vx, ball.vy) >= CATCH_MIN_SPD;
+  const fastBounce1 = ball.flying && ball.bounces === 1 && Math.hypot(ball.vx, ball.vy) >= STATUS.player.catchMinSpd;
 
   if ((ballFree || ballBouncing) && npcCloser && !fastBounce1) {
     npc.state = 'fetch';
     const dx = ball.x - npc.x, dy = ball.y - npc.y, d = Math.hypot(dx, dy) || 1;
     if (d > 12) {
       setFacing(npc, dx, dy);
-      moveEntity(npc, dx / d, dy / d, SPD * dt);
+      moveEntity(npc, dx / d, dy / d, STATUS.npc.spd * dt);
     }
     if (dist(ball, npc) < ball.r + npc.r + 12) pickUpBall('npc');
     return;
@@ -117,7 +118,7 @@ export function updateNPC(dt) {
       const dx = ball.x - npc.x, dy = ball.y - npc.y, dd = Math.hypot(dx, dy) || 1;
       setFacing(npc, dx, dy);
       // dd가 한 프레임 이동거리보다 작으면 overshoot→oscillation 방지
-      if (dd > SPD * 0.5 * dt + 1) moveEntity(npc, dx / dd, dy / dd, SPD * 0.5 * dt);
+      if (dd > STATUS.npc.spd * 0.5 * dt + 1) moveEntity(npc, dx / dd, dy / dd, STATUS.npc.spd * 0.5 * dt);
     }
     return;
   }
