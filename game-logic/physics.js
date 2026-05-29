@@ -15,10 +15,12 @@ function clamp(e) {
 }
 
 export function moveEntity(e, dx, dy, spd) {
+  const px = e.x, py = e.y;
   const nx = e.x + dx * spd, ny = e.y + dy * spd;
   if (!obsBlock(nx, e.y, e.r)) e.x = nx;
   if (!obsBlock(e.x, ny, e.r)) e.y = ny;
   clamp(e);
+  if (e.x !== px || e.y !== py) e.isMoving = true;
 }
 
 export function dist(a, b) {

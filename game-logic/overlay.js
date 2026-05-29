@@ -96,7 +96,7 @@ function renderStart() {
       </div>
     </div>
     <div class="start-bot">
-      <img src="${IMG}/jindo_back.png" alt="jindo"/>
+      <img src="${IMG}/jindo/jindo_back_1.png" alt="jindo"/>
     </div>
   `, 'start');
   const go = () => renderFloorIntro();

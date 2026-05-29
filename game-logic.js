@@ -38,6 +38,7 @@ function loop(ts) {
   if (npc.invTime > 0)      npc.invTime -= dt;
   if (npc.grogyTime > 0)    npc.grogyTime -= dt;
 
+  player.isMoving = false;
   if (player.grogyTime <= 0) {
     let dx = 0, dy = 0;
     if (state.keys['KeyW']) dy = -1;
@@ -46,6 +47,8 @@ function loop(ts) {
     if (state.keys['KeyD']) dx = 1;
     if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, STATUS.player.spd * dt); }
   }
+  if (player.isMoving) player.animTime += dt;
+  else player.animTime = 0;
 
   const mdx = state.mouse.x - player.x, mdy = state.mouse.y - player.y;
   const md = Math.hypot(mdx, mdy);

@@ -2,6 +2,7 @@ import { IMGS, getFacingKey } from './assets.js';
 
 const SIZE = 96;       // 스프라이트 렌더 크기 (px)
 const ARROW_SIZE = SIZE / 3 + 6; // 화살표 시작 거리 (캐릭터 중심 기준)
+const WALK_FRAME_DUR = 0.12;   // 프레임당 노출 시간 (초) — 4프레임 cycle
 
 export function drawPlayer(ctx, player) {
   const groggy = player.grogyTime > 0;
@@ -9,7 +10,9 @@ export function drawPlayer(ctx, player) {
   ctx.globalAlpha = player.invTime > 0 ? (Math.sin(player.invTime * 18) > 0 ? 0.3 : 1) : 1;
 
   const dir = getFacingKey(player.facing);
-  const img = IMGS[`jindo_${dir}`];
+  const prefix = player.hasBall ? 'jindo_ball' : 'jindo';
+  const frameIdx = player.isMoving ? (Math.floor(player.animTime / WALK_FRAME_DUR) % 4) + 1 : 1;
+  const img = IMGS[`${prefix}_${dir}_${frameIdx}`];
 
   if (img) {
     ctx.drawImage(img, player.x - SIZE / 2, player.y - SIZE / 2, SIZE, SIZE);
