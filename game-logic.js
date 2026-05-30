@@ -7,6 +7,7 @@ import { draw } from './game-logic/renderer.js';
 import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow } from './game-logic/overlay.js';
 import { setupInput } from './game-logic/input.js';
 import { loadAssets } from './design/assets.js';
+import { SPRITE_CENTER_OFFSET_Y } from './design/player.js';
 
 // 페이지 로드 시 이미지 미리 로드 (게임 시작 전 완료)
 loadAssets();
@@ -33,6 +34,8 @@ function loop(ts) {
   state.last = ts;
 
   const { player, npc } = state;
+  player.spriteCenterY = player.y + SPRITE_CENTER_OFFSET_Y;
+  npc.spriteCenterY    = npc.y    + SPRITE_CENTER_OFFSET_Y;
   if (player.invTime > 0)   player.invTime -= dt;
   if (player.grogyTime > 0) player.grogyTime -= dt;
   if (npc.invTime > 0)      npc.invTime -= dt;

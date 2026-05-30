@@ -4,6 +4,7 @@ import { IMGS } from './assets.js';
 const ANIM_INTERVAL = 0.1;
 
 export function drawBall(ctx, ball, player, npc) {
+  if (player.hasBall || npc.hasBall) return;
   // 날아가는 중엔 animTime 기준으로 두 이미지 교대, 정지 시 ball_basic 고정
   const frameIndex = ball.flying
     ? Math.floor(ball.animTime / ANIM_INTERVAL) % 2

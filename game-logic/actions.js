@@ -13,10 +13,11 @@ export function catchBall() {
 
 export function doThrow(from, tx, ty, spd, who) {
   const { ball } = state;
-  const dx = tx - from.x, dy = ty - from.y, d = Math.hypot(dx, dy) || 1;
+  const oy = from.spriteCenterY ?? from.y;
+  const dx = tx - from.x, dy = ty - oy, d = Math.hypot(dx, dy) || 1;
   const offset = from.r + ball.r + 10;
   ball.x = from.x + (dx / d) * offset;
-  ball.y = from.y + (dy / d) * offset;
+  ball.y = oy + (dy / d) * offset;
   ball.vx = (dx / d) * spd;
   ball.vy = (dy / d) * spd;
   ball.owner = null;
