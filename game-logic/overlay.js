@@ -68,6 +68,7 @@ export function hideOverlay() {
   ov.style.display = 'none';
   ov.innerHTML = '';
   ov.className = '';
+  document.getElementById('ui').style.display = 'flex';
 }
 
 // 후속 작업에서 게임 로직이 읽을 수 있도록 노출 (현재는 미사용).
@@ -81,6 +82,7 @@ function paint(html, variant) {
   ov.innerHTML = html;
   ov.className = `ov ov-${variant}`;
   ov.style.display = 'flex';
+  document.getElementById('ui').style.display = 'none';
 }
 
 // 1) 최초 시작 화면 — tower.png + 진도 대사
