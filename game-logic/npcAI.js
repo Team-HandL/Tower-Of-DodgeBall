@@ -3,10 +3,22 @@ import { STATUS } from './status.js';
 import { moveEntity, dist, hasLOS } from './physics.js';
 import { doThrow, pickUpBall } from './actions.js';
 
-/** 이동 방향 벡터로 NPC facing 갱신 */
+// facing 평활 계수: 한 프레임에 목표 방향으로 이만큼만 회전(0~1).
+// 작을수록 안정적이지만 방향 전환이 느려진다. 장애물에 막혀 희망 방향이
+// 매 프레임 정반대로 뒤집혀도(±x 교번) 평활된 벡터는 거의 안 움직이므로
+// left↔right 스프라이트 깜빡임이 사라진다.
+const FACING_SMOOTH = 0.18;
+
+/** 이동 방향 벡터로 NPC facing 갱신 (지수 평활) */
 function setFacing(entity, dx, dy) {
   const d = Math.hypot(dx, dy);
-  if (d > 0.001) entity.facing = { x: dx / d, y: dy / d };
+  if (d <= 0.001) return;
+  const tx = dx / d, ty = dy / d;
+  const f = entity.facing ?? { x: tx, y: ty };
+  const sx = f.x + (tx - f.x) * FACING_SMOOTH;
+  const sy = f.y + (ty - f.y) * FACING_SMOOTH;
+  const sd = Math.hypot(sx, sy) || 1;
+  entity.facing = { x: sx / sd, y: sy / sd };
 }
 
 function calcBallDodgeDir() {
