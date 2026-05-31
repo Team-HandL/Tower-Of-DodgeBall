@@ -31,7 +31,7 @@ const IMG = './design/assets/images';
 const FLOORS = {
   4: {
     title: '4F — 축구선수',
-    sprite: 'soccer_front',
+    sprite: 'soccer/soccer_front_1',
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
       '이상한 안드로이드잖아. 축구를 하는 안드로이드로 개조해주겠어.',
@@ -139,7 +139,7 @@ function startRound() {
 // 3) 패배 화면 — 시간 초과 / HP 패배 분기 + 2개 재시작 옵션
 function renderDefeat(reason) {
   const data = FLOORS[flow.floor] ?? {
-    title: `${flow.floor}F`, sprite: 'soccer_front',
+    title: `${flow.floor}F`, sprite: 'soccer/soccer_front_1',
     timeoutLine: '시간이 다 됐군.', defeatLine: '여기까지인가.',
   };
   const isTimeout = reason === 'timeout';

@@ -12,10 +12,8 @@ export function getFacingKey(facing) {
 export function loadAssets() {
   const dirs = ['back', 'front', 'left', 'right'];
   const jindoKeys = dirs.flatMap(d => [1, 2, 3, 4].flatMap(f => [`jindo_${d}_${f}`, `jindo_ball_${d}_${f}`]));
-  const rootKeys = [
-    'soccer_back', 'soccer_front', 'soccer_left', 'soccer_right',
-    'ball_basic', 'ball_180',
-  ];
+  const soccerKeys = dirs.flatMap(d => [1, 2, 3, 4].flatMap(f => [`soccer_${d}_${f}`, `soccer_ball_${d}_${f}`]));
+  const rootKeys = ['ball_basic', 'ball_180'];
   const load = (key, path) => new Promise(resolve => {
     const img = new Image();
     img.onload  = () => { IMGS[key] = img; resolve(); };
@@ -24,6 +22,7 @@ export function loadAssets() {
   });
   return Promise.all([
     ...jindoKeys.map(k => load(k, `./design/assets/images/jindo/${k}.png`)),
+    ...soccerKeys.map(k => load(k, `./design/assets/images/soccer/${k}.png`)),
     ...rootKeys.map(k => load(k, `./design/assets/images/${k}.png`)),
   ]);
 }

@@ -67,7 +67,10 @@ function loop(ts) {
   state.timer -= dt;
   if (state.timer <= 0) { state.timer = 0; endGame('timeout'); return; }
 
+  npc.isMoving = false;
   updateNPC(dt);
+  if (npc.isMoving) npc.animTime += dt;
+  else npc.animTime = 0;
   const result = updateBall(dt);
   if (result) { endGame(result); return; }
 

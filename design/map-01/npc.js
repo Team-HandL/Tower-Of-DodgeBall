@@ -2,6 +2,7 @@ import { IMGS, getFacingKey } from '../assets.js';
 
 const SIZE = 96;
 const FOOT_OFFSET = 16; // (x,y) 충돌 중심 기준 발 위치 (양수 = 아래)
+const WALK_FRAME_DUR = 0.12;
 
 export function drawNPC(ctx, npc) {
   const groggy = npc.grogyTime > 0;
@@ -10,7 +11,9 @@ export function drawNPC(ctx, npc) {
 
   const facing = npc.facing ?? { x: -1, y: 0 };
   const dir = getFacingKey(facing);
-  const img = IMGS[`soccer_${dir}`];
+  const prefix = npc.hasBall ? 'soccer_ball' : 'soccer';
+  const frameIdx = npc.isMoving ? (Math.floor(npc.animTime / WALK_FRAME_DUR) % 4) + 1 : 1;
+  const img = IMGS[`${prefix}_${dir}_${frameIdx}`];
 
   const spriteTop = npc.y + FOOT_OFFSET - SIZE;
 
