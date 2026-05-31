@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { BASE } from './status.js';
+import { BASE, setNextNPCStats } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
 
@@ -31,7 +31,8 @@ const IMG = './design/assets/images';
 const FLOORS = {
   4: {
     title: '4F — 축구선수',
-    sprite: 'soccer/soccer_front_1',
+    sprite: 'soccer/soccer_portrait',
+    stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
       '이상한 안드로이드잖아. 축구를 하는 안드로이드로 개조해주겠어.',
@@ -132,6 +133,8 @@ function renderFloorIntro() {
 }
 
 function startRound() {
+  const data = FLOORS[flow.floor];
+  if (data?.stats) setNextNPCStats(data.stats);
   hideOverlay();
   flow.startGameFn();
 }

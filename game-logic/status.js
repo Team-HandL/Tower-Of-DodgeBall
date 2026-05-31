@@ -8,7 +8,14 @@ export const STATUS = {
   npc:    { ...BASE.npc },
 };
 
+let _pendingNpcStats = null;
+
+export function setNextNPCStats(stats) {
+  _pendingNpcStats = stats;
+}
+
 export function initStatus() {
   STATUS.player = { ...BASE.player };
-  STATUS.npc    = { ...BASE.npc };
+  STATUS.npc    = _pendingNpcStats ? { ...BASE.npc, ..._pendingNpcStats } : { ...BASE.npc };
+  _pendingNpcStats = null;
 }
