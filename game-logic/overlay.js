@@ -231,8 +231,16 @@ function renderVictory() {
       else if (key === 'catchRange') flow.buffs.catchRange += 0.3;
       else if (key === 'moveSpeed') flow.buffs.moveSpeed += 0.2;
 
-      const next = flow.floor + 1;
-      flow.floor = FLOORS[next] ? next : flow.floor; // 다음 층 없으면 데모로 같은 층 반복
+      // TODO: 층을 1,2,3,4,5 모두 구현 후 아래 코드로 교체
+      // const next = flow.floor + 1;
+      // flow.floor = FLOORS[next] ? next : flow.floor; 
+
+      // 정의된 층 번호 중 현재보다 큰 다음 층으로 이동 (1F → 4F 처럼 비연속 가능).
+      const next = Object.keys(FLOORS)
+        .map(Number)
+        .filter(f => f > flow.floor)
+        .sort((a, b) => a - b)[0];
+      flow.floor = next ?? flow.floor; // 다음 층 없으면 데모로 같은 층 반복
       renderFloorIntro();
     };
   });
