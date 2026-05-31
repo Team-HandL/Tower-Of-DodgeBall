@@ -34,7 +34,7 @@ const FLOORS = {
     title: '1F — 너드',
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
-    stats: { hp: 120, str: 100, spd: 150, velocity: 500 },
+    stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
     introLines: [
       '어... 안녕.',
       '피구는 간단해. 공을 맞히면 데미지!\n상대 체력을 먼저 0으로 만들면 이겨.\n이동은 WASD, 조준은 마우스.\n좌클릭(또는 스페이스)으로 공을 줍고, 던지고, 캐치까지 다 할 수 있어.',
