@@ -1,4 +1,4 @@
-import { state } from './state.js';
+import { state, setNextNPCSprite } from './state.js';
 import { BASE, setNextNPCStats } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
@@ -26,16 +26,32 @@ export function updateHPUI() {
 
 const IMG = './design/assets/images';
 
-// 층별 컨셉/대사. 지금은 4층(축구선수) 데이터만 있습니다.
-// (1층 데이터가 준비되면 1: {...} 추가 후 INITIAL_FLOOR를 1로 바꾸세요.)
+// 층별 컨셉/대사.
+// npcSprite: 인게임 스프라이트 시트 prefix. stats.spd는 NPC 이동속도
+// (player 기본 spd = 150). nerd는 player와 동일한 150, soccer는 더 빠른 200.
 const FLOORS = {
+  1: {
+    title: '1F — 너드',
+    sprite: 'nerd/nerd_portrait',
+    npcSprite: 'nerd',
+    stats: { hp: 120, str: 100, spd: 150, velocity: 500 },
+    introLines: [
+      '어... 안녕.',
+      '피구는 간단해. 공을 맞히면 데미지!\n상대 체력을 먼저 0으로 만들면 이겨.\n이동은 WASD, 조준은 마우스.\n좌클릭(또는 스페이스)으로 공을 줍고, 던지고, 캐치까지 다 할 수 있어.',
+      '탑 어딘가에... 피구에 미친 안드로이드가 있다던데?\n대체 어떤 로직으로 공을 피하고 던지는 건지 너무 궁금해!',
+    ],
+    timeoutLine: '시간이 다 됐네!\n날 못 쓰러뜨렸구나.\n뭐, 데이터는 충분히 봤으니 난 만족이야.',
+    defeatLine: '어라, 너 쓰러졌어?\n실력 없는 나한테 지다니...\n다시 도전해봐, 응원할게!',
+    victoryLine: '우와, 역시!\n너의 그 회피 패턴, 잘 기록해뒀어.\n그럼 안녕.',
+  },
   4: {
     title: '4F — 축구선수',
     sprite: 'soccer/soccer_portrait',
+    npcSprite: 'soccer',
     stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
-      '이상한 안드로이드잖아. 축구를 하는 안드로이드로 개조해주겠어.',
+      '이상한 안드로이드잖아.\n축구를 하는 안드로이드로 개조해주겠어.',
       '다음 층으로 가는 건 네가 아니라 나다.',
     ],
     timeoutLine: '시간 안에 끝내지도 못하다니. 스피드가 부족하군.',
@@ -44,7 +60,7 @@ const FLOORS = {
   },
 };
 
-const INITIAL_FLOOR = 4; // 임시. 1층 컨텐츠가 준비되면 1로.
+const INITIAL_FLOOR = 1;
 
 const flow = {
   floor: INITIAL_FLOOR,
@@ -135,6 +151,7 @@ function renderFloorIntro() {
 function startRound() {
   const data = FLOORS[flow.floor];
   if (data?.stats) setNextNPCStats(data.stats);
+  if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
   hideOverlay();
   flow.startGameFn();
 }

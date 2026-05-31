@@ -11,7 +11,8 @@ export function drawNPC(ctx, npc) {
 
   const facing = npc.facing ?? { x: -1, y: 0 };
   const dir = getFacingKey(facing);
-  const prefix = npc.hasBall ? 'soccer_ball' : 'soccer';
+  const base = npc.sprite ?? 'soccer';
+  const prefix = npc.hasBall ? `${base}_ball` : base;
   const frameIdx = npc.isMoving ? (Math.floor(npc.animTime / WALK_FRAME_DUR) % 4) + 1 : 1;
   const img = IMGS[`${prefix}_${dir}_${frameIdx}`];
 

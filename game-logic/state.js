@@ -14,11 +14,20 @@ export const state = {
   last: null,
 };
 
+// 다음 라운드에 스폰할 NPC의 스프라이트 시트 prefix (예: 'soccer', 'nerd').
+// 층 진입 시 overlay가 설정하며, initState가 npc.sprite로 적용한다.
+let _pendingNpcSprite = 'soccer';
+
+export function setNextNPCSprite(key) {
+  _pendingNpcSprite = key;
+}
+
 export function initState() {
   initStatus();
   state.player = { x: 80,  y: 300, r: 16, hp: BASE.player.hp, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 }, isMoving: false, animTime: 0 };
   state.npc    = { x: 820, y: 300, r: 16, hp: BASE.npc.hp,    hasBall: false, invTime: 0, grogyTime: 0,
-                   state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 }, isMoving: false, animTime: 0 };
+                   state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 }, isMoving: false, animTime: 0,
+                   sprite: _pendingNpcSprite };
   state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0 };
   state.keys   = {};
   state.timer  = 180;
