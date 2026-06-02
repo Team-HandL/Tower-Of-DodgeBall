@@ -22,34 +22,37 @@ python3 -m http.server 8080
 
 | 키 | 동작 |
 |---|---|
-| 방향키 | 이동 |
-| Z / ㅋ | 공 줍기 / 잡기 |
-| X / ㅌ | 공 던지기 |
+| W / A / S / D | 이동 |
+| 마우스 이동 | 조준 방향 설정 |
+| 마우스 클릭 / Space | 공 줍기 / 던지기 / 캐치 |
 
 ---
 
 ### 파일 구조
 
 ```
-index.html              HTML 구조 + CSS 스타일, 엔트리포인트
-game-logic.js           게임 루프, startGame, endGame, 부트스트랩
-
-game-logic/             게임 로직 모듈
-  state.js              게임 상태 객체(player, npc, ball, keys)와 상수(W, H, SPD)
-  physics.js            충돌 판정, 이동, 시야선(LOS) 계산 유틸리티
-  actions.js            공 던지기(doThrow), 줍기(pickUpBall), 피격(applyHit)
-  npcAI.js              NPC 상태머신 — 조준/회피/추적/대기 로직
-  ballPhysics.js        공 이동, 장애물/벽 반사, 명중 판정 (승패 반환)
-  overlay.js            HP UI 업데이트, 시작/승리/패배 오버레이 DOM 관리
-  input.js              키보드 이벤트 바인딩
-  renderer.js           매 프레임 캔버스 렌더링 (맵 + 캐릭터 + 공)
-
-design/                 그래픽 모듈
-  ball.js               공 그리기 (궤적 가이드선 포함)
-  player.js             플레이어 캐릭터 그리기 (그로기 바, 힌트 텍스트)
-  map-01/               맵 구성 요소
-    background.js       배경 그리기 (그리드, 중앙선)
-    obstacles.js        장애물 위치/크기 데이터
-    npc.js              NPC 캐릭터 그리기
+.
+├── index.html                  # HTML 구조, CSS 스타일, 게임 엔트리포인트
+├── game-logic.js               # 게임 루프, 시작/종료 처리, 모듈 부트스트랩
+├── game-logic/
+│   ├── state.js                # 게임 상태 객체와 기본 상수
+│   ├── status.js               # 플레이어/NPC 능력치와 층별 스탯 초기화
+│   ├── input.js                # 키보드/마우스 입력 바인딩
+│   ├── actions.js              # 공 줍기, 던지기, 캐치, 피격 처리
+│   ├── physics.js              # 이동, 충돌, 거리, 시야선 계산 유틸리티
+│   ├── npcAI.js                # NPC 조준, 회피, 추적, 대기 상태머신
+│   ├── ballPhysics.js          # 공 이동, 반사, 감속, 명중 판정
+│   ├── overlay.js              # 시작/층 진입/승패/강화 오버레이 UI
+│   └── renderer.js             # 캔버스 렌더링
+└── design/
+    ├── assets.js               # 이미지 에셋 사전 로딩
+    ├── ball.js                 # 공과 궤적 가이드선 렌더링
+    ├── player.js               # 플레이어 캐릭터 렌더링
+    ├── map-01/
+    │   ├── background.js       # 맵 배경 렌더링
+    │   ├── obstacles.js        # 장애물 데이터와 렌더링
+    │   └── npc.js              # NPC 캐릭터 렌더링
+    └── assets/
+        ├── fonts/              # 게임 폰트
+        └── images/             # 캐릭터, 공, 탑 이미지
 ```
-test
