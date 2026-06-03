@@ -1,5 +1,5 @@
 import { state, setNextNPCSprite } from './state.js';
-import { BASE, setNextNPCStats } from './status.js';
+import { BASE, setNextNPCStats, applyBuffsToStatus } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
 
@@ -26,6 +26,14 @@ export function updateHPUI() {
 
 const IMG = './design/assets/images';
 
+// 업그레이드 카드 정의 — 새 카드 추가 시 여기에만 항목 추가
+// key는 status.js의 BUFF_STAT 키와 일치해야 함
+const CARDS = [
+  { key: 'str',        emoji: '💪', title: '힘 강화',      desc: '데미지',  amount: 0.2 },
+  { key: 'moveSpeed',  emoji: '⚡', title: '이동속도 강화', desc: '이동속도', amount: 0.2 },
+  { key: 'throwPower', emoji: '💥', title: '투척 강화',    desc: '공 속도', amount: 0.2 },
+];
+
 // 층별 컨셉/대사.
 // npcSprite: 인게임 스프라이트 시트 prefix. stats.spd는 NPC 이동속도
 // (player 기본 spd = 150). nerd는 player와 동일한 150, soccer는 더 빠른 200.
@@ -34,6 +42,7 @@ const FLOORS = {
     title: '1F — 너드',
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
+    hasCards: true,
     stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
     introLines: [
       '어... 안녕.',
@@ -48,6 +57,7 @@ const FLOORS = {
     title: '4F — 축구선수',
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
+    hasCards: true,
     stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
@@ -64,7 +74,7 @@ const INITIAL_FLOOR = 1;
 
 const flow = {
   floor: INITIAL_FLOOR,
-  buffs: { throwPower: 0, catchRange: 0, moveSpeed: 0 }, // 누적 비율 (0.2 = +20%)
+  buffs: Object.fromEntries(CARDS.map(c => [c.key, 0])),
   startGameFn: null,
 };
 
@@ -153,7 +163,8 @@ function startRound() {
   if (data?.stats) setNextNPCStats(data.stats);
   if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
   hideOverlay();
-  flow.startGameFn();
+  flow.startGameFn();             // → initState() → initStatus() (STATUS 초기화)
+  applyBuffsToStatus(flow.buffs); // 초기화 직후 누적 버프 재적용
 }
 
 // 3) 패배 화면 — 시간 초과 / HP 패배 분기 + 2개 재시작 옵션
@@ -185,7 +196,7 @@ function renderDefeat(reason) {
 
   document.getElementById('ov-retry-tower').onclick = () => {
     flow.floor = INITIAL_FLOOR;
-    flow.buffs = { throwPower: 0, catchRange: 0, moveSpeed: 0 };
+    flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
     renderFloorIntro();
   };
   document.getElementById('ov-retry-floor').onclick = () => {
@@ -193,54 +204,55 @@ function renderDefeat(reason) {
   };
 }
 
-// 4) 승리 화면 — 3개 카드 선택 (버프 누적)
+// 4) 승리 화면 — 카드 선택 (CARDS 데이터 기반)
 function renderVictory() {
   const data = FLOORS[flow.floor] ?? { title: `${flow.floor}F`, victoryLine: '클리어!' };
+
+  // hasCards가 false인 층은 카드 없이 바로 다음 층으로
+  if (!data.hasCards) {
+    paint(`
+      <div class="floor-title">${data.title}</div>
+      <h2 class="result-headline win">🎉 클리어!</h2>
+      <p class="result-sub">${esc(data.victoryLine)}</p>
+      <button class="ov-btn primary" id="ov-next-floor">다음 층으로 ▸</button>
+    `, 'victory');
+    document.getElementById('ov-next-floor').onclick = () => {
+      const next = Object.keys(FLOORS).map(Number).filter(f => f > flow.floor).sort((a, b) => a - b)[0];
+      flow.floor = next ?? flow.floor;
+      renderFloorIntro();
+    };
+    return;
+  }
+
+  const cardHtml = CARDS.map(c => `
+    <button class="upgrade-card" data-buff="${c.key}">
+      <div class="card-emoji">${c.emoji}</div>
+      <div class="card-title">${c.title}</div>
+      <div class="card-desc">${c.desc} <b>+${Math.round(c.amount * 100)}%</b></div>
+    </button>
+  `).join('');
+
+  const accumulated = CARDS.filter(c => flow.buffs[c.key] > 0)
+    .map(c => `${c.desc} +${pct(flow.buffs[c.key])}%`).join(' · ');
 
   paint(`
     <div class="floor-title">${data.title}</div>
     <h2 class="result-headline win">🎉 클리어!</h2>
     <p class="result-sub">${esc(data.victoryLine)}</p>
     <p class="card-hint">강화할 능력 하나를 선택하세요</p>
-    <div class="card-row">
-      <button class="upgrade-card" data-buff="throwPower">
-        <div class="card-emoji">💥</div>
-        <div class="card-title">투척 강화</div>
-        <div class="card-desc">파워 <b>+20%</b></div>
-      </button>
-      <button class="upgrade-card" data-buff="catchRange">
-        <div class="card-emoji">🧤</div>
-        <div class="card-title">캐치 확대</div>
-        <div class="card-desc">판정 <b>+30%</b></div>
-      </button>
-      <button class="upgrade-card" data-buff="moveSpeed">
-        <div class="card-emoji">⚡</div>
-        <div class="card-title">이동속도 증대</div>
-        <div class="card-desc">달리기 <b>+20%</b></div>
-      </button>
-    </div>
-    <div class="buff-status">
-      누적 — 파워 +${pct(flow.buffs.throwPower)}% · 캐치 +${pct(flow.buffs.catchRange)}% · 속도 +${pct(flow.buffs.moveSpeed)}%
-    </div>
+    <div class="card-row">${cardHtml}</div>
+    <div class="buff-status">${accumulated ? `누적 — ${accumulated}` : '누적 없음'}</div>
   `, 'victory');
 
-  document.querySelectorAll('.upgrade-card').forEach(c => {
-    c.onclick = () => {
-      const key = c.dataset.buff;
-      if (key === 'throwPower') flow.buffs.throwPower += 0.2;
-      else if (key === 'catchRange') flow.buffs.catchRange += 0.3;
-      else if (key === 'moveSpeed') flow.buffs.moveSpeed += 0.2;
-
-      // TODO: 층을 1,2,3,4,5 모두 구현 후 아래 코드로 교체
-      // const next = flow.floor + 1;
-      // flow.floor = FLOORS[next] ? next : flow.floor; 
-
-      // 정의된 층 번호 중 현재보다 큰 다음 층으로 이동 (1F → 4F 처럼 비연속 가능).
+  document.querySelectorAll('.upgrade-card').forEach(btn => {
+    btn.onclick = () => {
+      const card = CARDS.find(c => c.key === btn.dataset.buff);
+      if (card) flow.buffs[card.key] = (flow.buffs[card.key] || 0) + card.amount;
       const next = Object.keys(FLOORS)
         .map(Number)
         .filter(f => f > flow.floor)
         .sort((a, b) => a - b)[0];
-      flow.floor = next ?? flow.floor; // 다음 층 없으면 데모로 같은 층 반복
+      flow.floor = next ?? flow.floor;
       renderFloorIntro();
     };
   });
