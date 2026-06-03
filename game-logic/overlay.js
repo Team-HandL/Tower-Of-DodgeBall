@@ -68,6 +68,22 @@ const FLOORS = {
     defeatLine: '느려 터졌어. 축구부터 배우고 와라.',
     victoryLine: '...스피드 하나는 인정해주지.',
   },
+  5: {
+    title: '5F — 피구로이드',
+    // robot 폴더에는 portrait가 없어 정면 스프라이트를 초상으로 사용
+    sprite: 'robot/robot_front_1',
+    npcSprite: 'robot',
+    isFinal: true,                  // 마지막 층: 승리 시 엔딩 오버레이
+    stats: { hp: 150, str: 110, spd: 220, velocity: 560 },
+    introLines: [
+      '누구야..? 드디어 여기까지 올라왔구나.',
+      '나는 피구로이드.\n피구 하나만 보고 만들어진 안드로이드야.\n피하고, 받고, 던지는 건 누구한테도 안 져.',
+      '여기가 탑의 꼭대기야.\n가진 거 전부 보여줘 봐.\n날 이긴다면... 네가 진짜 최고인 거야.',
+    ],
+    timeoutLine: '시간 초과네.\n이번엔 날 못 이겼구나.\n다시 와서 도전해 봐.',
+    defeatLine: '아, 졌다...\n아직 정상은 좀 이른가 보네.',
+    victoryLine: '졌어...\n시스템... 정지...',
+  },
 };
 
 const INITIAL_FLOOR = 1;
@@ -208,6 +224,9 @@ function renderDefeat(reason) {
 function renderVictory() {
   const data = FLOORS[flow.floor] ?? { title: `${flow.floor}F`, victoryLine: '클리어!' };
 
+  // 마지막 층 클리어 → 엔딩 오버레이 (최종 스탯 표시, 다음 층 없음)
+  if (data.isFinal) { renderFinale(data); return; }
+
   // hasCards가 false인 층은 카드 없이 바로 다음 층으로
   if (!data.hasCards) {
     paint(`
@@ -256,6 +275,111 @@ function renderVictory() {
       renderFloorIntro();
     };
   });
+}
+
+// 5) 엔딩 화면 — 탑 정복 + 최종 스탯 (마지막 층 전용)
+// 최종 스탯은 BASE + 누적 버프(flow.buffs)로 결정적으로 계산한다.
+const FINAL_STATS = [
+  { emoji: '❤️', label: '체력',     base: BASE.player.hp,       buffKey: null },
+  { emoji: '💪', label: '힘',       base: BASE.player.str,      buffKey: 'str' },
+  { emoji: '⚡', label: '이동 속도', base: BASE.player.spd,      buffKey: 'moveSpeed' },
+  { emoji: '💥', label: '공 속도',   base: BASE.player.velocity, buffKey: 'throwPower' },
+];
+
+// 엔딩 컷신 — victoryLine(로봇 정지) → 칩 회수 → 칩 도난 → 스탯 화면.
+// 각 장면의 visual은 img(있으면 ${IMG}/<img>.png) 또는 emoji 플레이스홀더.
+// 실제 컷신 이미지가 생기면 emoji 대신 img 경로만 채우면 된다.
+function buildEndingScenes(data) {
+  return [
+    // 1) 피구로이드 정지 — 로봇 초상 + 마지막 대사
+    { img: data.sprite, speaker: '피구로이드', line: data.victoryLine },
+    // 2) 유저(진도)의 독백 — 칩 발견
+    { emoji: '💾', speaker: '진도', line: '저건... 칩?' },
+    // 3) 칩 회수 — 나레이션
+    { emoji: '🐾💾', line: '쓰러진 피구로이드의 머리에서 작은 칩을 빼냈다.\n완벽한 피구 로직의 정체가 이 안에...?' },
+    // 4) 칩 도난 — 나레이션 (열린 결말)
+    { emoji: '🥷💨', line: '그 순간, 누군가 칩을 낚아채 어둠 속으로 사라졌다...!' },
+    // 5) TO BE CONTINUED...
+    { line: 'TO BE CONTINUED...' },
+  ];
+}
+
+function renderFinale(data) {
+  renderEndingCutscene(data, () => renderFinaleStats(data));
+}
+
+function renderEndingCutscene(data, onDone) {
+  const scenes = buildEndingScenes(data);
+  let i = 0;
+
+  const render = () => {
+    const s = scenes[i];
+    const last = i >= scenes.length - 1;
+    const visual = s.img
+      ? `<img class="cine-img" src="${IMG}/${s.img}.png" alt=""/>`
+      : `<div class="cine-emoji">${s.emoji}</div>`;
+    const caption = s.speaker
+      ? `<div class="cine-caption speech"><span class="cine-speaker">${esc(s.speaker)}</span>${esc(s.line)}</div>`
+      : `<div class="cine-caption narr">${esc(s.line)}</div>`;
+    paint(`
+      <div class="floor-title">${data.title}</div>
+      <div class="cine-stage">
+        ${visual}
+        ${caption}
+      </div>
+      <button class="ov-btn primary" id="ov-cine-next">${last ? '엔딩 보기 ▸' : '다음 ▸'}</button>
+    `, 'cine');
+    document.getElementById('ov-cine-next').onclick = () => {
+      i++;
+      if (i >= scenes.length) onDone();
+      else render();
+    };
+  };
+  render();
+}
+
+function renderFinaleStats(data) {
+  const statHtml = FINAL_STATS.map(s => {
+    const buff  = s.buffKey ? (flow.buffs[s.buffKey] || 0) : 0;
+    const final = Math.round(s.base * (1 + buff));
+    const bonus = buff > 0 ? `<span class="stat-bonus">+${pct(buff)}%</span>` : '';
+    return `
+      <div class="stat-row">
+        <span class="stat-name">${s.emoji} ${s.label}</span>
+        <span class="stat-val">${final} ${bonus}</span>
+      </div>`;
+  }).join('');
+
+  const totalBuff = CARDS.reduce((n, c) => n + (flow.buffs[c.key] > 0 ? 1 : 0), 0);
+
+  const confetti = Array.from({ length: 24 }, (_, i) => {
+    const colors = ['#FFE3A0', '#FF8B8B', '#8BD3FF', '#B6FF8B', '#E0A0FF'];
+    const c = colors[i % colors.length];
+    const left = Math.round((i / 24) * 100);
+    const delay = (i % 8) * 0.35;
+    const dur = 2.6 + (i % 5) * 0.4;
+    return `<span class="confetti" style="left:${left}%;background:${c};animation-delay:${delay}s;animation-duration:${dur}s;"></span>`;
+  }).join('');
+
+  paint(`
+    <div class="confetti-layer">${confetti}</div>
+    <div class="floor-title">${data.title}</div>
+    <h2 class="result-headline win">🏆 탑 정복!</h2>
+    <p class="result-sub">피구의 정점에 올랐습니다. 모든 층을 클리어했어요!</p>
+    <p class="result-sub" style="margin-top:0;color:rgba(255,255,255,0.5)">…그런데 그 칩은, 대체 누가 가져간 걸까?</p>
+    <div class="final-panel">
+      <div class="final-panel-title">최종 스탯</div>
+      ${statHtml}
+      <div class="final-buff-count">획득한 강화 ${totalBuff}개</div>
+    </div>
+    <button class="ov-btn primary" id="ov-restart">처음부터 다시 도전</button>
+  `, 'finale');
+
+  document.getElementById('ov-restart').onclick = () => {
+    flow.floor = INITIAL_FLOOR;
+    flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
+    renderStart();
+  };
 }
 
 // 유틸 ──────────────────────────────────────────────────────────────
