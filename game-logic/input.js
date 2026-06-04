@@ -1,20 +1,19 @@
 import { state } from './state.js';
 import { STATUS } from './status.js';
 import { dist } from './physics.js';
-import { pickUpBall, doThrow, catchBall } from './actions.js';
+import { pickUpBall, catchBall, startPlayerCharge, releasePlayerCharge } from './actions.js';
 
-function doAction() {
+function tryInteract() {
   if (state.gameState !== 'playing') return;
   const { player, ball } = state;
   if (player.grogyTime > 0) return;
 
   const ballSpd = Math.hypot(ball.vx, ball.vy);
-  const { catchRange, catchMinSpd, velocity } = STATUS.player;
+  const { catchRange, catchMinSpd } = STATUS.player;
   const fastBounce1 = ball.flying && ball.bounces === 1 && ballSpd >= catchMinSpd;
 
   if (player.hasBall) {
-    const { facing } = player;
-    doThrow(player, player.x + facing.x * 1000, player.y + facing.y * 1000, velocity, 'player');
+    startPlayerCharge();
   } else if (ball.flying && ball.thrownBy === 'npc' &&
              (ball.bounces === 0 || fastBounce1) &&
              dist(ball, player) < ball.r + player.r + catchRange) {
@@ -37,13 +36,17 @@ export function setupInput() {
     state.mouse.y = e.clientY - rect.top;
   });
 
-  document.addEventListener('mousedown', () => doAction());
+  document.addEventListener('mousedown', () => tryInteract());
+  document.addEventListener('mouseup', () => releasePlayerCharge());
 
   document.addEventListener('keydown', e => {
     state.keys[e.code] = true;
     if (['Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) e.preventDefault();
-    if (e.code === 'Space') doAction();
+    if (e.code === 'Space' && !e.repeat) tryInteract();
   });
 
-  document.addEventListener('keyup', e => { state.keys[e.code] = false; });
+  document.addEventListener('keyup', e => {
+    state.keys[e.code] = false;
+    if (e.code === 'Space') releasePlayerCharge();
+  });
 }

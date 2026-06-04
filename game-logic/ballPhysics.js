@@ -76,8 +76,8 @@ export function updateBall(dt) {
   }
 
   const ballSpd = Math.hypot(ball.vx, ball.vy);
-  const attackerStr = ball.thrownBy ? STATUS[ball.thrownBy].str : 100;
-  const baseDmg = attackerStr * 0.4;
+  const attackerStr = ball.throwStr ?? (ball.thrownBy ? STATUS[ball.thrownBy].str : 100);
+  const baseDmg = attackerStr * 0.4 * (ball.power ?? 1);
   const damage = ball.flying && ball.bounces === 0 ? baseDmg
                : ball.flying && ball.bounces === 1 && ballSpd >= STATUS.player.catchMinSpd ? baseDmg * 0.5
                : 0;

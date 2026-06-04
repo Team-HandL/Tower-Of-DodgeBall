@@ -36,6 +36,16 @@ export function drawPlayer(ctx, player) {
     ctx.fillRect(bx, by, bw * (player.grogyTime / 0.7), bh);
   }
 
+  // 파워 게이지
+  if (player.charge?.active) {
+    const bw = 44, bh = 5, bx = player.x - bw / 2, by = spriteTop - 14;
+    const v = Math.max(0, Math.min(1, player.charge.value));
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+    ctx.fillStyle = v >= 1 ? '#FFF08A' : '#FFE35A';
+    ctx.fillRect(bx, by, bw * v, bh);
+  }
+
   ctx.globalAlpha = 1;
 
   // 던지기 방향 화살표 — 스프라이트 시각 중앙 기준

@@ -24,11 +24,13 @@ export function setNextNPCSprite(key) {
 
 export function initState() {
   initStatus();
-  state.player = { x: 80,  y: 300, r: 16, hp: BASE.player.hp, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 }, isMoving: false, animTime: 0 };
+  state.player = { x: 80,  y: 300, r: 16, hp: BASE.player.hp, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 }, isMoving: false, animTime: 0,
+                   charge: { active: false, value: 0 } };
   state.npc    = { x: 820, y: 300, r: 16, hp: BASE.npc.hp,    hasBall: false, invTime: 0, grogyTime: 0,
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 }, isMoving: false, animTime: 0,
                    sprite: _pendingNpcSprite };
-  state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0 };
+  state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0,
+                   power: 1, throwStr: BASE.player.str };
   state.keys   = {};
   state.timer  = 180;
   state.gameState = 'playing';

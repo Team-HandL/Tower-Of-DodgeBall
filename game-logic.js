@@ -6,6 +6,7 @@ import { updateBall } from './game-logic/ballPhysics.js';
 import { draw } from './game-logic/renderer.js';
 import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow } from './game-logic/overlay.js';
 import { setupInput } from './game-logic/input.js';
+import { updatePlayerCharge } from './game-logic/actions.js';
 import { loadAssets } from './design/assets.js';
 import { SPRITE_CENTER_OFFSET_Y } from './design/player.js';
 
@@ -52,6 +53,7 @@ function loop(ts) {
   }
   if (player.isMoving) player.animTime += dt;
   else player.animTime = 0;
+  updatePlayerCharge(dt);
 
   const mdx = state.mouse.x - player.x, mdy = state.mouse.y - player.y;
   const md = Math.hypot(mdx, mdy);

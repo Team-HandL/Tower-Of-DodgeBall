@@ -1,5 +1,6 @@
 export const BASE = {
-  player: { hp: 120, str: 100, spd: 150, velocity: 500, catchRange: 24, catchMinSpd: 200 },
+  player: { hp: 120, str: 100, spd: 150, velocity: 500, catchRange: 24, catchMinSpd: 200,
+            chargeRate: 0.85, minPower: 0.65, maxPower: 1.45 },
   npc:    { hp: 120, str: 100, spd: 150, velocity: 500 },
 };
 
