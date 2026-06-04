@@ -6,6 +6,11 @@ export const SPRITE_CENTER_OFFSET_Y = FOOT_OFFSET - SIZE / 2; // 물리 중심 �
 const ARROW_SIZE = SIZE / 3 + 6;
 const WALK_FRAME_DUR = 0.12;
 
+function hpColor(hpRate) {
+  const r = Math.max(0, Math.min(1, hpRate));
+  return `rgb(${Math.round(220 - 160 * r)},${Math.round(40 + 160 * r)},40)`;
+}
+
 export function drawPlayer(ctx, player) {
   const groggy = player.grogyTime > 0;
 
@@ -36,17 +41,26 @@ export function drawPlayer(ctx, player) {
     ctx.fillRect(bx, by, bw * (player.grogyTime / 0.7), bh);
   }
 
-  // 파워 게이지
-  if (player.charge?.active) {
-    const bw = 44, bh = 5, bx = player.x - bw / 2, by = spriteTop - 14;
-    const v = Math.max(0, Math.min(1, player.charge.value));
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
-    ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
-    ctx.fillStyle = v >= 1 ? '#FFF08A' : '#FFE35A';
-    ctx.fillRect(bx, by, bw * v, bh);
-  }
-
   ctx.globalAlpha = 1;
+
+  // 캐릭터 하단 상태 바: HP + 파워
+  {
+    const bw = 46, hpH = 4, powerH = 5;
+    const bx = player.x - bw / 2;
+    const by = spriteTop + SIZE + 2;
+    const hpRate = player.hp / (player.maxHp || 1);
+    const powerRate = player.charge?.active ? Math.max(0, Math.min(1, player.charge.value)) : 0;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(bx - 1, by - 1, bw + 2, hpH + powerH + 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(bx, by, bw, hpH);
+    ctx.fillRect(bx, by + hpH, bw, powerH);
+    ctx.fillStyle = hpColor(hpRate);
+    ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, hpRate)), hpH);
+    ctx.fillStyle = powerRate >= 1 ? '#FFF08A' : '#FFE35A';
+    ctx.fillRect(bx, by + hpH, bw * powerRate, powerH);
+  }
 
   // 던지기 방향 화살표 — 스프라이트 시각 중앙 기준
   const spriteCenterY = player.y + FOOT_OFFSET - SIZE / 2;
