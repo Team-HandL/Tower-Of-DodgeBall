@@ -41,11 +41,16 @@ export function updateBall(dt) {
   ball.vy *= drag;
 
   let bounced = false;
-  OBSTACLES.forEach(o => {
-    if (!rectHit(ball.x, ball.y, ball.r, o)) return;
-    resolveObstacle(ball, o);
+  for (let iter = 0; iter < 3; iter++) {
+    let hit = false;
+    OBSTACLES.forEach(o => {
+      if (!rectHit(ball.x, ball.y, ball.r, o)) return;
+      resolveObstacle(ball, o);
+      hit = true;
+    });
+    if (!hit) break;
     bounced = true;
-  });
+  }
 
   if (ball.x - ball.r < 0) {
     ball.vx  = Math.abs(ball.vx) * RESTITUTION;
