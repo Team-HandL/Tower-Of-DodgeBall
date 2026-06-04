@@ -1,4 +1,4 @@
-import { state, setNextNPCSprite } from './state.js';
+import { state, setNextNPCSprite, setNextNPCAI } from './state.js';
 import { BASE, setNextNPCStats, applyBuffsToStatus } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
@@ -12,10 +12,10 @@ export function updateHPUI() {
   const { player, npc } = state;
   const pb = document.getElementById('player-hp-bar');
   const nb = document.getElementById('npc-hp-bar');
-  pb.style.width      = `${(player.hp / BASE.player.hp) * 100}%`;
-  pb.style.background = hpColor(player.hp, BASE.player.hp);
-  nb.style.width      = `${(npc.hp / BASE.npc.hp) * 100}%`;
-  nb.style.background = hpColor(npc.hp, BASE.npc.hp);
+  pb.style.width      = `${(player.hp / player.maxHp) * 100}%`;
+  pb.style.background = hpColor(player.hp, player.maxHp);
+  nb.style.width      = `${(npc.hp / npc.maxHp) * 100}%`;
+  nb.style.background = hpColor(npc.hp, npc.maxHp);
   document.getElementById('player-hp-text').textContent = Math.round(player.hp);
   document.getElementById('npc-hp-text').textContent    = Math.round(npc.hp);
 }
@@ -44,6 +44,7 @@ const FLOORS = {
     npcSprite: 'nerd',
     hasCards: true,
     stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
+    ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, wallAwareness: 0.35 },
     introLines: [
       '어... 안녕.',
       '피구는 간단해. 공을 맞히면 데미지!\n상대 체력을 먼저 0으로 만들면 이겨.\n이동은 WASD, 조준은 마우스.\n좌클릭(또는 스페이스)으로 공을 줍고, 던지고, 캐치까지 다 할 수 있어.',
@@ -59,6 +60,7 @@ const FLOORS = {
     npcSprite: 'soccer',
     hasCards: true,
     stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
+    ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, wallAwareness: 0.75 },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
       '이상한 안드로이드잖아.\n축구를 하는 안드로이드로 개조해주겠어.',
@@ -75,6 +77,7 @@ const FLOORS = {
     npcSprite: 'robot',
     isFinal: true,                  // 마지막 층: 승리 시 엔딩 오버레이
     stats: { hp: 150, str: 110, spd: 220, velocity: 560 },
+    ai: { reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92, pickupGreed: 0.82, wallAwareness: 0.95 },
     introLines: [
       '누구야..? 드디어 여기까지 올라왔구나.',
       '나는 피구로이드.\n피구 하나만 보고 만들어진 안드로이드야.\n피하고, 받고, 던지는 건 누구한테도 안 져.',
@@ -178,6 +181,7 @@ function startRound() {
   const data = FLOORS[flow.floor];
   if (data?.stats) setNextNPCStats(data.stats);
   if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
+  if (data?.ai) setNextNPCAI(data.ai);
   hideOverlay();
   flow.startGameFn();             // → initState() → initStatus() (STATUS 초기화)
   applyBuffsToStatus(flow.buffs); // 초기화 직후 누적 버프 재적용

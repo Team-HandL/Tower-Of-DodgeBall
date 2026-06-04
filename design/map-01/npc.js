@@ -4,6 +4,11 @@ const SIZE = 96;
 const FOOT_OFFSET = 16; // (x,y) 충돌 중심 기준 발 위치 (양수 = 아래)
 const WALK_FRAME_DUR = 0.12;
 
+function hpColor(hpRate) {
+  const r = Math.max(0, Math.min(1, hpRate));
+  return `rgb(${Math.round(220 - 160 * r)},${Math.round(40 + 160 * r)},40)`;
+}
+
 export function drawNPC(ctx, npc) {
   const groggy = npc.grogyTime > 0;
 
@@ -37,4 +42,19 @@ export function drawNPC(ctx, npc) {
   }
 
   ctx.globalAlpha = 1;
+
+  // 캐릭터 하단 HP 바
+  {
+    const bw = 46, bh = 4;
+    const bx = npc.x - bw / 2;
+    const by = spriteTop + SIZE + 2;
+    const hpRate = npc.hp / (npc.maxHp || 1);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = hpColor(hpRate);
+    ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, hpRate)), bh);
+  }
 }
