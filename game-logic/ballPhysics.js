@@ -9,6 +9,7 @@ const FRICTION        = 0.80;
 const STOP_SPD        = 40;
 const AIR_DRAG        = 0.25;
 const BOUNCE_DRAG_INC = 0.20;
+const BLOCK_BREAK_THRESHOLD = 72; // 이 이상 데미지면 soft 블록 즉시 파괴
 
 function resolveObstacle(ball, o) {
   const left   = ball.x + ball.r - o.x;
@@ -50,7 +51,9 @@ export function updateBall(dt) {
       resolveObstacle(ball, o);
       if (o.type === 'soft' && !hitThisFrame.has(o)) {
         hitThisFrame.add(o);
-        o.hp = Math.max(0, o.hp - 1);
+        const ballDmg = (ball.throwStr ?? 100) * 0.4 * (ball.power ?? 1);
+        const blockDmg = ballDmg >= BLOCK_BREAK_THRESHOLD ? 2 : 1;
+        o.hp = Math.max(0, o.hp - blockDmg);
       }
       hit = true;
     });
