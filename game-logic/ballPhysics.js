@@ -41,11 +41,17 @@ export function updateBall(dt) {
   ball.vy *= drag;
 
   let bounced = false;
+  const hitThisFrame = new Set();
   for (let iter = 0; iter < 3; iter++) {
     let hit = false;
-    OBSTACLES.forEach(o => {
+    state.obstacles.forEach(o => {
+      if (o.hp <= 0) return;
       if (!rectHit(ball.x, ball.y, ball.r, o)) return;
       resolveObstacle(ball, o);
+      if (o.type === 'soft' && !hitThisFrame.has(o)) {
+        hitThisFrame.add(o);
+        o.hp = Math.max(0, o.hp - 1);
+      }
       hit = true;
     });
     if (!hit) break;

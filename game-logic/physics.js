@@ -1,4 +1,4 @@
-import { W, H } from './state.js';
+import { state, W, H } from './state.js';
 import { OBSTACLES } from '../design/map-01/obstacles.js';
 
 export function rectHit(x, y, r, o) {
@@ -6,7 +6,8 @@ export function rectHit(x, y, r, o) {
 }
 
 function obsBlock(nx, ny, r) {
-  return OBSTACLES.some(o => rectHit(nx, ny, r, o));
+  const obs = state.obstacles ?? OBSTACLES;
+  return obs.some(o => o.hp > 0 && rectHit(nx, ny, r, o));
 }
 
 function clamp(e) {

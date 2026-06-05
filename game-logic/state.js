@@ -1,4 +1,5 @@
 import { initStatus, BASE, STATUS } from './status.js';
+import { OBSTACLES } from '../design/map-01/obstacles.js';
 
 export const W = 1200, H = 800;
 export const SAFE_DIST = 250;
@@ -36,6 +37,7 @@ export function initState() {
                    sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null };
   state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0,
                    power: 1, throwStr: BASE.player.str };
+  state.obstacles = OBSTACLES.map(o => ({ ...o, hp: o.type === 'soft' ? 2 : Infinity }));
   state.keys   = {};
   state.timer  = 180;
   state.gameState = 'playing';

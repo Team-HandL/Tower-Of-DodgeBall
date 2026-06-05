@@ -94,15 +94,4 @@ export function drawBackground(ctx, W, H) {
     }
   }
 
-  // ── 3. 코트 중앙 경계선 ──────────────────────────────────
-  ctx.save();
-  ctx.strokeStyle = 'rgba(200,200,200,0.22)';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([9, 5]);
-  ctx.beginPath();
-  ctx.moveTo(W / 2, 0);
-  ctx.lineTo(W / 2, H);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
 }

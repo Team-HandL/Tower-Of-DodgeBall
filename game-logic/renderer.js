@@ -8,7 +8,11 @@ import { drawPlayer } from '../design/player.js';
 function drawMap(ctx) {
   drawBackground(ctx, W, H);
   OBSTACLE_GROUPS.forEach(group =>
-    group.forEach(({ c, r }) => drawBlock(ctx, c, r))
+    group.forEach(({ c, r }) => {
+      const obs = state.obstacles?.find(o => o.c === c && o.r === r);
+      const hp = obs ? obs.hp : Infinity;
+      drawBlock(ctx, c, r, hp);
+    })
   );
 }
 
