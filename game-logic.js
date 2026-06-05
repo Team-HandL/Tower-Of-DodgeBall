@@ -1,4 +1,4 @@
-import { state, initState } from './game-logic/state.js';
+import { state, initState, W, H } from './game-logic/state.js';
 import { STATUS } from './game-logic/status.js';
 import { moveEntity } from './game-logic/physics.js';
 import { updateNPC } from './game-logic/npcAI.js';
@@ -14,6 +14,9 @@ import { SPRITE_CENTER_OFFSET_Y } from './design/player.js';
 loadAssets();
 
 const canvas = document.getElementById('gameCanvas');
+canvas.width  = W;
+canvas.height = H;
+document.getElementById('ui').style.width = `${W}px`;
 const ctx = canvas.getContext('2d');
 
 function endGame(result) {

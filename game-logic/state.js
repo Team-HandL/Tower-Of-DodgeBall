@@ -1,6 +1,6 @@
 import { initStatus, BASE, STATUS } from './status.js';
 
-export const W = 900, H = 600;
+export const W = 1200, H = 800;
 export const SAFE_DIST = 250;
 
 export const state = {
