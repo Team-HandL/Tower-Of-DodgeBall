@@ -36,7 +36,7 @@ export function initState() {
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 }, isMoving: false, animTime: 0,
                    sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null };
   state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0,
-                   power: 1, throwStr: BASE.player.str };
+                   power: 1, throwStr: BASE.player.str, throwSpd: 0 };
   state.obstacles = OBSTACLES.map(o => ({ ...o, hp: o.type === 'soft' ? 2 : Infinity }));
   state.keys   = {};
   state.timer  = 180;

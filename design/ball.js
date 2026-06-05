@@ -13,20 +13,11 @@ export function drawBall(ctx, ball, player, npc) {
   const img = IMGS[imgKey];
 
   if (img) {
-    const ballDead = ball.flying && ball.bounces > 1;
-    ctx.save();
-    if (ballDead) {
-      ctx.globalAlpha = 0.55;
-      ctx.filter = 'grayscale(70%)';
-    }
     const size = ball.r * 2;
     ctx.drawImage(img, ball.x - ball.r, ball.y - ball.r, size, size);
-    ctx.restore();
   } else {
-    // 이미지 로드 전 폴백: 원으로 표시
-    const ballDead = ball.flying && ball.bounces > 1;
-    ctx.fillStyle = ballDead ? '#888888' : '#FFFFFF';
-    ctx.strokeStyle = ballDead ? '#666666' : '#CCCCCC';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#CCCCCC';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);

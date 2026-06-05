@@ -44,6 +44,7 @@ export function doThrow(from, tx, ty, spd, who, power = 1) {
   ball.bounces = 0;
   ball.power = power;
   ball.throwStr = STATUS[who]?.str ?? BASE.player.str;
+  ball.throwSpd = spd;
   from.hasBall = false;
   if (from.charge) {
     from.charge.active = false;
