@@ -67,18 +67,25 @@ export function drawBlock(ctx, col, row, hp = Infinity) {
   const th = TILE - GAP * 2;
 
   const s = col * 41 + row * 97; // 블록별 고유 시드
+  const isHard = hp === Infinity;
 
-  // 명도 변화 — 바닥 타일보다 밝게 (raised 느낌)
+  // 명도 변화
   const tone = Math.floor(rand(s) * 22) - 11;
-  const base = 148 + tone; // 137 ~ 159
 
-  // ① 본체 (밝은 회색 돌)
-  ctx.fillStyle = `rgb(${base},${base - 2},${base - 4})`;
+  // ① 본체
+  // hard: 차가운 회색 돌 / soft: 따뜻한 갈색 벽돌 계열
+  if (isHard) {
+    const base = 148 + tone;
+    ctx.fillStyle = `rgb(${base},${base - 2},${base - 4})`;
+  } else {
+    const br = 155 + tone, bg = 118 + tone, bb = 85 + tone;
+    ctx.fillStyle = `rgb(${br},${bg},${bb})`;
+  }
   ctx.beginPath();
-  ctx.roundRect(tx, ty, tw, th, 3);
+  ctx.roundRect(tx, ty, tw, th, isHard ? 3 : 2);
   ctx.fill();
 
-  // ② 표면 얼룩 (불규칙 패치)
+  // ② 표면 얼룩
   for (let p = 0; p < 2; p++) {
     const px = tx + 4 + Math.floor(rand(s + 1 + p * 11) * (tw - 8));
     const py = ty + 4 + Math.floor(rand(s + 2 + p * 11) * (th - 8));
@@ -89,6 +96,16 @@ export function drawBlock(ctx, col, row, hp = Infinity) {
     ctx.beginPath();
     ctx.ellipse(px, py, pr, pr * 0.65, rand(s + 6 + p * 11) * Math.PI, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  // soft 블록 — 벽돌 줄눈 라인 (가로 중앙선)
+  if (!isHard) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty + th / 2);
+    ctx.lineTo(tx + tw, ty + th / 2);
+    ctx.stroke();
   }
 
   // ③ 균열 — 약 60% 확률 (꺾인 2선분)
@@ -126,27 +143,52 @@ export function drawBlock(ctx, col, row, hp = Infinity) {
   ctx.roundRect(tx, ty, tw, th, 3);
   ctx.stroke();
 
-  // ⑦ 금간 상태 오버레이 (hp === 1)
+  // ⑦ 금간 상태 오버레이 (hp === 1) — 중앙 거미줄형 균열
   if (hp === 1) {
-    ctx.fillStyle = 'rgba(60,10,0,0.30)';
+    ctx.fillStyle = 'rgba(40,8,0,0.28)';
     ctx.fillRect(tx, ty, tw, th);
-    ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-    ctx.lineWidth = 1.8;
+
+    // 균열 중심점 (타일 중앙에서 시드 기반 미세 이동)
+    const cx = tx + tw * (0.42 + rand(s + 60) * 0.16);
+    const cy = ty + th * (0.42 + rand(s + 61) * 0.16);
+
+    // 메인 균열 5갈래
+    const branches = [
+      { ax: rand(s+62)*0.3,      ay: rand(s+63)*0.25,      bx: -rand(s+64)*0.15,  by: rand(s+65)*0.1   }, // 좌상
+      { ax: 0.6+rand(s+66)*0.35, ay: rand(s+67)*0.2,       bx: rand(s+68)*0.1,    by: -rand(s+69)*0.15 }, // 우상
+      { ax: rand(s+70)*0.2,      ay: 0.65+rand(s+71)*0.3,  bx: -rand(s+72)*0.12,  by: rand(s+73)*0.1   }, // 좌하
+      { ax: 0.7+rand(s+74)*0.28, ay: 0.6+rand(s+75)*0.35,  bx: rand(s+76)*0.08,   by: rand(s+77)*0.12  }, // 우하
+      { ax: 0.4+rand(s+78)*0.2,  ay: rand(s+79)*0.18,      bx: rand(s+80)*0.1,    by: -rand(s+81)*0.08 }, // 상중
+    ];
+
+    branches.forEach((b, i) => {
+      const ex = tx + tw * b.ax, ey = ty + th * b.ay;
+      // 중간 꺾임점
+      const mx = (cx + ex) / 2 + tw * b.bx;
+      const my = (cy + ey) / 2 + th * b.by;
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.80)';
+      ctx.lineWidth = 1.4 - i * 0.08;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+
+      // 하이라이트 (균열 옆 밝은 선)
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(cx + 0.8, cy + 0.8);
+      ctx.lineTo(mx + 0.8, my + 0.8);
+      ctx.lineTo(ex + 0.8, ey + 0.8);
+      ctx.stroke();
+    });
+
+    // 중심점 강조
+    ctx.fillStyle = 'rgba(0,0,0,0.70)';
     ctx.beginPath();
-    ctx.moveTo(tx + tw * 0.25, ty + 2);
-    ctx.lineTo(tx + tw * 0.45, ty + th * 0.55);
-    ctx.lineTo(tx + tw * 0.70, ty + th * 0.85);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(tx + tw * 0.55, ty + th * 0.15);
-    ctx.lineTo(tx + tw * 0.30, ty + th * 0.50);
-    ctx.lineTo(tx + tw * 0.60, ty + th - 2);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-    ctx.lineWidth = 0.8;
-    ctx.beginPath();
-    ctx.moveTo(tx + tw * 0.26, ty + 3);
-    ctx.lineTo(tx + tw * 0.46, ty + th * 0.56);
-    ctx.stroke();
+    ctx.arc(cx, cy, 1.5, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
