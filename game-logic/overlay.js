@@ -102,8 +102,7 @@ const FLOORS = {
   },
   5: {
     title: '5F — 피구로이드',
-    // robot 폴더에는 portrait가 없어 정면 스프라이트를 초상으로 사용
-    sprite: 'robot/robot_front_1',
+    sprite: 'robot/robot_portrait',
     npcSprite: 'robot',
     isFinal: true,                  // 마지막 층: 승리 시 엔딩 오버레이
     stats: { hp: 150, str: 110, spd: 220, velocity: 560 },
@@ -185,25 +184,37 @@ function renderStart() {
 }
 
 // 2) 층 진입 화면 — NPC 대화 연출
+// 하단 풀폭 대사 바 + 우측 스프라이트, 좌우 흰색 삼각형 화살표로 대사 이동.
 function renderFloorIntro() {
   const data = FLOORS[flow.floor];
   if (!data) { startRound(); return; }
+  const speaker = (data.title.split('—')[1] || '').trim();
   let idx = 0;
 
   const render = () => {
-    const last = idx >= data.introLines.length - 1;
+    const total = data.introLines.length;
+    const last  = idx >= total - 1;
+    const first = idx === 0;
+    const dots  = data.introLines
+      .map((_, i) => `<span class="dot${i === idx ? ' on' : ''}"></span>`)
+      .join('');
     paint(`
-      <div class="floor-title">${data.title}</div>
-      <div class="npc-stage">
-        <img class="npc-portrait" src="${IMG}/${data.sprite}.png" alt=""/>
-        <div class="bubble">${esc(data.introLines[idx])}</div>
+      <div class="intro-floor-title">${data.title}</div>
+      <button class="intro-nav left${first ? ' hidden' : ''}" id="ov-prev" aria-label="이전">◀</button>
+      <button class="intro-nav right" id="ov-next" aria-label="${last ? '도전 시작' : '다음'}">▶${last ? '<span class="nav-label">도전 시작</span>' : ''}</button>
+      <div class="intro-bottom">
+        <img class="intro-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
+        <div class="intro-dialogue">
+          ${speaker ? `<div class="intro-speaker">${esc(speaker)}</div>` : ''}
+          <div class="intro-text">${esc(data.introLines[idx])}</div>
+          <div class="intro-dots">${dots}</div>
+        </div>
       </div>
-      <button class="ov-btn primary" id="ov-next">${last ? '도전 시작' : '다음 ▸'}</button>
     `, 'intro');
+    document.getElementById('ov-prev').onclick = () => { if (idx > 0) { idx--; render(); } };
     document.getElementById('ov-next').onclick = () => {
-      idx++;
-      if (idx >= data.introLines.length) startRound();
-      else render();
+      if (last) startRound();
+      else { idx++; render(); }
     };
   };
   render();
