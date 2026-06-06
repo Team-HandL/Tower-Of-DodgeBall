@@ -11,6 +11,7 @@ const STOP_SPD        = 40;
 const AIR_DRAG        = 0.25;
 const BOUNCE_DRAG_INC = 0.20;
 const BLOCK_BREAK_THRESHOLD = 72; // 이 이상 데미지면 soft 블록 즉시 파괴
+const BLOCK_MIN_THRESHOLD   = 25; // 이 미만 데미지면 soft 블록 무효
 
 function ellipseHit(ball, entity) {
   const cx = entity.x;
@@ -62,9 +63,13 @@ export function updateBall(dt) {
       resolveObstacle(ball, o);
       if (o.type === 'soft' && !hitThisFrame.has(o)) {
         hitThisFrame.add(o);
-        const ballDmg = (ball.throwStr ?? 100) * 0.4 * (ball.power ?? 1);
-        const blockDmg = ballDmg >= BLOCK_BREAK_THRESHOLD ? 2 : 1;
-        o.hp = Math.max(0, o.hp - blockDmg);
+        const curSpd    = Math.hypot(ball.vx, ball.vy);
+        const spdRatio  = ball.throwSpd > 0 ? Math.min(1, curSpd / ball.throwSpd) : 1;
+        const ballDmg   = (ball.throwStr ?? 100) * 0.4 * (ball.power ?? 1) * spdRatio;
+        const blockDmg  = ballDmg >= BLOCK_BREAK_THRESHOLD ? 2
+                        : ballDmg >= BLOCK_MIN_THRESHOLD   ? 1
+                        : 0;
+        if (blockDmg > 0) o.hp = Math.max(0, o.hp - blockDmg);
       }
       hit = true;
     });
