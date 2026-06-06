@@ -1,4 +1,5 @@
-import { state, setNextNPCSprite, setNextNPCAI } from './state.js';
+import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions } from './state.js';
+import { FLOOR_OBSTACLE_GROUPS } from '../design/map-01/obstacles.js';
 import { BASE, setNextNPCStats, applyBuffsToStatus } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
@@ -43,7 +44,7 @@ const FLOORS = {
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
+    stats: { hp: 20, str: 100, spd: 130, velocity: 500 },
     ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, wallAwareness: 0.35 },
     introLines: [
       '어... 안녕.',
@@ -59,7 +60,7 @@ const FLOORS = {
     sprite: 'ceo/ceo_portrait',
     npcSprite: 'ceo',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 150, velocity: 510 },
+    stats: { hp: 20, str: 100, spd: 150, velocity: 510 },
     ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, wallAwareness: 0.48 },
     introLines: [
       '음? 여긴 어떻게 들어왔지.',
@@ -74,7 +75,7 @@ const FLOORS = {
     sprite: 'trainer/trainer_portrait',
     npcSprite: 'trainer',
     hasCards: true,
-    stats: { hp: 130, str: 105, spd: 180, velocity: 520 },
+    stats: { hp: 30, str: 105, spd: 180, velocity: 520 },
     ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66, wallAwareness: 0.62 },
     introLines: [
       '어이 거기, 몸은 좀 풀었나?',
@@ -89,8 +90,9 @@ const FLOORS = {
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
+    stats: { hp: 20, str: 100, spd: 200, velocity: 500 },
     ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, wallAwareness: 0.75 },
+    spawn: { player: { c: 1, r: 8 }, npc: { c: 23, r: 8 } },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
       '이상한 안드로이드잖아.\n축구를 하는 안드로이드로 개조해주겠어.',
@@ -151,6 +153,12 @@ export function hideOverlay() {
 export function getBuffs() { return { ...flow.buffs }; }
 export function getCurrentFloor() { return flow.floor; }
 export function addPlayTime(dt) { flow.playTime += dt; }
+
+// DEV: 특정 층으로 즉시 점프 (인트로 생략, 버프/타이머 리셋 없음)
+export function jumpToFloor(n) {
+  flow.floor = n;
+  startRound();
+}
 
 // 내부 렌더링 ─────────────────────────────────────────────────────
 
@@ -225,6 +233,8 @@ function startRound() {
   if (data?.stats) setNextNPCStats(data.stats);
   if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
   if (data?.ai) setNextNPCAI(data.ai);
+  setNextSpawnPositions(data?.spawn ?? null);
+  setNextObstacles(FLOOR_OBSTACLE_GROUPS[flow.floor] ?? FLOOR_OBSTACLE_GROUPS[1]);
   hideOverlay();
   flow.startGameFn();             // → initState() → initStatus() (STATUS 초기화)
   applyBuffsToStatus(flow.buffs); // 초기화 직후 누적 버프 재적용

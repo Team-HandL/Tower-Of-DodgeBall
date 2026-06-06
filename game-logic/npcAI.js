@@ -70,7 +70,8 @@ function lineIntersectsRect(a, b, o) {
 }
 
 function blockingObstacle(a, b) {
-  return OBSTACLES.find(o => lineIntersectsRect(a, b, o)) || null;
+  const obs = state.obstacles ?? OBSTACLES;
+  return obs.find(o => o.hp > 0 && lineIntersectsRect(a, b, o)) || null;
 }
 
 function clampPoint(p) {

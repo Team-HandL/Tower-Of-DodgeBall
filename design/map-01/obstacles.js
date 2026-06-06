@@ -1,48 +1,117 @@
 export const TILE = 48; // 타일 한 칸 크기 (background.js 와 동일)
 
-// ─── 장애물 배치 ────────────────────────────────────────────────
+// ─── 층별 장애물 배치 ─────────────────────────────────────────────
 // 각 그룹 = 이어 붙인 블록들의 타일 좌표 [{c(컬럼), r(로우)}, ...]
 // 타일 1개 = 48 × 48 px
 //
-// 그리드 참고 (1200 × 800 기준)
-//   컬럼: 0 ~ 24  (24 * 48 = 1152)
-//   로우:  0 ~ 15  (15 * 48 = 720)
-//   코트 중앙: 컬럼 12.5 (x = 600)
-//   상하 중앙: 로우  8.3  (y = 400)
+// 그리드 (1200 × 800 기준)
+//   컬럼: 0 ~ 24  (25 * 48 = 1200px)
+//   로우:  0 ~ 15  (16 * 48 = 768px, 하단 32px 여백)
+//   중앙:  컬럼 12.5 (x=600), 로우 8.3 (y=400)
 
-// ─── 대칭 배치 기준 ─────────────────────────────────────────────
-//   좌우 대칭축: x = 600  (컬럼 12.5)
-//     col 5  ↔  col 19   (x=240, x=912 — 중앙에서 ±360px)
-//     col 11~13 = 중앙 벽 (x=528~672, 중심 x=600)
-//   상하 대칭축: y = 400  (로우 8.3)
-//     row 3-4  (y=144~240) ↔  row 12-13 (y=576~672)
-//     row 5    (y=240)     ↔  row 9     (y=432)
+export const FLOOR_OBSTACLE_GROUPS = {
 
-export const OBSTACLE_GROUPS = [
-  // 좌측 상단 기둥 — hard (부술 수 없음)
-  [{c:5, r:3, type:'hard'}, {c:5, r:4, type:'hard'}],
+  // 1F 너드 — 컴퓨터실 / 회로 기판
+  1: [
+    // Hard: 서버 랙
+    [{c:6,  r:4,  type:'hard'},{c:6,  r:5,  type:'hard'}],
+    [{c:19, r:4,  type:'hard'},{c:19, r:5,  type:'hard'}],
+    [{c:6,  r:12, type:'hard'},{c:6,  r:13, type:'hard'}],
+    [{c:19, r:12, type:'hard'},{c:19, r:13, type:'hard'}],
+    // Soft: 책상 / 박스
+    [{c:10, r:5,  type:'soft'},{c:11, r:5,  type:'soft'}],
+    [{c:14, r:5,  type:'soft'},{c:15, r:5,  type:'soft'}],
+    [{c:10, r:12, type:'soft'},{c:11, r:12, type:'soft'}],
+    [{c:14, r:12, type:'soft'},{c:15, r:12, type:'soft'}],
+    [{c:8,  r:8,  type:'soft'},{c:8,  r:9,  type:'soft'}],
+    [{c:17, r:8,  type:'soft'},{c:17, r:9,  type:'soft'}],
+  ],
 
-  // 우측 상단 기둥 — hard
-  [{c:19, r:3, type:'hard'}, {c:19, r:4, type:'hard'}],
+  // 2F CEO — 사무실 / 회의실
+  2: [
+    // Hard: 기둥
+    [{c:7,  r:4,  type:'hard'}],
+    [{c:7,  r:13, type:'hard'}],
+    [{c:18, r:4,  type:'hard'}],
+    [{c:18, r:13, type:'hard'}],
+    [{c:11, r:6,  type:'hard'}],
+    [{c:14, r:6,  type:'hard'}],
+    [{c:11, r:11, type:'hard'}],
+    [{c:14, r:11, type:'hard'}],
+    // Soft: 파티션
+    [{c:5,  r:7,  type:'soft'},{c:6,  r:7,  type:'soft'},{c:7,  r:7,  type:'soft'},{c:8,  r:7,  type:'soft'}],
+    [{c:5,  r:10, type:'soft'},{c:6,  r:10, type:'soft'},{c:7,  r:10, type:'soft'},{c:8,  r:10, type:'soft'}],
+    [{c:17, r:7,  type:'soft'},{c:18, r:7,  type:'soft'},{c:19, r:7,  type:'soft'},{c:20, r:7,  type:'soft'}],
+    [{c:17, r:10, type:'soft'},{c:18, r:10, type:'soft'},{c:19, r:10, type:'soft'},{c:20, r:10, type:'soft'}],
+    [{c:10, r:3,  type:'soft'},{c:10, r:4,  type:'soft'},{c:10, r:5,  type:'soft'}],
+    [{c:15, r:3,  type:'soft'},{c:15, r:4,  type:'soft'},{c:15, r:5,  type:'soft'}],
+    [{c:10, r:12, type:'soft'},{c:10, r:13, type:'soft'},{c:10, r:14, type:'soft'}],
+    [{c:15, r:12, type:'soft'},{c:15, r:13, type:'soft'},{c:15, r:14, type:'soft'}],
+  ],
 
-  // 중앙 상단 벽 — soft (2회 피격 시 파괴)
-  [{c:11, r:5, type:'soft'}, {c:12, r:5, type:'soft'}, {c:13, r:5, type:'soft'}],
+  // 3F 트레이너 — 헬스장 / 서킷 트레이닝
+  3: [
+    // Hard: 운동기구 / 웨이트 기둥
+    [{c:6,  r:4,  type:'hard'},{c:7,  r:4,  type:'hard'}],
+    [{c:18, r:4,  type:'hard'},{c:19, r:4,  type:'hard'}],
+    [{c:6,  r:13, type:'hard'},{c:7,  r:13, type:'hard'}],
+    [{c:18, r:13, type:'hard'},{c:19, r:13, type:'hard'}],
+    [{c:10, r:7,  type:'hard'}],
+    [{c:15, r:7,  type:'hard'}],
+    [{c:10, r:10, type:'hard'}],
+    [{c:15, r:10, type:'hard'}],
+    // Soft: 매트 / 이동식 장비
+    [{c:4,  r:7,  type:'soft'},{c:4,  r:8,  type:'soft'},{c:4,  r:9,  type:'soft'},{c:4,  r:10, type:'soft'}],
+    [{c:21, r:7,  type:'soft'},{c:21, r:8,  type:'soft'},{c:21, r:9,  type:'soft'},{c:21, r:10, type:'soft'}],
+    [{c:9,  r:4,  type:'soft'},{c:10, r:4,  type:'soft'},{c:11, r:4,  type:'soft'}],
+    [{c:14, r:4,  type:'soft'},{c:15, r:4,  type:'soft'},{c:16, r:4,  type:'soft'}],
+    [{c:9,  r:13, type:'soft'},{c:10, r:13, type:'soft'},{c:11, r:13, type:'soft'}],
+    [{c:14, r:13, type:'soft'},{c:15, r:13, type:'soft'},{c:16, r:13, type:'soft'}],
+  ],
 
-  // 좌측 하단 기둥 — hard
-  [{c:5, r:12, type:'hard'}, {c:5, r:13, type:'hard'}],
+  // 4F 축구선수 — 축구장 / 포메이션
+  4: [
+    // Hard: 좌 골대 ㄷ (cols 2-3, rows 6-9, 오른쪽 개방)
+    [{c:1, r:6, type:'hard'},{c:2, r:6, type:'hard'}],   // 상단 가로
+    [{c:1, r:7, type:'hard'}],                            // 좌 세로
+    [{c:1, r:8, type:'hard'}],                            // 좌 세로
+    [{c:1, r:9, type:'hard'}],    
+    [{c:1, r:10, type:'hard'},{c:2, r:10, type:'hard'}],   // 하단 가로
+    // Hard: 우 골대 ㄷ 미러 (cols 21-22, rows 6-9, 왼쪽 개방)
+    [{c:22, r:6, type:'hard'},{c:23, r:6, type:'hard'}], // 상단 가로
+    [{c:23, r:7, type:'hard'}],                           // 우 세로
+    [{c:23, r:8, type:'hard'}],                           // 우 세로
+    [{c:23, r:9, type:'hard'}],
+    [{c:22, r:10, type:'hard'},{c:23, r:10, type:'hard'}], // 하단 가로
+  ],
 
-  // 우측 하단 기둥 — hard
-  [{c:19, r:12, type:'hard'}, {c:19, r:13, type:'hard'}],
+  // 5F 피구로이드 — 기계실 / 프로세서 코어
+  5: [
+    // Hard: 십자형 코어
+    [{c:10, r:6,  type:'hard'},{c:10, r:7,  type:'hard'}],
+    [{c:15, r:6,  type:'hard'},{c:15, r:7,  type:'hard'}],
+    [{c:10, r:10, type:'hard'},{c:10, r:11, type:'hard'}],
+    [{c:15, r:10, type:'hard'},{c:15, r:11, type:'hard'}],
+    [{c:8,  r:4,  type:'hard'}],
+    [{c:17, r:4,  type:'hard'}],
+    [{c:8,  r:13, type:'hard'}],
+    [{c:17, r:13, type:'hard'}],
+    [{c:6,  r:8,  type:'hard'},{c:6,  r:9,  type:'hard'}],
+    [{c:19, r:8,  type:'hard'},{c:19, r:9,  type:'hard'}],
+    // Soft: 진입 게이트
+    [{c:11, r:5,  type:'soft'},{c:12, r:5,  type:'soft'},{c:13, r:5,  type:'soft'},{c:14, r:5,  type:'soft'}],
+    [{c:11, r:7,  type:'soft'},{c:12, r:7,  type:'soft'}],
+    [{c:13, r:10, type:'soft'},{c:14, r:10, type:'soft'}],
+    [{c:11, r:12, type:'soft'},{c:12, r:12, type:'soft'},{c:13, r:12, type:'soft'},{c:14, r:12, type:'soft'}],
+    [{c:8,  r:8,  type:'soft'},{c:9,  r:8,  type:'soft'}],
+    [{c:16, r:9,  type:'soft'},{c:17, r:9,  type:'soft'}],
+    [{c:4,  r:5,  type:'soft'},{c:4,  r:6,  type:'soft'},{c:4,  r:7,  type:'soft'}],
+    [{c:21, r:10, type:'soft'},{c:21, r:11, type:'soft'},{c:21, r:12, type:'soft'}],
+  ],
+};
 
-  // 중앙 하단 벽 — soft
-  [{c:11, r:9, type:'soft'}, {c:12, r:9, type:'soft'}, {c:13, r:9, type:'soft'}],
-
-  // 좌측 중앙 세로 벽 — soft
-  [{c:3, r:7, type:'soft'}, {c:3, r:8, type:'soft'}, {c:3, r:9, type:'soft'}],
-
-  // 우측 중앙 세로 벽 — soft (좌측 대칭)
-  [{c:22, r:7, type:'soft'}, {c:22, r:8, type:'soft'}, {c:22, r:9, type:'soft'}],
-];
+// 하위 호환용 — 1F 기본값
+export const OBSTACLE_GROUPS = FLOOR_OBSTACLE_GROUPS[1];
 
 // c, r 보존 — state.obstacles 렌더링 매핑에 사용
 export const OBSTACLES = OBSTACLE_GROUPS
