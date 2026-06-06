@@ -12,8 +12,9 @@ export const TILE = 48; // 타일 한 칸 크기 (background.js 와 동일)
 export const FLOOR_OBSTACLE_GROUPS = {
 
   // 1F 너드 — 컴퓨터실 / 회로 기판
+  // 펼쳐진 책 (open book) 모양으로 만들고 싶음
   1: [
-    // Hard: 서버 랙
+// Hard: 서버 랙
     [{c:6,  r:4,  type:'hard'},{c:6,  r:5,  type:'hard'}],
     [{c:19, r:4,  type:'hard'},{c:19, r:5,  type:'hard'}],
     [{c:6,  r:12, type:'hard'},{c:6,  r:13, type:'hard'}],
@@ -49,64 +50,65 @@ export const FLOOR_OBSTACLE_GROUPS = {
     [{c:15, r:12, type:'soft'},{c:15, r:13, type:'soft'},{c:15, r:14, type:'soft'}],
   ],
 
-  // 3F 트레이너 — 헬스장 / 서킷 트레이닝
+  // 3F 트레이너 — 바벨 바 + 다양한 무게의 플레이트
+  // 원판을 점선(흩뿌린) 세로열로, 크기·높이를 다르게 양옆에 벌려 배치(작은·중간·큰).
+  // 중앙 그립(hard)=바. 큰 원판=hard, 중/작은 원판=soft. (총 30: hard 16 / soft 14)
   3: [
-    // Hard: 운동기구 / 웨이트 기둥
-    [{c:6,  r:4,  type:'hard'},{c:7,  r:4,  type:'hard'}],
-    [{c:18, r:4,  type:'hard'},{c:19, r:4,  type:'hard'}],
-    [{c:6,  r:13, type:'hard'},{c:7,  r:13, type:'hard'}],
-    [{c:18, r:13, type:'hard'},{c:19, r:13, type:'hard'}],
-    [{c:10, r:7,  type:'hard'}],
-    [{c:15, r:7,  type:'hard'}],
-    [{c:10, r:10, type:'hard'}],
-    [{c:15, r:10, type:'hard'}],
-    // Soft: 매트 / 이동식 장비
-    [{c:4,  r:7,  type:'soft'},{c:4,  r:8,  type:'soft'},{c:4,  r:9,  type:'soft'},{c:4,  r:10, type:'soft'}],
-    [{c:21, r:7,  type:'soft'},{c:21, r:8,  type:'soft'},{c:21, r:9,  type:'soft'},{c:21, r:10, type:'soft'}],
-    [{c:9,  r:4,  type:'soft'},{c:10, r:4,  type:'soft'},{c:11, r:4,  type:'soft'}],
-    [{c:14, r:4,  type:'soft'},{c:15, r:4,  type:'soft'},{c:16, r:4,  type:'soft'}],
-    [{c:9,  r:13, type:'soft'},{c:10, r:13, type:'soft'},{c:11, r:13, type:'soft'}],
-    [{c:14, r:13, type:'soft'},{c:15, r:13, type:'soft'},{c:16, r:13, type:'soft'}],
+    // 중앙 바 그립 (hard) — 가운데(12,8)는 공 스폰 자리라 비움
+    [{c:9, r:8, type:'hard'},{c:10,r:8, type:'hard'},{c:11,r:8, type:'hard'},{c:13,r:8, type:'hard'},{c:14,r:8, type:'hard'},{c:15,r:8, type:'hard'}],
+    // 왼쪽 원판 (점선) — 큰(col8) / 중(col6) / 작은(col4), 위상 어긋나게 흩뿌림
+    [{c:8, r:4, type:'hard'},{c:8, r:6, type:'hard'},{c:8, r:8, type:'hard'},{c:8, r:10,type:'hard'},{c:8, r:12,type:'hard'}],
+    [{c:6, r:5, type:'soft'},{c:6, r:7, type:'soft'},{c:6, r:9, type:'soft'},{c:6, r:11,type:'soft'}],
+    [{c:4, r:6, type:'soft'},{c:4, r:8, type:'soft'},{c:4, r:10,type:'soft'}],
+    // 오른쪽 원판 (미러)
+    [{c:16,r:4, type:'hard'},{c:16,r:6, type:'hard'},{c:16,r:8, type:'hard'},{c:16,r:10,type:'hard'},{c:16,r:12,type:'hard'}],
+    [{c:18,r:5, type:'soft'},{c:18,r:7, type:'soft'},{c:18,r:9, type:'soft'},{c:18,r:11,type:'soft'}],
+    [{c:20,r:6, type:'soft'},{c:20,r:8, type:'soft'},{c:20,r:10,type:'soft'}],
   ],
 
-  // 4F 축구선수 — 축구장 / 포메이션
+  // 4F 축구선수 — 축구장 (양옆 골대 + 큰 센터 서클 + 하프라인 + 코너)
+  // 스폰: 플레이어(2,8)/NPC(22,8) = 골대 입구(골키퍼 시작).
+  // 센터 서클은 양옆(r8)이 열린 출입구라 가운데 공을 막지 않음. (총 42: hard 12 / soft 30)
   4: [
-    // Hard: 좌 골대 ㄷ (cols 2-3, rows 6-9, 오른쪽 개방)
-    [{c:1, r:6, type:'hard'},{c:2, r:6, type:'hard'}],   // 상단 가로
-    [{c:1, r:7, type:'hard'}],                            // 좌 세로
-    [{c:1, r:8, type:'hard'}],                            // 좌 세로
-    [{c:1, r:9, type:'hard'}],    
-    [{c:1, r:10, type:'hard'},{c:2, r:10, type:'hard'}],   // 하단 가로
-    // Hard: 우 골대 ㄷ 미러 (cols 21-22, rows 6-9, 왼쪽 개방)
-    [{c:22, r:6, type:'hard'},{c:23, r:6, type:'hard'}], // 상단 가로
-    [{c:23, r:7, type:'hard'}],                           // 우 세로
-    [{c:23, r:8, type:'hard'}],                           // 우 세로
-    [{c:23, r:9, type:'hard'}],
-    [{c:22, r:10, type:'hard'},{c:23, r:10, type:'hard'}], // 하단 가로
+    // 좌 골대 ㄷ (back=col0, 오른쪽 개방) — 플레이어 스폰(2,8)이 골 입구
+    [{c:1, r:6, type:'hard'},{c:1, r:7, type:'soft'},{c:1, r:9, type:'soft'},{c:1, r:10,type:'hard'}], // 골 뒷면 (가운데 r8=골문 비움, 스폰 보호)
+    [{c:2, r:6, type:'soft'},{c:3, r:6, type:'hard'}],   // 상단 포스트
+    [{c:2, r:10,type:'soft'},{c:3, r:10,type:'hard'}],   // 하단 포스트
+    // 우 골대 ㄷ (back=col24, 왼쪽 개방) — NPC 스폰(22,8)이 골 입구
+    [{c:23,r:6, type:'hard'},{c:23,r:7, type:'soft'},{c:23,r:9, type:'soft'},{c:23,r:10,type:'hard'}], // 골 뒷면 (가운데 r8=골문 비움, 스폰 보호)
+    [{c:22,r:6, type:'soft'},{c:21,r:6, type:'hard'}],   // 상단 포스트
+    [{c:22,r:10,type:'soft'},{c:21,r:10,type:'hard'}],   // 하단 포스트
+    // 센터 서클 (soft) — 더 크게 + 양옆 r8에 출입구(빈칸)를 둬 가운데 공이 막히지 않음
+    [{c:12,r:5, type:'soft'},{c:10,r:6, type:'soft'},{c:14,r:6, type:'soft'},{c:9, r:7, type:'soft'},{c:15,r:7, type:'soft'},{c:9, r:9, type:'soft'},{c:15,r:9, type:'soft'},{c:10,r:10,type:'soft'},{c:14,r:10,type:'soft'},{c:12,r:11,type:'soft'}],
+    // 하프라인 (soft) — 서클 위/아래로 이어지는 중앙선 (서클과 겹치지 않게)
+    [{c:12,r:2, type:'hard'},{c:12,r:3, type:'soft'},{c:12,r:4, type:'hard'}],
+    [{c:12,r:12,type:'hard'},{c:12,r:13,type:'soft'},{c:12,r:14,type:'hard'}],
+    // 코너 아크 (soft)
+    [{c:0, r:1, type:'soft'}, {c:1, r:0, type:'soft'}, {c:1, r:1, type:'soft'}],
+    [{c:24,r:1, type:'soft'}, {c:23,r:0, type:'soft'}, {c:23,r:1, type:'soft'}],
+    [{c:0, r:14,type:'soft'}, {c:1, r:15,type:'soft'}, {c:1, r:14,type:'soft'}],
+    [{c:24,r:14,type:'soft'}, {c:23,r:15,type:'soft'}, {c:23,r:14,type:'soft'}],
   ],
 
-  // 5F 피구로이드 — 기계실 / 프로세서 코어
+  // 5F 피구로이드 — 안드로이드 얼굴 (큰 점선 네모 + 화난 눈 + 입 + 안테나)
+  // 얼굴을 크게 펼치고 테두리를 점선으로 띄움. 점선 사이로 진입 가능 + 가장 많은 장애물 = 최고 난이도.
+  // (총 47: hard 28 / soft 19)
   5: [
-    // Hard: 십자형 코어
-    [{c:10, r:6,  type:'hard'},{c:10, r:7,  type:'hard'}],
-    [{c:15, r:6,  type:'hard'},{c:15, r:7,  type:'hard'}],
-    [{c:10, r:10, type:'hard'},{c:10, r:11, type:'hard'}],
-    [{c:15, r:10, type:'hard'},{c:15, r:11, type:'hard'}],
-    [{c:8,  r:4,  type:'hard'}],
-    [{c:17, r:4,  type:'hard'}],
-    [{c:8,  r:13, type:'hard'}],
-    [{c:17, r:13, type:'hard'}],
-    [{c:6,  r:8,  type:'hard'},{c:6,  r:9,  type:'hard'}],
-    [{c:19, r:8,  type:'hard'},{c:19, r:9,  type:'hard'}],
-    // Soft: 진입 게이트
-    [{c:11, r:5,  type:'soft'},{c:12, r:5,  type:'soft'},{c:13, r:5,  type:'soft'},{c:14, r:5,  type:'soft'}],
-    [{c:11, r:7,  type:'soft'},{c:12, r:7,  type:'soft'}],
-    [{c:13, r:10, type:'soft'},{c:14, r:10, type:'soft'}],
-    [{c:11, r:12, type:'soft'},{c:12, r:12, type:'soft'},{c:13, r:12, type:'soft'},{c:14, r:12, type:'soft'}],
-    [{c:8,  r:8,  type:'soft'},{c:9,  r:8,  type:'soft'}],
-    [{c:16, r:9,  type:'soft'},{c:17, r:9,  type:'soft'}],
-    [{c:4,  r:5,  type:'soft'},{c:4,  r:6,  type:'soft'},{c:4,  r:7,  type:'soft'}],
-    [{c:21, r:10, type:'soft'},{c:21, r:11, type:'soft'},{c:21, r:12, type:'soft'}],
+    // 얼굴 윗변 (row2, 점선)
+    [{c:4, r:2, type:'hard'},{c:6, r:2, type:'soft'},{c:8, r:2, type:'hard'},{c:10,r:2, type:'soft'},{c:12,r:2, type:'hard'},{c:14,r:2, type:'soft'},{c:16,r:2, type:'hard'},{c:18,r:2, type:'soft'},{c:20,r:2, type:'hard'}],
+    // 얼굴 아랫변 (row14, 점선)
+    [{c:4, r:14,type:'hard'},{c:6, r:14,type:'soft'},{c:8, r:14,type:'hard'},{c:10,r:14,type:'soft'},{c:12,r:14,type:'hard'},{c:14,r:14,type:'soft'},{c:16,r:14,type:'hard'},{c:18,r:14,type:'soft'},{c:20,r:14,type:'hard'}],
+    // 얼굴 좌변 (col3, 점선)
+    [{c:3, r:5, type:'hard'},{c:3, r:7, type:'soft'},{c:3, r:9, type:'hard'},{c:3, r:11,type:'soft'}],
+    // 얼굴 우변 (col21, 점선)
+    [{c:21,r:5, type:'hard'},{c:21,r:7, type:'soft'},{c:21,r:9, type:'hard'},{c:21,r:11,type:'soft'}],
+    // 안테나 (hard) — 머리 위 (row1, 윗변 테두리 위로)
+    [{c:8, r:1, type:'hard'}],[{c:16,r:1, type:'hard'}],
+    // 화난 눈 (hard)
+    [{c:7, r:5, type:'soft'},{c:8, r:5, type:'hard'},{c:9, r:6, type:'hard'}, {c:7, r:6, type:'hard'}, {c:8, r:6, type:'hard'},{c:8, r:7, type:'hard'}, {c:9, r:7, type:'hard'}],
+    [{c:17,r:5, type:'soft'},{c:16,r:5, type:'hard'},{c:15,r:6, type:'hard'}, {c:17,r:6, type:'hard'}, {c:16,r:6, type:'hard'},{c:16,r:7, type:'hard'}, {c:15,r:7, type:'hard'}],
+    // 입 (soft)
+    [{c:10,r:11,type:'soft'}, {c:11,r:11,type:'soft'},{c:12,r:11,type:'soft'},{c:13,r:11,type:'soft'},{c:14,r:11,type:'soft'}],
   ],
 };
 
