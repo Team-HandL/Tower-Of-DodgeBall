@@ -9,13 +9,17 @@ import { OBSTACLES } from '../design/map-01/obstacles.js';
 // 매 프레임 정반대로 뒤집혀도(±x 교번) 평활된 벡터는 거의 안 움직이므로
 // left↔right 스프라이트 깜빡임이 사라진다.
 const FACING_SMOOTH = 0.18;
+
+// 코너 판정 여백: 캔버스 두 변에 동시에 이만큼 가까우면 "코너에 갇힘"으로 보고
+// 무엇보다 먼저 빠져나오게 한다.
+const CORNER_MARGIN = 120;
+
 const DEFAULT_AI = {
   reactionDelay: 0.22,
   aimError: 35,
   dodgeSkill: 0.55,
   aggression: 0.7,
   pickupGreed: 0.65,
-  wallAwareness: 0.65,
 };
 
 function ai() {
@@ -34,16 +38,6 @@ function setFacing(entity, dx, dy) {
   entity.facing = { x: sx / sd, y: sy / sd };
 }
 
-function wallAvoidance(entity, strength) {
-  const margin = 74;
-  let ax = 0, ay = 0;
-  if (entity.x < margin) ax += (margin - entity.x) / margin;
-  if (entity.x > W - margin) ax -= (entity.x - (W - margin)) / margin;
-  if (entity.y < margin) ay += (margin - entity.y) / margin;
-  if (entity.y > H - margin) ay -= (entity.y - (H - margin)) / margin;
-  return { x: ax * strength, y: ay * strength };
-}
-
 function tryMove(entity, dx, dy, speed) {
   const d = Math.hypot(dx, dy);
   if (d <= 0.001) return false;
@@ -59,9 +53,30 @@ function wouldOpenShot(x, y, player) {
   return hasLOS({ x, y }, player);
 }
 
+// 투척 경로가 공 반지름까지 고려해 비어 있는지 검사한다. hasLOS(점 기준)와 달리
+// 공 몸통이 장애물 모서리에 스치는 경우까지 막아 "장애물에 헛던지는" 행동을 차단한다.
+function clearThrowPath(from, to) {
+  const obs = state.obstacles ?? OBSTACLES;
+  const r = state.ball.r;
+  const len = Math.hypot(to.x - from.x, to.y - from.y);
+  const steps = Math.max(8, Math.ceil(len / 10));
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const x = from.x + (to.x - from.x) * t;
+    const y = from.y + (to.y - from.y) * t;
+    if (obs.some(o => o.hp > 0 &&
+        x + r > o.x && x - r < o.x + o.w && y + r > o.y && y - r < o.y + o.h)) return false;
+  }
+  return true;
+}
+
 function lineIntersectsRect(a, b, o) {
-  for (let i = 1; i < 18; i++) {
-    const t = i / 18;
+  // hasLOS와 동일하게 샘플 간격을 ~12px로 유지 — 먼 거리에서 장애물을 건너뛰어
+  // 우회 대상(blocker)을 못 찾는 일을 막는다.
+  const len = Math.hypot(b.x - a.x, b.y - a.y);
+  const steps = Math.max(8, Math.ceil(len / 12));
+  for (let i = 1; i < steps; i++) {
+    const t = i / steps;
     const x = a.x + (b.x - a.x) * t;
     const y = a.y + (b.y - a.y) * t;
     if (x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h) return true;
@@ -105,44 +120,75 @@ function getBypassTarget(blocker) {
   return scored[0]?.p ?? null;
 }
 
-function moveNPCSmart(dx, dy, speed, opts = {}) {
+function moveNPCSmart(dx, dy, speed) {
   const { npc } = state;
-  const cfg = ai();
-  const avoid = opts.avoidWalls === false ? { x: 0, y: 0 } : wallAvoidance(npc, 1.2 * cfg.wallAwareness);
-  let mx = dx + avoid.x;
-  let my = dy + avoid.y;
-  const d = Math.hypot(mx, my);
+  const d = Math.hypot(dx, dy);
   if (d <= 0.001) return false;
 
-  setFacing(npc, mx, my);
-  if (tryMove(npc, mx, my, speed)) {
+  setFacing(npc, dx, dy);
+  if (tryMove(npc, dx, dy, speed)) {
     npc.stuckTime = 0;
     return true;
   }
 
-  npc.stuckTime = (npc.stuckTime || 0) + 1;
-  const nx = mx / d, ny = my / d;
+  // 1차 방향이 막힘 — 벽/장애물을 따라 미끄러질 수직·대각 방향을 시도한다.
+  const nx = dx / d, ny = dy / d;
   const sideBias = npc.sideBias || 1;
   const candidates = [
     { x: -ny * sideBias, y: nx * sideBias },
     { x: ny * sideBias, y: -nx * sideBias },
     { x: nx * 0.45 - ny * sideBias, y: ny * 0.45 + nx * sideBias },
     { x: nx * 0.45 + ny * sideBias, y: ny * 0.45 - nx * sideBias },
-    { x: -nx + avoid.x * 2, y: -ny + avoid.y * 2 },
+    { x: -nx, y: -ny },
   ];
 
   for (const c of candidates) {
     if (tryMove(npc, c.x, c.y, speed * 0.85)) {
       setFacing(npc, c.x, c.y);
+      // 미끄러져 나가는 것도 부분 진전 — stuck 카운터를 천천히 회복시킨다.
+      npc.stuckTime = Math.max(0, (npc.stuckTime || 0) - 1);
       return true;
     }
   }
 
-  if (npc.stuckTime > 18) {
+  // 어느 방향으로도 못 움직임 — 충분히 오래 갇히면 우회 방향(sideBias)을 뒤집는다.
+  npc.stuckTime = (npc.stuckTime || 0) + 1;
+  if (npc.stuckTime > 14) {
     npc.sideBias = -sideBias;
     npc.stuckTime = 0;
   }
   return false;
+}
+
+/** 캔버스 네 모서리 중 하나에 갇혀 있는가 (두 변에 동시에 근접) */
+function isCornered(npc) {
+  const horiz = npc.x < CORNER_MARGIN || npc.x > W - CORNER_MARGIN;
+  const vert  = npc.y < CORNER_MARGIN || npc.y > H - CORNER_MARGIN;
+  return horiz && vert;
+}
+
+// 코너에서 열린 공간(맵 중앙)으로 탈출한다. 플레이어가 중앙 쪽 진로를 막고 있으면
+// 벽을 따라 도는 수직 성분을 더해 플레이어 정면으로 돌진하지 않게 한다.
+function escapeCorner(dt) {
+  const { npc, player } = state;
+  let ex = W / 2 - npc.x, ey = H / 2 - npc.y;
+  const ed = Math.hypot(ex, ey) || 1;
+  ex /= ed; ey /= ed;
+
+  const px = player.x - npc.x, py = player.y - npc.y;
+  const pd = Math.hypot(px, py) || 1;
+  // 중앙 방향이 곧 플레이어 방향이면(코너 맞은편에 플레이어) 벽을 따라 우회한다.
+  if ((ex * px + ey * py) / pd > 0.3) {
+    const perp1 = { x: -ey, y: ex }, perp2 = { x: ey, y: -ex };
+    const far1 = Math.hypot(npc.x + perp1.x * 90 - player.x, npc.y + perp1.y * 90 - player.y);
+    const far2 = Math.hypot(npc.x + perp2.x * 90 - player.x, npc.y + perp2.y * 90 - player.y);
+    const perp = far1 > far2 ? perp1 : perp2;
+    ex = ex * 0.5 + perp.x;
+    ey = ey * 0.5 + perp.y;
+    const nd = Math.hypot(ex, ey) || 1;
+    ex /= nd; ey /= nd;
+  }
+  moveNPCSmart(ex, ey, STATUS.npc.spd * dt);
 }
 
 function calcBallDodgeDir() {
@@ -158,19 +204,20 @@ function calcBallDodgeDir() {
   if (crossDist > dangerWidth) return null;
   if (Math.random() > cfg.dodgeSkill) return null;
   const p1x = -buy, p1y = bux, p2x = buy, p2y = -bux;
-  const d1 = Math.hypot(npc.x + p1x * 60 - ball.x, npc.y + p1y * 60 - ball.y);
-  const d2 = Math.hypot(npc.x + p2x * 60 - ball.x, npc.y + p2y * 60 - ball.y);
-  return d1 > d2 ? { x: p1x, y: p1y } : { x: p2x, y: p2y };
+  // 두 수직 회피 방향 중 맵 중앙(열린 공간)에 가까운 쪽 — 벽·코너로 몰리지 않게 한다.
+  const m1 = Math.hypot(npc.x + p1x * 60 - W / 2, npc.y + p1y * 60 - H / 2);
+  const m2 = Math.hypot(npc.x + p2x * 60 - W / 2, npc.y + p2y * 60 - H / 2);
+  return m1 < m2 ? { x: p1x, y: p1y } : { x: p2x, y: p2y };
 }
 
 function runFromPlayer(dt, speedMult) {
   const { player, npc } = state;
-  const cfg = ai();
   const dx = npc.x - player.x, dy = npc.y - player.y, d = Math.hypot(dx, dy) || 1;
-  // 0.005 → 0.001: 상수가 크면 flee 벡터(크기 1)를 centering force(최대 2.25)가
-  // 역전시켜 flip point(x≈650)에서 facing이 left↔right 매 프레임 교번하는 버그 발생
-  const cx = (W / 2 - npc.x) * 0.0014 * cfg.wallAwareness;
-  const cy = (H / 2 - npc.y) * 0.0014 * cfg.wallAwareness;
+  // 중앙으로 약하게 당겨 벽·코너로 도망치는 것을 줄인다. 상수가 크면 flee 벡터(크기 1)를
+  // centering force가 역전시켜 flip point(x≈650)에서 facing이 left↔right 매 프레임 교번하는
+  // 버그가 생기므로 0.0014 유지.
+  const cx = (W / 2 - npc.x) * 0.0014;
+  const cy = (H / 2 - npc.y) * 0.0014;
   const ex = dx / d + cx, ey = dy / d + cy, ed = Math.hypot(ex, ey) || 1;
   moveNPCSmart(ex / ed, ey / ed, STATUS.npc.spd * (speedMult || 1) * dt);
 }
@@ -213,6 +260,8 @@ export function updateNPC(dt) {
   if (npc.grogyTime > 0) return;
   npc.aimTimer -= dt;
 
+  const cornered = isCornered(npc);
+
   if (npc.hasBall) {
     npc.dodgeDir = null;
     if (hasLOS(npc, player)) {
@@ -231,9 +280,21 @@ export function updateNPC(dt) {
         setFacing(npc, dx, dy);
       }
       if (npc.aimTimer <= 0) {
-        doThrow(npc, player.x + (Math.random() - 0.5) * cfg.aimError, player.y + (Math.random() - 0.5) * cfg.aimError, STATUS.npc.velocity, 'npc');
-        npc.aimTimer = Math.max(0.3, 1.2 - cfg.aggression * 0.7) + Math.random() * (0.7 - cfg.aggression * 0.35);
+        const aimX = player.x + (Math.random() - 0.5) * cfg.aimError;
+        const aimY = player.y + (Math.random() - 0.5) * cfg.aimError;
+        // 실제 조준점까지 경로가 비어 있을 때만 던진다 — 장애물에 멍청하게 던지지 않음.
+        if (clearThrowPath(npc, { x: aimX, y: aimY })) {
+          doThrow(npc, aimX, aimY, STATUS.npc.velocity, 'npc');
+          npc.aimTimer = Math.max(0.3, 1.2 - cfg.aggression * 0.7) + Math.random() * (0.7 - cfg.aggression * 0.35);
+        } else {
+          npc.aimTimer = 0.12; // 막혔으면 잠깐 뒤 다시 조준
+        }
       }
+    } else if (cornered) {
+      // 막혔는데 코너에 갇혔으면 재배치보다 탈출 우선
+      npc.state = 'escape';
+      npc.bypassTarget = null;
+      escapeCorner(dt);
     } else {
       npc.state = 'reposition';
       repositionForShot(dt);
@@ -247,6 +308,7 @@ export function updateNPC(dt) {
   const playerHasBall = player.hasBall;
   const npcCloser     = dist(npc, ball) < dist(player, ball);
 
+  // 날아오는 공 회피 — 회피 자체가 탈출이므로 코너 탈출보다 먼저 처리한다.
   if (ballIncoming) {
     npc.bypassTarget = null;
     npc.state = 'dodge';
@@ -269,6 +331,7 @@ export function updateNPC(dt) {
 
   const fastBounce1 = ball.flying && ball.bounces === 1 && Math.hypot(ball.vx, ball.vy) >= STATUS.player.catchMinSpd;
 
+  // 공 줍기 — 목표가 분명하므로 코너 탈출보다 먼저(코너의 공도 주우러 간다).
   if ((ballFree || ballBouncing) && (npcCloser || cfg.pickupGreed > 0.78) && !fastBounce1) {
     npc.state = 'fetch';
     const dx = ball.x - npc.x, dy = ball.y - npc.y, d = Math.hypot(dx, dy) || 1;
@@ -276,6 +339,14 @@ export function updateNPC(dt) {
       moveNPCSmart(dx / d, dy / d, STATUS.npc.spd * dt);
     }
     if (dist(ball, npc) < ball.r + npc.r + 12) pickUpBall('npc');
+    return;
+  }
+
+  // 코너 탈출 — 도망/관찰 상태에서 코너에 박히는 문제를 최우선으로 해결한다.
+  if (cornered) {
+    npc.state = 'escape';
+    npc.bypassTarget = null;
+    escapeCorner(dt);
     return;
   }
 

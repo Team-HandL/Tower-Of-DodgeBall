@@ -30,8 +30,13 @@ export function dist(a, b) {
 
 export function hasLOS(a, b) {
   const obs = state.obstacles ?? OBSTACLES;
-  for (let i = 1; i < 16; i++) {
-    const t = i / 16, cx = a.x + (b.x - a.x) * t, cy = a.y + (b.y - a.y) * t;
+  // 샘플 간격을 거리에 맞춰 ~12px로 유지한다. 고정 16분할이면 먼 거리에서 간격이
+  // 90px까지 벌어져 48px 장애물을 통째로 건너뛰어(LOS가 뚫린 것으로 오판) NPC가
+  // 장애물 너머로 헛던지는 원인이 된다.
+  const len = Math.hypot(b.x - a.x, b.y - a.y);
+  const steps = Math.max(8, Math.ceil(len / 12));
+  for (let i = 1; i < steps; i++) {
+    const t = i / steps, cx = a.x + (b.x - a.x) * t, cy = a.y + (b.y - a.y) * t;
     if (obs.some(o => o.hp > 0 && cx > o.x && cx < o.x + o.w && cy > o.y && cy < o.y + o.h)) return false;
   }
   return true;

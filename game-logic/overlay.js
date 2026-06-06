@@ -45,7 +45,7 @@ const FLOORS = {
     npcSprite: 'nerd',
     hasCards: true,
     stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
-    ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, wallAwareness: 0.35 },
+    ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55 },
     introLines: [
       '어... 안녕.',
       '피구는 간단해. 공을 맞히면 데미지!\n상대 체력을 먼저 0으로 만들면 이겨.\n이동은 WASD, 조준은 마우스.\n좌클릭(또는 스페이스)으로 공을 줍고, 던지고, 캐치까지 다 할 수 있어.',
@@ -61,7 +61,7 @@ const FLOORS = {
     npcSprite: 'ceo',
     hasCards: true,
     stats: { hp: 120, str: 100, spd: 150, velocity: 510 },
-    ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, wallAwareness: 0.48 },
+    ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60 },
     introLines: [
       '음? 여긴 어떻게 들어왔지.',
       '내 시간은 비싸. 짧게 끝내주겠어.',
@@ -76,7 +76,7 @@ const FLOORS = {
     npcSprite: 'trainer',
     hasCards: true,
     stats: { hp: 120, str: 105, spd: 180, velocity: 520 },
-    ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66, wallAwareness: 0.62 },
+    ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66 },
     introLines: [
       '어이 거기, 몸은 좀 풀었나?',
       '자, 오늘 운동량 제대로 채워주마. 덤벼!',
@@ -91,7 +91,7 @@ const FLOORS = {
     npcSprite: 'soccer',
     hasCards: true,
     stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
-    ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, wallAwareness: 0.75 },
+    ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72 },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
@@ -108,7 +108,7 @@ const FLOORS = {
     npcSprite: 'robot',
     isFinal: true,                  // 마지막 층: 승리 시 엔딩 오버레이
     stats: { hp: 150, str: 110, spd: 220, velocity: 560 },
-    ai: { reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92, pickupGreed: 0.82, wallAwareness: 0.95 },
+    ai: { reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92, pickupGreed: 0.82 },
     introLines: [
       '누구야..? 드디어 여기까지 올라왔구나.',
       '나는 피구로이드.\n피구 하나만 보고 만들어진 안드로이드야.\n피하고, 받고, 던지는 건 누구한테도 안 져.',

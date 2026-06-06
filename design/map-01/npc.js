@@ -18,7 +18,9 @@ export function drawNPC(ctx, npc) {
   const dir = getFacingKey(facing);
   const base = npc.sprite ?? 'soccer';
   const prefix = npc.hasBall ? `${base}_ball` : base;
-  const frameIdx = npc.isMoving ? (Math.floor(npc.animTime / WALK_FRAME_DUR) % 4) + 1 : 2;
+  // 걷기 사이클을 2→3→4→1 순으로 돌려 2번(정지 포즈, idle과 동일)에서 시작한다.
+  // 짧은 미세 이동에서 1번(역동적 달리기 포즈)으로 튀어 "계속 뛰는 것처럼" 보이던 문제 해결.
+  const frameIdx = npc.isMoving ? ((Math.floor(npc.animTime / WALK_FRAME_DUR) + 1) % 4) + 1 : 2;
   const img = (groggy || npc.hp <= 0) ? IMGS[`${base}_hit_1`] : IMGS[`${prefix}_${dir}_${frameIdx}`];
 
   const spriteTop = npc.y + FOOT_OFFSET - SIZE;
