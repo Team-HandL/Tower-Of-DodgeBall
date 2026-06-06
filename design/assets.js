@@ -17,6 +17,8 @@ export function loadAssets() {
   const ceoKeys = dirs.flatMap(d => [1, 2, 3, 4].flatMap(f => [`ceo_${d}_${f}`, `ceo_ball_${d}_${f}`]));
   const trainerKeys = dirs.flatMap(d => [1, 2, 3, 4].flatMap(f => [`trainer_${d}_${f}`, `trainer_ball_${d}_${f}`]));
   const robotKeys = dirs.flatMap(d => [1, 2, 3, 4].flatMap(f => [`robot_${d}_${f}`, `robot_ball_${d}_${f}`]));
+  const hitKeys = ['jindo', 'nerd', 'ceo', 'trainer', 'soccer', 'robot']
+    .map(c => ({ key: `${c}_hit_1`, path: `./design/assets/images/${c}/${c}_hit_1.png` }));
   const rootKeys = ['ball_basic', 'ball_180'];
   const load = (key, path) => new Promise(resolve => {
     const img = new Image();
@@ -32,6 +34,7 @@ export function loadAssets() {
     ...trainerKeys.map(k => load(k, `./design/assets/images/trainer/${k}.png`)),
     ...robotKeys.map(k => load(k, `./design/assets/images/robot/${k}.png`)),
     ...rootKeys.map(k => load(k, `./design/assets/images/${k}.png`)),
+    ...hitKeys.map(({ key, path }) => load(key, path)),
   ]);
 }
 

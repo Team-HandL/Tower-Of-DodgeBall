@@ -22,7 +22,7 @@ export function drawPlayer(ctx, player) {
   const dir = getFacingKey(player.facing);
   const prefix = player.hasBall ? 'jindo_ball' : 'jindo';
   const frameIdx = player.isMoving ? (Math.floor(player.animTime / WALK_FRAME_DUR) % 4) + 1 : 2;
-  const img = IMGS[`${prefix}_${dir}_${frameIdx}`];
+  const img = (groggy || player.hp <= 0) ? IMGS['jindo_hit_1'] : IMGS[`${prefix}_${dir}_${frameIdx}`];
 
   const spriteTop = player.y + FOOT_OFFSET - SIZE;
 
