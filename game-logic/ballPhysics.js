@@ -1,6 +1,6 @@
 import { state, W, H } from './state.js';
 import { STATUS } from './status.js';
-import { rectHit } from './physics.js';
+import { rectHit, hasLOS } from './physics.js';
 import { applyHit } from './actions.js';
 import { OBSTACLES } from '../design/map-01/obstacles.js';
 import { SPRITE_CENTER_OFFSET_Y, HITBOX_SEMI_X, HITBOX_SEMI_Y } from '../design/player.js';
@@ -113,11 +113,15 @@ export function updateBall(dt) {
                : ball.flying && ball.bounces === 1 && ballSpd >= STATUS.player.catchMinSpd ? baseDmg * 0.5
                : 0;
   if (damage > 0) {
-    if (ball.thrownBy !== 'npc' && ellipseHit(ball, npc) && npc.invTime <= 0) {
+    const npcCenter    = { x: npc.x,    y: npc.y    + SPRITE_CENTER_OFFSET_Y };
+    const playerCenter = { x: player.x, y: player.y + SPRITE_CENTER_OFFSET_Y };
+    if (ball.thrownBy !== 'npc' && ellipseHit(ball, npc) && npc.invTime <= 0
+        && hasLOS(ball, npcCenter)) {
       applyHit(npc, false, damage);
       if (npc.hp <= 0) return 'win';
     }
-    if (ball.thrownBy !== 'player' && ellipseHit(ball, player) && player.invTime <= 0) {
+    if (ball.thrownBy !== 'player' && ellipseHit(ball, player) && player.invTime <= 0
+        && hasLOS(ball, playerCenter)) {
       applyHit(player, true, damage);
       if (player.hp <= 0) return 'lose';
     }

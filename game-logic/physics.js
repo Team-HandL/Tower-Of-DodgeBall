@@ -29,9 +29,10 @@ export function dist(a, b) {
 }
 
 export function hasLOS(a, b) {
+  const obs = state.obstacles ?? OBSTACLES;
   for (let i = 1; i < 16; i++) {
     const t = i / 16, cx = a.x + (b.x - a.x) * t, cy = a.y + (b.y - a.y) * t;
-    if (OBSTACLES.some(o => cx > o.x && cx < o.x+o.w && cy > o.y && cy < o.y+o.h)) return false;
+    if (obs.some(o => o.hp > 0 && cx > o.x && cx < o.x + o.w && cy > o.y && cy < o.y + o.h)) return false;
   }
   return true;
 }
