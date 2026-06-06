@@ -27,6 +27,7 @@ export function catchBall() {
   ball.thrownBy = null;
   ball.bounces  = 0;
   player.hasBall = true;
+  player.catchTime = 1.6;
 }
 
 export function doThrow(from, tx, ty, spd, who, power = 1) {

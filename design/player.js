@@ -86,11 +86,29 @@ export function drawPlayer(ctx, player) {
   ctx.lineTo(tip.x - Math.cos(ang + 0.45) * 7, tip.y - Math.sin(ang + 0.45) * 7);
   ctx.stroke();
 
+  // 캐치 텍스트
+  if (player.catchTime > 0) {
+    const CATCH_DUR = 0.8;
+    const t = player.catchTime / CATCH_DUR;
+    const floatY = (1 - t) * 16;
+    ctx.globalAlpha = t;
+    ctx.font = 'bold 13px PFStardustExtraBold, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#7FFFB0';
+    ctx.fillText('catch!!', player.x, spriteTop - 10 - floatY);
+    ctx.globalAlpha = 1;
+  }
+
   // 그로기 텍스트
   if (groggy) {
+    const GROGGY_DUR = 0.8;
+    const t = Math.min(1, player.grogyTime / GROGGY_DUR);
+    const floatY = (1 - t) * 16;
+    ctx.globalAlpha = t;
     ctx.font = '11px PFStardust, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(239,159,39,0.9)';
-    ctx.fillText('그로기!', player.x, spriteTop - 10);
+    ctx.fillStyle = '#EF9F27';
+    ctx.fillText('그로기!', player.x, spriteTop - 10 - floatY);
+    ctx.globalAlpha = 1;
   }
 }

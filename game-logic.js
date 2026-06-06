@@ -42,6 +42,7 @@ function loop(ts) {
   npc.spriteCenterY    = npc.y    + SPRITE_CENTER_OFFSET_Y;
   if (player.invTime > 0)   player.invTime -= dt;
   if (player.grogyTime > 0) player.grogyTime -= dt;
+  if (player.catchTime > 0) player.catchTime -= dt;
   if (npc.invTime > 0)      npc.invTime -= dt;
   if (npc.grogyTime > 0)    npc.grogyTime -= dt;
 
