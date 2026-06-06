@@ -14,9 +14,9 @@ import { SPRITE_CENTER_OFFSET_Y } from './design/player.js';
 loadAssets();
 
 const canvas = document.getElementById('gameCanvas');
+// 내부 해상도는 1200x800 고정(게임 좌표 기준). 화면 표시 크기는 CSS가 비율 유지하며 확대.
 canvas.width  = W;
 canvas.height = H;
-document.getElementById('ui').style.width = `${W}px`;
 const ctx = canvas.getContext('2d');
 
 function endGame(result) {

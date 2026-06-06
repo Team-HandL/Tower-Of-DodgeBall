@@ -32,8 +32,11 @@ export function setupInput() {
 
   canvas.addEventListener('mousemove', e => {
     const rect = canvas.getBoundingClientRect();
-    state.mouse.x = e.clientX - rect.left;
-    state.mouse.y = e.clientY - rect.top;
+    // 표시 크기(rect)와 내부 해상도(canvas.width/height)가 다르므로 좌표를 스케일 보정
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    state.mouse.x = (e.clientX - rect.left) * scaleX;
+    state.mouse.y = (e.clientY - rect.top) * scaleY;
   });
 
   document.addEventListener('mousedown', () => tryInteract());

@@ -24,10 +24,13 @@
   src: url('./design/assets/fonts/PFStardustExtraBold.ttf') format('truetype');
   font-display: block;
 }
+/* 게임 화면 비율(내부 해상도 1200x800)과 상단 UI 바 높이 예약값 */
+:root { --game-ar: 1200 / 800; --ui-h: 48px; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: 'PFStardust', sans-serif; }
-#gameCanvas { display: block; border-radius: 12px; border: 1px solid #333; }
-#ui { color: #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+html, body { height: 100%; }
+body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; overflow: hidden; font-family: 'PFStardust', sans-serif; }
+#gameCanvas { display: block; width: 100%; height: 100%; border-radius: 12px; border: 1px solid #333; }
+#ui { color: #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: min(100vw, calc((100vh - var(--ui-h)) * var(--game-ar))); max-width: 100vw; }
 .hp-group { display:flex; align-items:center; gap:6px; }
 .hp-wrap { width: 200px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; flex-shrink: 0; }
 .hp-num { font-size:11px; color:#aaa; min-width:28px; }
@@ -41,7 +44,8 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 .ov-btn:hover { background:rgba(255,255,255,0.28); }
 .ov-btn.primary { background:rgba(255,210,90,0.18);border-color:rgba(255,210,90,0.7);color:#FFE3A0; }
 .ov-btn.primary:hover { background:rgba(255,210,90,0.32); }
-.wrap { position:relative; }
+/* 화면에 꽉 차게 — 가로/세로 중 먼저 닿는 쪽 기준, 3:2 비율 유지 */
+.wrap { position:relative; width: min(100vw, calc((100vh - var(--ui-h)) * var(--game-ar))); aspect-ratio: var(--game-ar); }
 
 /* 1) 시작 화면 */
 .ov-start { gap: 0; padding: 0; flex-direction: column; justify-content: flex-start; align-items: stretch; }
