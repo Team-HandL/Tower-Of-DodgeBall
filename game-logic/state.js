@@ -46,6 +46,7 @@ export function initState() {
   const py = spawn?.player ? spawn.player.r * TILE + TILE / 2 : 400;
   const nx = spawn?.npc    ? spawn.npc.c    * TILE + TILE / 2 : 1120;
   const ny = spawn?.npc    ? spawn.npc.r    * TILE + TILE / 2 : 400;
+  console.log('[initState] spawn raw:', spawn, '→ player:', px, py, '/ npc:', nx, ny);
   state.player = { x: px,  y: py,  r: 16, hp: STATUS.player.hp, maxHp: STATUS.player.hp, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 }, isMoving: false, animTime: 0,
                    charge: { active: false, value: 0 } };
   state.npc    = { x: nx,  y: ny,  r: 16, hp: STATUS.npc.hp,    maxHp: STATUS.npc.hp, hasBall: false, invTime: 0, grogyTime: 0,

@@ -44,7 +44,7 @@ const FLOORS = {
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
     hasCards: true,
-    stats: { hp: 20, str: 100, spd: 130, velocity: 500 },
+    stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
     ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, wallAwareness: 0.35 },
     introLines: [
       '어... 안녕.',
@@ -60,7 +60,7 @@ const FLOORS = {
     sprite: 'ceo/ceo_portrait',
     npcSprite: 'ceo',
     hasCards: true,
-    stats: { hp: 20, str: 100, spd: 150, velocity: 510 },
+    stats: { hp: 120, str: 100, spd: 150, velocity: 510 },
     ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, wallAwareness: 0.48 },
     introLines: [
       '음? 여긴 어떻게 들어왔지.',
@@ -75,7 +75,7 @@ const FLOORS = {
     sprite: 'trainer/trainer_portrait',
     npcSprite: 'trainer',
     hasCards: true,
-    stats: { hp: 30, str: 105, spd: 180, velocity: 520 },
+    stats: { hp: 120, str: 105, spd: 180, velocity: 520 },
     ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66, wallAwareness: 0.62 },
     introLines: [
       '어이 거기, 몸은 좀 풀었나?',
@@ -90,9 +90,9 @@ const FLOORS = {
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
     hasCards: true,
-    stats: { hp: 20, str: 100, spd: 200, velocity: 500 },
+    stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
     ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, wallAwareness: 0.75 },
-    spawn: { player: { c: 1, r: 8 }, npc: { c: 23, r: 8 } },
+    spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
       '이상한 안드로이드잖아.\n축구를 하는 안드로이드로 개조해주겠어.',
