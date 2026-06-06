@@ -95,6 +95,7 @@ const flow = {
   floor: INITIAL_FLOOR,
   buffs: Object.fromEntries(CARDS.map(c => [c.key, 0])),
   startGameFn: null,
+  playTime: 0,
 };
 
 // 게임 로직이 호출하는 외부 인터페이스 ────────────────────────────
@@ -120,6 +121,7 @@ export function hideOverlay() {
 // 후속 작업에서 게임 로직이 읽을 수 있도록 노출 (현재는 미사용).
 export function getBuffs() { return { ...flow.buffs }; }
 export function getCurrentFloor() { return flow.floor; }
+export function addPlayTime(dt) { flow.playTime += dt; }
 
 // 내부 렌더링 ─────────────────────────────────────────────────────
 
@@ -217,6 +219,7 @@ function renderDefeat(reason) {
   document.getElementById('ov-retry-tower').onclick = () => {
     flow.floor = INITIAL_FLOOR;
     flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
+    flow.playTime = 0;
     renderFloorIntro();
   };
   document.getElementById('ov-retry-floor').onclick = () => {
@@ -355,6 +358,7 @@ function renderFinaleStats(data) {
   }).join('');
 
   const totalBuff = CARDS.reduce((n, c) => n + (flow.buffs[c.key] > 0 ? 1 : 0), 0);
+  const timeStr = formatTime(flow.playTime);
 
   const confetti = Array.from({ length: 24 }, (_, i) => {
     const colors = ['#FFE3A0', '#FF8B8B', '#8BD3FF', '#B6FF8B', '#E0A0FF'];
@@ -375,6 +379,7 @@ function renderFinaleStats(data) {
       <div class="final-panel-title">최종 스탯</div>
       ${statHtml}
       <div class="final-buff-count">획득한 강화 ${totalBuff}개</div>
+      <div class="final-playtime">⏱ 총 플레이 타임 &nbsp;<b>${timeStr}</b></div>
     </div>
     <button class="ov-btn primary" id="ov-restart">처음부터 다시 도전</button>
   `, 'finale');
@@ -382,11 +387,18 @@ function renderFinaleStats(data) {
   document.getElementById('ov-restart').onclick = () => {
     flow.floor = INITIAL_FLOOR;
     flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
+    flow.playTime = 0;
     renderStart();
   };
 }
 
 // 유틸 ──────────────────────────────────────────────────────────────
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, ch => (

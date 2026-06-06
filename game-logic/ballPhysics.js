@@ -1,8 +1,9 @@
 import { state, W, H } from './state.js';
 import { STATUS } from './status.js';
-import { rectHit, dist } from './physics.js';
+import { rectHit } from './physics.js';
 import { applyHit } from './actions.js';
 import { OBSTACLES } from '../design/map-01/obstacles.js';
+import { SPRITE_CENTER_OFFSET_Y, HITBOX_SEMI_X, HITBOX_SEMI_Y } from '../design/player.js';
 
 const RESTITUTION     = 0.45;
 const FRICTION        = 0.80;
@@ -10,6 +11,16 @@ const STOP_SPD        = 40;
 const AIR_DRAG        = 0.25;
 const BOUNCE_DRAG_INC = 0.20;
 const BLOCK_BREAK_THRESHOLD = 72; // 이 이상 데미지면 soft 블록 즉시 파괴
+
+function ellipseHit(ball, entity) {
+  const cx = entity.x;
+  const cy = entity.y + SPRITE_CENTER_OFFSET_Y;
+  const ea = HITBOX_SEMI_X + ball.r;
+  const eb = HITBOX_SEMI_Y + ball.r;
+  const dx = ball.x - cx;
+  const dy = ball.y - cy;
+  return (dx * dx) / (ea * ea) + (dy * dy) / (eb * eb) <= 1;
+}
 
 function resolveObstacle(ball, o) {
   const left   = ball.x + ball.r - o.x;
@@ -97,11 +108,11 @@ export function updateBall(dt) {
                : ball.flying && ball.bounces === 1 && ballSpd >= STATUS.player.catchMinSpd ? baseDmg * 0.5
                : 0;
   if (damage > 0) {
-    if (ball.thrownBy !== 'npc' && dist(ball, npc) < ball.r + npc.r && npc.invTime <= 0) {
+    if (ball.thrownBy !== 'npc' && ellipseHit(ball, npc) && npc.invTime <= 0) {
       applyHit(npc, false, damage);
       if (npc.hp <= 0) return 'win';
     }
-    if (ball.thrownBy !== 'player' && dist(ball, player) < ball.r + player.r && player.invTime <= 0) {
+    if (ball.thrownBy !== 'player' && ellipseHit(ball, player) && player.invTime <= 0) {
       applyHit(player, true, damage);
       if (player.hp <= 0) return 'lose';
     }

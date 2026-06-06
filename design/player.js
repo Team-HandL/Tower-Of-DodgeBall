@@ -3,6 +3,9 @@ import { IMGS, getFacingKey } from './assets.js';
 const SIZE = 96;           // 스프라이트 렌더 크기 (px)
 const FOOT_OFFSET = 16;    // (x,y) 충돌 중심 기준 발 위치 (양수 = 아래)
 export const SPRITE_CENTER_OFFSET_Y = FOOT_OFFSET - SIZE / 2; // 물리 중심 → 시각 중앙 오프셋
+// 원본 이미지 480×480 → 렌더 96×96 (1/5 스케일) 기준 히트박스 반경
+export const HITBOX_SEMI_X = 22; // 가로 semi-axis (220 / 2 × 96/480)
+export const HITBOX_SEMI_Y = 48; // 세로 semi-axis (480 / 2 × 96/480)
 const ARROW_SIZE = SIZE / 3 + 6;
 const WALK_FRAME_DUR = 0.12;
 

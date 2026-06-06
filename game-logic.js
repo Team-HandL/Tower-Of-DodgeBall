@@ -4,7 +4,7 @@ import { moveEntity } from './game-logic/physics.js';
 import { updateNPC } from './game-logic/npcAI.js';
 import { updateBall } from './game-logic/ballPhysics.js';
 import { draw } from './game-logic/renderer.js';
-import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow } from './game-logic/overlay.js';
+import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow, addPlayTime } from './game-logic/overlay.js';
 import { setupInput } from './game-logic/input.js';
 import { updatePlayerCharge } from './game-logic/actions.js';
 import { loadAssets } from './design/assets.js';
@@ -79,6 +79,7 @@ function loop(ts) {
   const result = updateBall(dt);
   if (result) { endGame(result); return; }
 
+  addPlayTime(dt);
   updateHPUI();
   draw(ctx);
   state.animId = requestAnimationFrame(loop);
