@@ -43,7 +43,7 @@ const FLOORS = {
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
     hasCards: true,
-    stats: { hp: 20, str: 100, spd: 130, velocity: 500 },
+    stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
     ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, wallAwareness: 0.35 },
     introLines: [
       '어... 안녕.',
@@ -56,11 +56,10 @@ const FLOORS = {
   },
   2: {
     title: '2F — CEO',
-    // ceo 폴더에는 portrait가 없어 정면 스프라이트를 초상으로 사용
-    sprite: 'ceo/ceo_front_1',
+    sprite: 'ceo/ceo_portrait',
     npcSprite: 'ceo',
     hasCards: true,
-    stats: { hp: 20, str: 100, spd: 150, velocity: 510 },
+    stats: { hp: 120, str: 100, spd: 150, velocity: 510 },
     ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, wallAwareness: 0.48 },
     introLines: [
       '음? 여긴 어떻게 들어왔지.',
@@ -72,8 +71,7 @@ const FLOORS = {
   },
   3: {
     title: '3F — 트레이너',
-    // trainer 폴더에는 portrait가 없어 정면 스프라이트를 초상으로 사용
-    sprite: 'trainer/trainer_front_1',
+    sprite: 'trainer/trainer_portrait',
     npcSprite: 'trainer',
     hasCards: true,
     stats: { hp: 130, str: 105, spd: 180, velocity: 520 },
@@ -91,7 +89,7 @@ const FLOORS = {
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
     hasCards: true,
-    stats: { hp: 20, str: 100, spd: 200, velocity: 500 },
+    stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
     ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, wallAwareness: 0.75 },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
