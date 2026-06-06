@@ -43,7 +43,7 @@ const FLOORS = {
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
+    stats: { hp: 20, str: 100, spd: 130, velocity: 500 },
     ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, wallAwareness: 0.35 },
     introLines: [
       '어... 안녕.',
@@ -54,12 +54,44 @@ const FLOORS = {
     defeatLine: '어라, 너 쓰러졌어?\n실력 없는 나한테 지다니...\n다시 도전해봐, 응원할게!',
     victoryLine: '우와, 역시!\n너의 그 회피 패턴, 잘 기록해뒀어.\n그럼 안녕.',
   },
+  2: {
+    title: '2F — CEO',
+    // ceo 폴더에는 portrait가 없어 정면 스프라이트를 초상으로 사용
+    sprite: 'ceo/ceo_front_1',
+    npcSprite: 'ceo',
+    hasCards: true,
+    stats: { hp: 20, str: 100, spd: 150, velocity: 510 },
+    ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, wallAwareness: 0.48 },
+    introLines: [
+      '음? 여긴 어떻게 들어왔지.',
+      '내 시간은 비싸. 짧게 끝내주겠어.',
+    ],
+    timeoutLine: '시간 초과군.\n마감도 못 지키는 자와는 거래하지 않아.',
+    defeatLine: '수고했네.\n자네의 패배, 좋은 데이터로 잘 쓰지.',
+    victoryLine: '이런, 내가 졌다고?\n좋아 — 자네, 스카우트하지.',
+  },
+  3: {
+    title: '3F — 트레이너',
+    // trainer 폴더에는 portrait가 없어 정면 스프라이트를 초상으로 사용
+    sprite: 'trainer/trainer_front_1',
+    npcSprite: 'trainer',
+    hasCards: true,
+    stats: { hp: 130, str: 105, spd: 180, velocity: 520 },
+    ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66, wallAwareness: 0.62 },
+    introLines: [
+      '어이 거기, 몸은 좀 풀었나?',
+      '자, 오늘 운동량 제대로 채워주마. 덤벼!',
+    ],
+    timeoutLine: '시간 안에 못 끝내?\n지구력이 부족하군. 더 뛰어!',
+    defeatLine: '벌써 지쳤어?\n기초 체력부터 다시다.',
+    victoryLine: '제법인데!\n합격이야. 다음 층으로 가봐.',
+  },
   4: {
     title: '4F — 축구선수',
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
+    stats: { hp: 20, str: 100, spd: 200, velocity: 500 },
     ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, wallAwareness: 0.75 },
     introLines: [
       '...왜 축구가 아니라 피구를 하는거지?',
