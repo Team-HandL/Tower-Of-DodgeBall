@@ -27,8 +27,8 @@ export function draw(ctx) {
   // 타이머
   const secs = Math.ceil(state.timer);
   const timeStr = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
-  ctx.font = state.timer <= 30 ? '20px PFStardustExtraBold, sans-serif' : '20px PFStardust, sans-serif';
+  ctx.font = state.timer <= 30 ? '30px PFStardustExtraBold, sans-serif' : '30px PFStardust, sans-serif';
   ctx.fillStyle = state.timer <= 30 ? 'rgba(220,60,60,1)' : 'rgba(255,255,255,0.85)';
   ctx.textAlign = 'center';
-  ctx.fillText(timeStr, W / 2, 30);
+  ctx.fillText(timeStr, W / 2, 40);
 }

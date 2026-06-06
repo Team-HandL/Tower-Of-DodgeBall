@@ -199,15 +199,15 @@ function renderFloorIntro() {
       .map((_, i) => `<span class="dot${i === idx ? ' on' : ''}"></span>`)
       .join('');
     paint(`
-      <div class="intro-floor-title">${data.title}</div>
-      <button class="intro-nav left${first ? ' hidden' : ''}" id="ov-prev" aria-label="이전">◀</button>
-      <button class="intro-nav right" id="ov-next" aria-label="${last ? '도전 시작' : '다음'}">▶${last ? '<span class="nav-label">도전 시작</span>' : ''}</button>
-      <div class="intro-bottom">
-        <img class="intro-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
-        <div class="intro-dialogue">
-          ${speaker ? `<div class="intro-speaker">${esc(speaker)}</div>` : ''}
-          <div class="intro-text">${esc(data.introLines[idx])}</div>
-          <div class="intro-dots">${dots}</div>
+      <div class="stage-title">${data.title}</div>
+      <button class="stage-nav left${first ? ' hidden' : ''}" id="ov-prev" aria-label="이전">◀</button>
+      <button class="stage-nav right" id="ov-next" aria-label="${last ? '도전 시작' : '다음'}">▶${last ? '<span class="nav-label">도전 시작</span>' : ''}</button>
+      <div class="stage-bottom">
+        <img class="stage-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
+        <div class="stage-dialogue">
+          ${speaker ? `<div class="stage-speaker">${esc(speaker)}</div>` : ''}
+          <div class="stage-text">${esc(data.introLines[idx])}</div>
+          <div class="stage-dots">${dots}</div>
         </div>
       </div>
     `, 'intro');
@@ -231,11 +231,13 @@ function startRound() {
 }
 
 // 3) 패배 화면 — 시간 초과 / HP 패배 분기 + 2개 재시작 옵션
+// 무대 레이아웃 재사용: 중앙에 결과 헤드라인, 하단 패널에서 NPC가 도발 + 재시작 버튼.
 function renderDefeat(reason) {
   const data = FLOORS[flow.floor] ?? {
-    title: `${flow.floor}F`, sprite: 'soccer/soccer_front_1',
+    title: `${flow.floor}F`, sprite: 'soccer/soccer_portrait',
     timeoutLine: '시간이 다 됐군.', defeatLine: '여기까지인가.',
   };
+  const speaker   = (data.title.split('—')[1] || '').trim();
   const isTimeout = reason === 'timeout';
   const headline  = isTimeout ? '⏱ 시간 초과' : '💀 패배';
   const subline   = isTimeout
@@ -244,16 +246,21 @@ function renderDefeat(reason) {
   const npcLine   = isTimeout ? data.timeoutLine : data.defeatLine;
 
   paint(`
-    <div class="floor-title">${data.title}</div>
-    <h2 class="result-headline lose">${headline}</h2>
-    <p class="result-sub">${subline}</p>
-    <div class="npc-stage">
-      <img class="npc-portrait" src="${IMG}/${data.sprite}.png" alt=""/>
-      <div class="bubble">${esc(npcLine)}</div>
+    <div class="stage-title">${data.title}</div>
+    <div class="stage-center">
+      <h2 class="result-headline lose">${headline}</h2>
+      <p class="result-sub">${subline}</p>
     </div>
-    <div class="btn-row">
-      <button class="ov-btn" id="ov-retry-tower">처음부터 다시 탑 오르기</button>
-      <button class="ov-btn primary" id="ov-retry-floor">이 층부터 다시 도전</button>
+    <div class="stage-bottom">
+      <img class="stage-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
+      <div class="stage-dialogue">
+        ${speaker ? `<div class="stage-speaker">${esc(speaker)}</div>` : ''}
+        <div class="stage-text">${esc(npcLine)}</div>
+        <div class="stage-actions">
+          <button class="ov-btn" id="ov-retry-tower">처음부터 다시 탑 오르기</button>
+          <button class="ov-btn primary" id="ov-retry-floor">이 층부터 다시 도전</button>
+        </div>
+      </div>
     </div>
   `, 'defeat');
 
@@ -264,24 +271,37 @@ function renderDefeat(reason) {
     renderFloorIntro();
   };
   document.getElementById('ov-retry-floor').onclick = () => {
-    renderFloorIntro();
+    startRound();   // 인트로 생략하고 같은 층 바로 재시작
   };
 }
 
 // 4) 승리 화면 — 카드 선택 (CARDS 데이터 기반)
+// 무대 레이아웃 재사용: 중앙에 헤드라인/카드, 하단 패널에서 NPC가 패배를 인정.
 function renderVictory() {
   const data = FLOORS[flow.floor] ?? { title: `${flow.floor}F`, victoryLine: '클리어!' };
+  const speaker = (data.title.split('—')[1] || '').trim();
 
   // 마지막 층 클리어 → 엔딩 오버레이 (최종 스탯 표시, 다음 층 없음)
   if (data.isFinal) { renderFinale(data); return; }
 
+  const npcPanel = `
+    <div class="stage-bottom">
+      <img class="stage-sprite" src="${IMG}/${data.sprite ?? 'soccer/soccer_portrait'}.png" alt=""/>
+      <div class="stage-dialogue">
+        ${speaker ? `<div class="stage-speaker">${esc(speaker)}</div>` : ''}
+        <div class="stage-text">${esc(data.victoryLine)}</div>
+        ${data.hasCards ? '' : '<div class="stage-actions"><button class="ov-btn primary" id="ov-next-floor">다음 층으로 ▶</button></div>'}
+      </div>
+    </div>`;
+
   // hasCards가 false인 층은 카드 없이 바로 다음 층으로
   if (!data.hasCards) {
     paint(`
-      <div class="floor-title">${data.title}</div>
-      <h2 class="result-headline win">🎉 클리어!</h2>
-      <p class="result-sub">${esc(data.victoryLine)}</p>
-      <button class="ov-btn primary" id="ov-next-floor">다음 층으로 ▸</button>
+      <div class="stage-title">${data.title}</div>
+      <div class="stage-center">
+        <h2 class="result-headline win">🎉 클리어!</h2>
+      </div>
+      ${npcPanel}
     `, 'victory');
     document.getElementById('ov-next-floor').onclick = () => {
       const next = Object.keys(FLOORS).map(Number).filter(f => f > flow.floor).sort((a, b) => a - b)[0];
@@ -303,12 +323,14 @@ function renderVictory() {
     .map(c => `${c.desc} +${pct(flow.buffs[c.key])}%`).join(' · ');
 
   paint(`
-    <div class="floor-title">${data.title}</div>
-    <h2 class="result-headline win">🎉 클리어!</h2>
-    <p class="result-sub">${esc(data.victoryLine)}</p>
-    <p class="card-hint">강화할 능력 하나를 선택하세요</p>
-    <div class="card-row">${cardHtml}</div>
-    <div class="buff-status">${accumulated ? `누적 — ${accumulated}` : '누적 없음'}</div>
+    <div class="stage-title">${data.title}</div>
+    <div class="stage-center">
+      <h2 class="result-headline win">🎉 클리어!</h2>
+      <p class="card-hint">강화할 능력 하나를 선택하세요</p>
+      <div class="card-row">${cardHtml}</div>
+      <div class="buff-status">${accumulated ? `누적 — ${accumulated}` : '누적 없음'}</div>
+    </div>
+    ${npcPanel}
   `, 'victory');
 
   document.querySelectorAll('.upgrade-card').forEach(btn => {
@@ -348,7 +370,7 @@ function buildEndingScenes(data) {
     // 4) 칩 도난 — 나레이션 (열린 결말)
     { emoji: '🥷💨', line: '그 순간, 누군가 칩을 낚아채 어둠 속으로 사라졌다...!' },
     // 5) TO BE CONTINUED...
-    { line: 'TO BE CONTINUED...' },
+    { img: data.sprite, line: 'TO BE CONTINUED...' },
   ];
 }
 
@@ -375,7 +397,7 @@ function renderEndingCutscene(data, onDone) {
         ${visual}
         ${caption}
       </div>
-      <button class="ov-btn primary" id="ov-cine-next">${last ? '엔딩 보기 ▸' : '다음 ▸'}</button>
+      <button class="ov-btn primary" id="ov-cine-next">${last ? '엔딩 보기 ▶' : '다음 ▶'}</button>
     `, 'cine');
     document.getElementById('ov-cine-next').onclick = () => {
       i++;
