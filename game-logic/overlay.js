@@ -1,5 +1,6 @@
 import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions, setNextNPCChatter, setNextBalls } from './state.js';
 import { FLOOR_OBSTACLE_GROUPS } from '../design/map-01/obstacles.js';
+import { loadAssets } from '../design/assets.js';
 import { BASE, STATUS, setNextNPCStats, applyBuffsToStatus } from './status.js';
 import { startBGM } from './bgm.js'
 import {
@@ -290,11 +291,25 @@ function renderStart() {
   document.querySelector('.start-top').onclick = go;
 }
 
+// 에셋(스프라이트/배경) 로딩 — NPC 대화가 시작될 때 1회 개시하고 Promise를 캐시한다.
+// loadAssets()는 전 층 에셋을 한 번에 불러오므로, 2층 이후 인트로에선 이미 완료되어 즉시 통과한다.
+let assetsPromise = null;
+let assetsReady = false;
+function ensureAssetsLoading() {
+  if (!assetsPromise) {
+    assetsPromise = loadAssets().then(() => { assetsReady = true; });
+  }
+  return assetsPromise;
+}
+
 // 2) 층 진입 화면 — NPC 대화 연출
 // 하단 풀폭 대사 바 + 우측 스프라이트, 좌우 흰색 삼각형 화살표로 대사 이동.
+// NPC 대화가 시작되는 즉시 에셋 로딩을 개시하고, 마지막 대사의 '도전 시작' 버튼은
+// 로딩이 끝나야 활성화된다(그 전까지는 스피너 표시).
 function renderFloorIntro() {
   const data = FLOORS[flow.floor];
   if (!data) { startRound(); return; }
+  ensureAssetsLoading();   // ← NPC 대화 시작과 동시에 에셋 로딩 개시
   const speaker = (data.title.split('—')[1] || '').trim();
   let idx = 0;
 
@@ -302,13 +317,17 @@ function renderFloorIntro() {
     const total = data.introLines.length;
     const last  = idx >= total - 1;
     const first = idx === 0;
+    const loading = last && !assetsReady;   // 마지막 대사인데 에셋이 아직이면 시작 버튼을 잠근다
     const dots  = data.introLines
       .map((_, i) => `<span class="dot${i === idx ? ' on' : ''}"></span>`)
       .join('');
+    const nextBtn = loading
+      ? `<button class="stage-nav right is-loading" id="ov-next" aria-label="에셋 로딩 중" disabled><span class="nav-spinner"></span><span class="nav-label">로딩 중…</span></button>`
+      : `<button class="stage-nav right" id="ov-next" aria-label="${last ? '도전 시작' : '다음'}">▶${last ? '<span class="nav-label">도전 시작</span>' : ''}</button>`;
     paint(`
       <div class="stage-title">${data.title}</div>
       <button class="stage-nav left${first ? ' hidden' : ''}" id="ov-prev" aria-label="이전">◀</button>
-      <button class="stage-nav right" id="ov-next" aria-label="${last ? '도전 시작' : '다음'}">▶${last ? '<span class="nav-label">도전 시작</span>' : ''}</button>
+      ${nextBtn}
       <div class="stage-bottom">
         <img class="stage-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
         <div class="stage-dialogue">
@@ -320,11 +339,15 @@ function renderFloorIntro() {
     `, 'intro');
     document.getElementById('ov-prev').onclick = () => { if (idx > 0) { idx--; render(); } };
     document.getElementById('ov-next').onclick = () => {
+      if (loading) return;            // 로딩 중엔 무시(disabled 속성 보강)
       if (last) startRound();
       else { idx++; render(); }
     };
   };
   render();
+  // 에셋 로딩이 끝나면 잠겨 있던 '도전 시작' 버튼을 다시 그려 활성화한다.
+  // (인트로를 벗어나려면 그 버튼을 눌러야 하므로, 콜백 시점엔 항상 같은 인트로 화면이다.)
+  if (!assetsReady) assetsPromise.then(() => render());
 }
 
 function startRound() {

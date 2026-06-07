@@ -8,12 +8,9 @@ import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow, addPlayTime } fr
 import { setupInput } from './game-logic/input.js';
 import { updatePlayerCharge } from './game-logic/actions.js';
 import { trackBattleEnd } from './game-logic/analytics.js';
-import { loadAssets } from './design/assets.js';
 import { SPRITE_CENTER_OFFSET_Y } from './design/player.js';
 
-// 페이지 로드 시 이미지 미리 로드 (게임 시작 전 완료)
-loadAssets();
-
+// 에셋 로딩은 NPC 대화가 시작될 때 overlay.js(renderFloorIntro)에서 개시한다.
 const canvas = document.getElementById('gameCanvas');
 // 내부 해상도는 1200x800 고정(게임 좌표 기준). 화면 표시 크기는 CSS가 비율 유지하며 확대.
 canvas.width  = W;
