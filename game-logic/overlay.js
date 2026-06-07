@@ -2,6 +2,13 @@ import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPo
 import { FLOOR_OBSTACLE_GROUPS } from '../design/map-01/obstacles.js';
 import { BASE, STATUS, setNextNPCStats, applyBuffsToStatus } from './status.js';
 import { startBGM } from './bgm.js'
+import {
+  startRun,
+  trackAbilitySelect,
+  trackFloorEnter,
+  trackGameEnd,
+  trackRetry,
+} from './analytics.js';
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
 
 function hpColor(hp, maxHp) {
@@ -199,8 +206,10 @@ const INITIAL_FLOOR = 1;
 const flow = {
   floor: INITIAL_FLOOR,
   buffs: Object.fromEntries(CARDS.map(c => [c.key, 0])),
+  abilityChoices: [],
   startGameFn: null,
   playTime: 0,
+  nextStartType: 'first_start',
 };
 
 // 게임 로직이 호출하는 외부 인터페이스 ────────────────────────────
@@ -229,6 +238,11 @@ export function hideOverlay() {
 export function getBuffs() { return { ...flow.buffs }; }
 export function getCurrentFloor() { return flow.floor; }
 export function addPlayTime(dt) { flow.playTime += dt; }
+export function getPlayTime() { return flow.playTime; }
+
+window.__todGetCurrentFloor = getCurrentFloor;
+window.__todGetPlayTime = getPlayTime;
+window.__todGetAbilityCombo = getAbilityCombo;
 
 // DEV: 특정 층으로 즉시 점프 (인트로 생략, 버프/타이머 리셋 없음)
 export function jumpToFloor(n) {
@@ -264,7 +278,11 @@ function renderStart() {
       <img src="${IMG}/jindo/jindo_back_1.png" alt="jindo"/>
     </div>
   `, 'start');
-  const go = () => renderFloorIntro();
+  const go = () => {
+    startRun(flow.nextStartType);
+    flow.nextStartType = 'first_start';
+    renderFloorIntro();
+  };
   document.getElementById('ov-start-btn').onclick = go;
   document.querySelector('.start-top').onclick = go;
 }
@@ -308,6 +326,7 @@ function renderFloorIntro() {
 
 function startRound() {
   startBGM();
+  trackFloorEnter(flow.floor);
   const data = FLOORS[flow.floor];
   if (data?.stats) setNextNPCStats(data.stats);
   if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
@@ -358,12 +377,22 @@ function renderDefeat(reason) {
   `, 'defeat');
 
   document.getElementById('ov-retry-tower').onclick = () => {
+    trackRetry({ retryType: 'new_run', floor: flow.floor });
+    trackGameEnd({
+      endType: reason === 'timeout' ? 'timeout' : 'death',
+      lastFloor: flow.floor,
+      totalDurationSec: flow.playTime,
+      abilityCombo: getAbilityCombo(),
+    });
     flow.floor = INITIAL_FLOOR;
     flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
+    flow.abilityChoices = [];
     flow.playTime = 0;
+    startRun('retry_from_beginning');
     renderFloorIntro();
   };
   document.getElementById('ov-retry-floor').onclick = () => {
+    trackRetry({ retryType: 'same_floor', floor: flow.floor });
     startRound();   // 인트로 생략하고 같은 층 바로 재시작
   };
 }
@@ -429,7 +458,15 @@ function renderVictory() {
   document.querySelectorAll('.upgrade-card').forEach(btn => {
     btn.onclick = () => {
       const card = CARDS.find(c => c.key === btn.dataset.buff);
-      if (card) flow.buffs[card.key] = (flow.buffs[card.key] || 0) + card.amount;
+      if (card) {
+        flow.buffs[card.key] = (flow.buffs[card.key] || 0) + card.amount;
+        flow.abilityChoices.push(card.key);
+        trackAbilitySelect({
+          floor: flow.floor,
+          abilityId: card.key,
+          abilityType: card.absolute ? 'flat' : 'percent',
+        });
+      }
       const next = Object.keys(FLOORS)
         .map(Number)
         .filter(f => f > flow.floor)
@@ -504,6 +541,12 @@ function renderEndingCutscene(data, onDone) {
 }
 
 function renderFinaleStats(data) {
+  trackGameEnd({
+    endType: 'clear',
+    lastFloor: flow.floor,
+    totalDurationSec: flow.playTime,
+    abilityCombo: getAbilityCombo(),
+  });
   const statHtml = FINAL_STATS.map(s => {
     const buff  = s.buffKey ? (flow.buffs[s.buffKey] || 0) : 0;
     const final = s.absolute ? s.base + buff : Math.round(s.base * (1 + buff));
@@ -545,7 +588,9 @@ function renderFinaleStats(data) {
   document.getElementById('ov-restart').onclick = () => {
     flow.floor = INITIAL_FLOOR;
     flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
+    flow.abilityChoices = [];
     flow.playTime = 0;
+    flow.nextStartType = 'restart_after_clear';
     renderStart();
   };
 }
@@ -564,3 +609,7 @@ function esc(s) {
   ));
 }
 function pct(v) { return Math.round(v * 100); }
+
+function getAbilityCombo() {
+  return flow.abilityChoices.length ? flow.abilityChoices.join('|') : 'none';
+}

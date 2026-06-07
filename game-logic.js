@@ -8,6 +8,7 @@ import { draw } from './game-logic/renderer.js';
 import { updateHPUI, showOverlay, hideOverlay, initOverlayFlow, addPlayTime } from './game-logic/overlay.js';
 import { setupInput } from './game-logic/input.js';
 import { updatePlayerCharge } from './game-logic/actions.js';
+import { trackBattleEnd } from './game-logic/analytics.js';
 import { loadAssets } from './design/assets.js';
 import { SPRITE_CENTER_OFFSET_Y } from './design/player.js';
 
@@ -21,6 +22,14 @@ canvas.height = H;
 const ctx = canvas.getContext('2d');
 
 function endGame(result) {
+  const floor = window.__todGetCurrentFloor?.() ?? 1;
+  const analyticsResult = result === 'win' ? 'win' : 'lose';
+  trackBattleEnd({
+    floor,
+    result: analyticsResult,
+    endReason: result,
+    playerHpEnd: state.player?.hp ?? 0,
+  });
   state.gameState = result;
   showOverlay(result, startGame);
 }
