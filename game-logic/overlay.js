@@ -456,13 +456,13 @@ function buildEndingScenes(data) {
     // 1) 피구로이드 정지 — 로봇 초상 + 마지막 대사
     { img: data.sprite, speaker: '피구로이드', line: data.victoryLine },
     // 2) 유저(진도)의 독백 — 칩 발견
-    { emoji: '💾', speaker: '진도', line: '저건... 칩?' },
+    { img: 'chip', speaker: '진도', line: '저건... 칩?' },
     // 3) 칩 회수 — 나레이션
-    { emoji: '🐾💾', line: '쓰러진 피구로이드의 머리에서 작은 칩을 빼냈다.\n완벽한 피구 로직의 정체가 이 안에...?' },
+    { img: 'jindo/jindo_back_1', line: '쓰러진 피구로이드의 머리에서 작은 칩을 빼냈다.\n완벽한 피구 로직의 정체가 이 안에...?' },
     // 4) 칩 도난 — 나레이션 (열린 결말)
-    { emoji: '🥷💨', line: '그 순간, 누군가 칩을 낚아채 어둠 속으로 사라졌다...!' },
-    // 5) TO BE CONTINUED...
-    { img: data.sprite, line: 'TO BE CONTINUED...' },
+    { img: 'thief', line: '그 순간, 누군가 칩을 낚아채 어둠 속으로 사라졌다...!' },
+    // 5) TO BE CONTINUED... — 텍스트만
+    { line: 'TO BE CONTINUED...' },
   ];
 }
 
@@ -479,7 +479,9 @@ function renderEndingCutscene(data, onDone) {
     const last = i >= scenes.length - 1;
     const visual = s.img
       ? `<img class="cine-img" src="${IMG}/${s.img}.png" alt=""/>`
-      : `<div class="cine-emoji">${s.emoji}</div>`;
+      : s.emoji
+        ? `<div class="cine-emoji">${s.emoji}</div>`
+        : '';
     const caption = s.speaker
       ? `<div class="cine-caption speech"><span class="cine-speaker">${esc(s.speaker)}</span>${esc(s.line)}</div>`
       : `<div class="cine-caption narr">${esc(s.line)}</div>`;
