@@ -55,7 +55,7 @@ const FLOORS = {
     ai: {
       reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55,
       pickupGreed: 0.55, blockBreakPreference: 0.1,
-      attackRangePreference: { short: 0.35, mid: 0.75, long: 0.30 },
+      attackRangePreference: { short: 0.40, mid: 0.70, long: 0.45 },
     },
     introLines: [
       '어... 안녕?',
@@ -84,9 +84,9 @@ const FLOORS = {
     hasCards: true,
     stats: { hp: 120, str: 105, spd: 200, velocity: 550 },
     ai: {
-      reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62,
-      pickupGreed: 0.60, blockBreakPreference: 0.3,
-      attackRangePreference: { short: 0.65, mid: 0.60, long: 0.40 },
+      reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.72,
+      pickupGreed: 0.75, blockBreakPreference: 0.3,
+      attackRangePreference: { short: 0.70, mid: 0.80, long: 0.50 },
     },
     introLines: [
       '아… 칩을 얻으면 큰 돈을 벌 수 있는데…',
@@ -110,11 +110,11 @@ const FLOORS = {
     sprite: 'trainer/trainer_portrait',
     npcSprite: 'trainer',
     hasCards: true,
-    stats: { hp: 170, str: 240, spd: 200, velocity: 600 },
+    stats: { hp: 170, str: 240, spd: 200, velocity: 520 },
     ai: {
       reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70,
       pickupGreed: 0.66, blockBreakPreference: 1.0,
-      attackRangePreference: { short: 0.90, mid: 0.60, long: 0.25 },
+      attackRangePreference: { short: 0.95, mid: 0.55, long: 0.20 },
     },
     introLines: [
       '거기 너! 몸이 부실하군!',
@@ -140,9 +140,9 @@ const FLOORS = {
     hasCards: true,
     stats: { hp: 150, str: 115, spd: 280, velocity: 640 },
     ai: {
-      reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78,
+      reactionDelay: 0.18, aimError: 40, dodgeSkill: 0.6, aggression: 0.78,
       pickupGreed: 0.72, blockBreakPreference: 0.25,
-      attackRangePreference: { short: 0.45, mid: 0.85, long: 0.65 },
+      attackRangePreference: { short: 0.40, mid: 0.90, long: 0.65 },
     },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     introLines: [
@@ -171,7 +171,7 @@ const FLOORS = {
     ai: {
       reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92,
       pickupGreed: 0.82, blockBreakPreference: 0.9,
-      attackRangePreference: { short: 0.80, mid: 0.95, long: 0.85 },
+      attackRangePreference: { short: 0.85, mid: 0.95, long: 0.85 },
     },
     introLines: [
       '.. 누구?',
