@@ -61,7 +61,7 @@ export function trackFloorEnter(floor) {
   });
 }
 
-export function trackBattleEnd({ floor, result, endReason, playerHpEnd }) {
+export function trackBattleEnd({ floor, result, endReason, playerHpEnd, npcHpEnd }) {
   ensureRun();
   if (result === 'lose') deathCount += 1;
 
@@ -72,6 +72,7 @@ export function trackBattleEnd({ floor, result, endReason, playerHpEnd }) {
     end_reason: endReason,
     duration_sec: Math.round((performance.now() - battleStartedAt) / 1000),
     player_hp_end: Math.round(playerHpEnd ?? 0),
+    npc_hp_end: Math.round(npcHpEnd ?? 0),
     attempt_no: floorAttempts.get(floor) || 1,
   });
 }

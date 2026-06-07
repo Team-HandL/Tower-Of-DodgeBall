@@ -28,6 +28,7 @@ function endGame(result) {
     result: analyticsResult,
     endReason: result,
     playerHpEnd: state.player?.hp ?? 0,
+    npcHpEnd: state.npc?.hp ?? 0,
   });
   state.gameState = result;
   showOverlay(result, startGame);
