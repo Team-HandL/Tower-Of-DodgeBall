@@ -1,6 +1,6 @@
 import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions } from './state.js';
 import { FLOOR_OBSTACLE_GROUPS } from '../design/map-01/obstacles.js';
-import { BASE, setNextNPCStats, applyBuffsToStatus } from './status.js';
+import { BASE, STATUS, setNextNPCStats, applyBuffsToStatus } from './status.js';
 
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
 
@@ -9,10 +9,16 @@ function hpColor(hp, maxHp) {
   return `rgb(${Math.round(220 - 160 * r)},${Math.round(40 + 160 * r)},40)`;
 }
 
+const BASE_HP = 120;
+const BASE_BAR_W = 200;
+function barWidth(maxHp) { return Math.max(60, Math.round(maxHp * BASE_BAR_W / BASE_HP)); }
+
 export function updateHPUI() {
   const { player, npc } = state;
   const pb = document.getElementById('player-hp-bar');
   const nb = document.getElementById('npc-hp-bar');
+  pb.parentElement.style.width = `${barWidth(player.maxHp)}px`;
+  nb.parentElement.style.width = `${barWidth(npc.maxHp)}px`;
   pb.style.width      = `${(player.hp / player.maxHp) * 100}%`;
   pb.style.background = hpColor(player.hp, player.maxHp);
   nb.style.width      = `${(npc.hp / npc.maxHp) * 100}%`;
@@ -30,6 +36,7 @@ const IMG = './design/assets/images';
 // 업그레이드 카드 정의 — 새 카드 추가 시 여기에만 항목 추가
 // key는 status.js의 BUFF_STAT 키와 일치해야 함
 const CARDS = [
+  { key: 'hp',         emoji: '❤️', title: 'HP 증가',      desc: 'HP',     amount: 30, absolute: true },
   { key: 'str',        emoji: '💪', title: '힘 강화',      desc: '데미지',  amount: 0.12 },
   { key: 'moveSpeed',  emoji: '⚡', title: '이동속도 강화', desc: '이동속도', amount: 0.10 },
   { key: 'throwPower', emoji: '💥', title: '투척 강화',    desc: '공 속도', amount: 0.12 },
@@ -238,6 +245,8 @@ function startRound() {
   hideOverlay();
   flow.startGameFn();             // → initState() → initStatus() (STATUS 초기화)
   applyBuffsToStatus(flow.buffs); // 초기화 직후 누적 버프 재적용
+  state.player.hp    = STATUS.player.hp; // hp는 state에 복사된 값이라 버프 후 재동기화 필요
+  state.player.maxHp = STATUS.player.hp;
 }
 
 // 3) 패배 화면 — 시간 초과 / HP 패배 분기 + 2개 재시작 옵션
@@ -325,12 +334,12 @@ function renderVictory() {
     <button class="upgrade-card" data-buff="${c.key}">
       <div class="card-emoji">${c.emoji}</div>
       <div class="card-title">${c.title}</div>
-      <div class="card-desc">${c.desc} <b>+${Math.round(c.amount * 100)}%</b></div>
+      <div class="card-desc">${c.desc} <b>+${c.absolute ? c.amount : Math.round(c.amount * 100) + '%'}</b></div>
     </button>
   `).join('');
 
   const accumulated = CARDS.filter(c => flow.buffs[c.key] > 0)
-    .map(c => `${c.desc} +${pct(flow.buffs[c.key])}%`).join(' · ');
+    .map(c => `${c.desc} +${c.absolute ? flow.buffs[c.key] : pct(flow.buffs[c.key]) + '%'}`).join(' · ');
 
   paint(`
     <div class="stage-title">${data.title}</div>
@@ -360,7 +369,7 @@ function renderVictory() {
 // 5) 엔딩 화면 — 탑 정복 + 최종 스탯 (마지막 층 전용)
 // 최종 스탯은 BASE + 누적 버프(flow.buffs)로 결정적으로 계산한다.
 const FINAL_STATS = [
-  { emoji: '❤️', label: '체력',     base: BASE.player.hp,       buffKey: null },
+  { emoji: '❤️', label: '체력',     base: BASE.player.hp,       buffKey: 'hp', absolute: true },
   { emoji: '💪', label: '힘',       base: BASE.player.str,      buffKey: 'str' },
   { emoji: '⚡', label: '이동 속도', base: BASE.player.spd,      buffKey: 'moveSpeed' },
   { emoji: '💥', label: '공 속도',   base: BASE.player.velocity, buffKey: 'throwPower' },
@@ -421,8 +430,8 @@ function renderEndingCutscene(data, onDone) {
 function renderFinaleStats(data) {
   const statHtml = FINAL_STATS.map(s => {
     const buff  = s.buffKey ? (flow.buffs[s.buffKey] || 0) : 0;
-    const final = Math.round(s.base * (1 + buff));
-    const bonus = buff > 0 ? `<span class="stat-bonus">+${pct(buff)}%</span>` : '';
+    const final = s.absolute ? s.base + buff : Math.round(s.base * (1 + buff));
+    const bonus = buff > 0 ? `<span class="stat-bonus">+${s.absolute ? buff : pct(buff) + '%'}</span>` : '';
     return `
       <div class="stat-row">
         <span class="stat-name">${s.emoji} ${s.label}</span>

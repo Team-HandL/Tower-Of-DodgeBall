@@ -32,7 +32,7 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 #gameCanvas { display: block; width: 100%; height: 100%; border-radius: 12px; border: 1px solid #333; }
 #ui { color: #ccc; padding: 8px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: min(100vw, calc((100vh - var(--ui-h)) * var(--game-ar))); max-width: 100vw; }
 .hp-group { display:flex; align-items:center; gap:6px; }
-.hp-wrap { width: 200px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; flex-shrink: 0; }
+.hp-wrap { width: 200px; height: 12px; transition: width 0.3s; background: rgba(255,255,255,0.1); border-radius: 4px; position: relative; flex-shrink: 0; }
 .hp-num { font-size:14px; color:#aaa; min-width:32px; }
 #player-hp-bar { height: 100%; border-radius: 4px; }
 #npc-hp-bar { height: 100%; border-radius: 4px; position: absolute; right: 0; }
