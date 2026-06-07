@@ -79,6 +79,7 @@ const FLOORS = {
       'W A S D로 이동할 수 있어.',
       '클릭/SPACE로 공을 줍고 던질 수 있어.',
       '클릭/SPACE를 길게 누르면 공을 더 강하게 던질 수 있지.',
+      '마우스를 움직여서 공의 조준 방향을 정할 수 있어.',
       '날아오는 공을 타이밍 맞춰 잡아봐.',
       '장애물을 부수면 공을 추가로 얻을 수도 있어.'
     ],
@@ -93,7 +94,6 @@ const FLOORS = {
     ai: {
       reactionDelay: 0.3, aimError: 52, dodgeSkill: 0.48, aggression: 0.72,
       pickupGreed: 0.75, blockBreakPreference: 0.3,
-      centerBias: 0.0022, wallAvoidMargin: 170, wallAvoidBias: 0.0016,
       attackRangePreference: { short: 0.70, mid: 0.80, long: 0.50 },
     },
     introLines: [
