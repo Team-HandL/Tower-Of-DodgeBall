@@ -36,7 +36,28 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
 .hp-num { font-size:14px; color:#aaa; min-width:32px; }
 #player-hp-bar { height: 100%; border-radius: 4px; }
 #npc-hp-bar { height: 100%; border-radius: 4px; position: absolute; right: 0; }
-#status { font-size: 14px; color: #888; text-align: center; }
+#status { font-size: 14px; color: #888; text-align: center; cursor: pointer; user-select: none; transition: color .15s; }
+#status:hover { color: #FFE3A0; }
+#status .help-q { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; margin-left:7px; border:1px solid currentColor; border-radius:50%; font-size:11px; line-height:1; vertical-align:middle; }
+/* 오버레이(시작/대화) 상태에서, 캔버스 밖 상단 바(원래 #status 위치)에 뜨는 도움말 버튼.
+   #ui와 동일 폭으로 중앙 정렬되어 #status가 있던 그 자리에 그대로 나타난다. */
+#overlay-help { display:none; justify-content:center; align-items:center; gap:7px; padding:8px 0;
+  width: min(100vw, calc((100vh - var(--ui-h)) * var(--game-ar))); max-width:100vw;
+  font-family:'PFStardust',sans-serif; font-size:14px; letter-spacing:0.5px; color:#FFE3A0; cursor:pointer; user-select:none; transition:color .15s; }
+#overlay-help:hover { color:#fff8d8; }
+#overlay-help .help-q { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border:1px solid currentColor; border-radius:50%; font-size:11px; line-height:1; }
+/* 조작법 도움말 팝업 */
+#help-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:50; }
+#help-backdrop.show { display:flex; }
+#help-box { position:relative; background:rgba(30,30,32,0.98); border:2px solid rgba(255,210,90,0.7); border-radius:12px; padding:24px 28px; max-width:460px; width:calc(100% - 40px); color:#fff; font-family:'PFStardust',sans-serif; box-shadow:0 10px 36px rgba(0,0,0,0.6); animation:help-in .16s ease; }
+@keyframes help-in { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+#help-box h3 { color:#FFE3A0; font-size:20px; letter-spacing:3px; margin-bottom:18px; text-align:center; }
+#help-box dl { display:grid; grid-template-columns:auto 1fr; gap:11px 18px; align-items:center; margin:0; }
+#help-box dt { color:#FFE3A0; font-size:15px; white-space:nowrap; }
+#help-box dd { color:rgba(255,255,255,0.88); font-size:15px; margin:0; }
+#help-tip { margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.15); font-size:14px; color:rgba(255,255,255,0.7); line-height:1.6; }
+#help-close { position:absolute; top:10px; right:14px; background:none; border:0; color:rgba(255,255,255,0.55); font-size:22px; line-height:1; cursor:pointer; font-family:'PFStardust',sans-serif; }
+#help-close:hover { color:#fff; }
 #overlay { position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,0.72);border-radius:12px;overflow:hidden; }
 #overlay h2 { color:#fff;font-size:22px;font-weight:500; }
 #overlay p  { color:rgba(255,255,255,0.78);font-size:15px; }
@@ -149,17 +170,58 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
     <div class="hp-wrap"><div id="player-hp-bar" style="width:100%;background:rgb(60,200,40)"></div></div>
     <span id="player-hp-text" class="hp-num">120</span>
   </div>
-  <div id="status">WASD 이동 &nbsp;|&nbsp; 스페이스 / 클릭 줍기·던지기</div>
+  <div id="status">WASD 이동 &nbsp;|&nbsp; 스페이스 / 클릭 줍기·던지기<span class="help-q">?</span></div>
   <div class="hp-group">
     <span id="npc-hp-text" class="hp-num" style="text-align:right;">120</span>
     <div class="hp-wrap"><div id="npc-hp-bar" style="width:100%;background:rgb(60,200,40)"></div></div>
   </div>
 </div>
 
+<!-- 오버레이(시작/대화/결과) 상태에서 캔버스 밖 상단 바(원래 조작법 위치)에 뜨는 도움말 버튼 -->
+<div id="overlay-help"><span class="help-q">?</span>조작법</div>
+
 <div class="wrap">
 <canvas id="gameCanvas"></canvas>
 <div id="overlay"></div>
 </div>
+
+<!-- 조작법 도움말 팝업 -->
+<div id="help-backdrop">
+  <div id="help-box">
+    <button id="help-close" aria-label="닫기">✕</button>
+    <h3>조작법</h3>
+    <dl>
+      <dt>W A S D</dt><dd>이동</dd>
+      <dt>마우스</dt><dd>조준 방향</dd>
+      <dt>클릭 / Space</dt><dd>공 줍기 · 던지기 · 캐치</dd>
+      <dt>클릭 / Space 길게</dt><dd>차징 — 더 강하게 던지기</dd>
+    </dl>
+    <div id="help-tip">
+      💡 날아오는 공은 타이밍 맞춰 클릭/Space로 캐치할 수 있어요.<br>
+      💡 장애물(약한 블록)을 부수면 공이 추가로 나오기도 해요.
+    </div>
+  </div>
+</div>
+
+<script>
+  // 도움말 팝업 토글. 트리거: 게임플레이 중엔 상단 #status, 오버레이(시작/대화)에선 #overlay-help.
+  // 팝업/트리거의 mousedown은 전파를 막아 게임 입력(throw/catch)으로 새지 않게 한다
+  // (input.js가 document에서 듣기 때문). 열려 있는 동안 게임 루프는 일시정지된다.
+  (function () {
+    const status    = document.getElementById('status');
+    const ovHelp     = document.getElementById('overlay-help');
+    const backdrop  = document.getElementById('help-backdrop');
+    const closeBtn  = document.getElementById('help-close');
+    const open  = () => { backdrop.classList.add('show');    window.__gameSetPaused && window.__gameSetPaused(true); };
+    const close = () => { backdrop.classList.remove('show'); window.__gameSetPaused && window.__gameSetPaused(false); };
+    [status, ovHelp, backdrop].forEach(el => el.addEventListener('mousedown', e => e.stopPropagation()));
+    status.addEventListener('click', open);
+    ovHelp.addEventListener('click', open);
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) close(); });
+    closeBtn.addEventListener('click', close);
+    document.addEventListener('keydown', e => { if (e.code === 'Escape') close(); });
+  })();
+</script>
 
 <script type="module" src="./game-logic.js"></script>
 </body>

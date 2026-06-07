@@ -47,13 +47,22 @@ function updateNpcSpeech(dt) {
 function startGame() {
   hideOverlay();
   initState();
+  state.paused = false;
   if (state.animId) cancelAnimationFrame(state.animId);
   state.last = performance.now();
   state.animId = requestAnimationFrame(loop);
 }
 
+// 도움말 팝업 등 외부 UI가 게임을 잠시 멈출 때 호출 (index.html의 인라인 스크립트에서 사용).
+// 일시정지 중엔 loop가 업데이트를 건너뛰고 rAF만 유지하다가 재개 시 dt 점프 없이 이어간다.
+window.__gameSetPaused = (p) => {
+  state.paused = p;
+  if (!p && state.gameState === 'playing') state.last = performance.now();
+};
+
 function loop(ts) {
   if (state.gameState !== 'playing') { state.animId = null; return; }
+  if (state.paused) { state.last = ts; state.animId = requestAnimationFrame(loop); return; }
   const dt = Math.min((ts - state.last) / 1000, 0.05);
   state.last = ts;
 

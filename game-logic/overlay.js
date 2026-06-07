@@ -199,6 +199,8 @@ export function hideOverlay() {
   ov.innerHTML = '';
   ov.className = '';
   document.getElementById('ui').style.display = 'flex';
+  const oh = document.getElementById('overlay-help');
+  if (oh) oh.style.display = 'none';   // 게임플레이 중엔 상단 #status가 트리거
 }
 
 // 후속 작업에서 게임 로직이 읽을 수 있도록 노출 (현재는 미사용).
@@ -220,6 +222,8 @@ function paint(html, variant) {
   ov.className = `ov ov-${variant}`;
   ov.style.display = 'flex';
   document.getElementById('ui').style.display = 'none';
+  const oh = document.getElementById('overlay-help');
+  if (oh) oh.style.display = 'flex';   // 오버레이(시작/대화/결과)에선 캔버스 상단 버튼 노출
 }
 
 // 1) 최초 시작 화면 — tower.png + 진도 대사
