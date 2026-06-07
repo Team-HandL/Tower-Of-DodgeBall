@@ -20,6 +20,11 @@ export function loadAssets() {
   const hitKeys = ['jindo', 'nerd', 'ceo', 'trainer', 'soccer', 'robot']
     .map(c => ({ key: `${c}_hit_1`, path: `./design/assets/images/${c}/${c}_hit_1.png` }));
   const rootKeys = ['ball_basic', 'ball_180'];
+  // 층별 배경: map-0N/background_0N.png → IMGS['background_N']
+  const bgKeys = [1, 2, 3, 4, 5].map(n => ({
+    key: `background_${n}`,
+    path: `./design/map-0${n}/background_0${n}.png`,
+  }));
   const load = (key, path) => new Promise(resolve => {
     const img = new Image();
     img.onload  = () => { IMGS[key] = img; resolve(); };
@@ -35,6 +40,7 @@ export function loadAssets() {
     ...robotKeys.map(k => load(k, `./design/assets/images/robot/${k}.png`)),
     ...rootKeys.map(k => load(k, `./design/assets/images/${k}.png`)),
     ...hitKeys.map(({ key, path }) => load(key, path)),
+    ...bgKeys.map(({ key, path }) => load(key, path)),
   ]);
 }
 

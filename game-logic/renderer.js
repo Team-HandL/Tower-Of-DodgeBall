@@ -4,9 +4,10 @@ import { drawNPC } from '../design/map-01/npc.js';
 import { OBSTACLE_GROUPS, drawBlock } from '../design/map-01/obstacles.js';
 import { drawBall } from '../design/ball.js';
 import { drawPlayer } from '../design/player.js';
+import { getCurrentFloor } from './overlay.js';
 
 function drawMap(ctx) {
-  drawBackground(ctx, W, H);
+  drawBackground(ctx, W, H, getCurrentFloor());
   (state.obstacleGroups ?? OBSTACLE_GROUPS).forEach(group =>
     group.forEach(({ c, r }) => {
       const obs = state.obstacles?.find(o => o.c === c && o.r === r);

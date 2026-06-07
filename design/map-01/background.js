@@ -1,3 +1,5 @@
+import { IMGS } from '../assets.js';
+
 const TILE  = 48;  // 타일 크기 (px) — 더 작게
 const GROUT = 2;   // 줄눈 두께 (px)
 
@@ -7,7 +9,18 @@ function rand(seed) {
   return x - Math.floor(x);
 }
 
-export function drawBackground(ctx, W, H) {
+// 층별 배경: assets.js가 미리 로드한 background_N PNG를 캔버스 전체에 그린다.
+// 이미지 로드 전(또는 누락 시)에는 절차적 돌바닥(drawStoneFloor)으로 폴백한다.
+export function drawBackground(ctx, W, H, floor = 1) {
+  const img = IMGS[`background_${floor}`];
+  if (img) {
+    ctx.drawImage(img, 0, 0, W, H);
+    return;
+  }
+  drawStoneFloor(ctx, W, H);
+}
+
+function drawStoneFloor(ctx, W, H) {
   const cols = Math.ceil(W / TILE) + 1;
   const rows = Math.ceil(H / TILE) + 1;
 
