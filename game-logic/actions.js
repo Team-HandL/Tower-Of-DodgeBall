@@ -97,6 +97,11 @@ export function pickUpBall(who, ball) {
   if (who === 'npc') {
     npc.hasBall = true;
     npc.dodgeDir = null;
+    const pickupAimDelay = npc.ai?.pickupAimDelay;
+    if (pickupAimDelay) {
+      npc.aimTimer = pickupAimDelay.min + Math.random() * (pickupAimDelay.max - pickupAimDelay.min);
+      return;
+    }
     const aggression = npc.ai?.aggression ?? 0.7;
     npc.aimTimer = Math.max(0.45, 1.1 - aggression * 0.55) + Math.random() * (0.8 - aggression * 0.35);
   }
