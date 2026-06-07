@@ -68,7 +68,7 @@ const FLOORS = {
     npcSprite: 'ceo',
     hasCards: true,
     stats: { hp: 120, str: 105, spd: 170, velocity: 550 },
-    ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, blockBreakPreference: 0 },
+    ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, blockBreakPreference: 0.3 },
     introLines: [
       '음? 여긴 어떻게 들어왔지.',
       '내 시간은 비싸. 짧게 끝내주겠어.',
