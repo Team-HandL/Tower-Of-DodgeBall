@@ -60,9 +60,10 @@ export function updateBall(dt) {
     state.obstacles.forEach(o => {
       if (o.hp <= 0) return;
       if (!rectHit(ball.x, ball.y, ball.r, o)) return;
-      resolveObstacle(ball, o);
       if (o.type === 'soft' && !hitThisFrame.has(o)) {
         hitThisFrame.add(o);
+        // 이 블록에 부딪히기 직전의 속도로 데미지를 계산한다.
+        // 반사 후 다른 블록에 연속 충돌하면 그때는 이미 감쇠된 속도가 사용된다.
         const curSpd    = Math.hypot(ball.vx, ball.vy);
         const spdRatio  = ball.throwSpd > 0 ? Math.min(1, curSpd / ball.throwSpd) : 1;
         const ballDmg   = (ball.throwStr ?? 100) * 0.4 * (ball.power ?? 1) * spdRatio;
@@ -71,6 +72,7 @@ export function updateBall(dt) {
                         : 0;
         if (blockDmg > 0) o.hp = Math.max(0, o.hp - blockDmg);
       }
+      resolveObstacle(ball, o);
       hit = true;
     });
     if (!hit) break;
