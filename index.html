@@ -161,9 +161,22 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
   10%  { opacity:0.95; }
   100% { transform:translateY(640px) rotate(540deg); opacity:0.2; }
 }
+/* 모바일 안내 화면 — 키보드/마우스가 없는 기기에서 게임 대신 표시 */
+#mobile-block { display:none; position:fixed; inset:0; z-index:100; background:#111;
+  flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:32px; }
+#mobile-block .mb-icon { width:76px; height:76px; image-rendering:pixelated; filter:drop-shadow(0 0 24px rgba(255,210,90,0.35)); margin-bottom:4px; }
+#mobile-block h2 { color:#FFE3A0; font-size:24px; letter-spacing:2px; }
+#mobile-block p { color:rgba(255,255,255,0.78); font-size:16px; line-height:1.8; }
 </style>
 </head>
 <body>
+
+<!-- 모바일/터치 기기 안내 — 아래 스크립트가 모바일로 판단하면 표시한다 -->
+<div id="mobile-block">
+  <img class="mb-icon" src="./design/assets/images/ball_basic.png" alt="">
+  <h2>PC에서 접속해주세요</h2>
+  <p>이 게임은 키보드와 마우스가 필요해요.<br>모바일에서는 게임이 지원되지 않아요.</p>
+</div>
 
 <div id="ui" style="display:none">
   <div class="hp-group">
@@ -223,6 +236,23 @@ body { background: #111; display: flex; flex-direction: column; align-items: cen
   })();
 </script>
 
-<script type="module" src="./game-logic.js"></script>
+<script>
+  // 모바일 차단: 이 게임은 WASD 키보드 + 마우스가 필수라 터치 기기에서는 플레이할 수 없다.
+  // 모바일로 판단되면 안내 오버레이만 띄우고 게임 모듈(game-logic.js)은 아예 로드하지 않는다.
+  (function () {
+    const ua = navigator.userAgent || navigator.vendor || '';
+    const uaMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(ua);
+    // iPadOS 13+는 UA가 데스크톱(Mac)으로 잡혀, 정밀 포인터(마우스)가 없는 터치 기기도 함께 막는다.
+    const coarseOnly = window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches;
+    if (uaMobile || coarseOnly) {
+      document.getElementById('mobile-block').style.display = 'flex';
+      return;  // 게임 로드 중단
+    }
+    const s = document.createElement('script');
+    s.type = 'module';
+    s.src = './game-logic.js';
+    document.body.appendChild(s);
+  })();
+</script>
 </body>
 </html>
