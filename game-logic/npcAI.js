@@ -1,8 +1,8 @@
 import { state, SAFE_DIST, W, H } from './state.js';
 import { STATUS } from './status.js';
-import { moveEntity, dist, hasLOS } from './physics.js';
+import { moveEntity, dist } from './physics.js';
 import { doThrow, pickUpBall } from './actions.js';
-import { OBSTACLES } from '../design/map-01/obstacles.js';
+import { OBSTACLES, TILE } from '../design/map-01/obstacles.js';
 
 // facing 평활 계수: 한 프레임에 목표 방향으로 이만큼만 회전(0~1).
 // 작을수록 안정적이지만 방향 전환이 느려진다. 장애물에 막혀 희망 방향이
@@ -13,6 +13,15 @@ const FACING_SMOOTH = 0.18;
 // 코너 판정 여백: 캔버스 두 변에 동시에 이만큼 가까우면 "코너에 갇힘"으로 보고
 // 무엇보다 먼저 빠져나오게 한다.
 const CORNER_MARGIN = 120;
+const GRID_COLS = Math.ceil(W / TILE);
+const GRID_ROWS = Math.ceil(H / TILE);
+const NAV_REPATH_TIME = 0.25;
+const NAV_REACHED_DIST = 10;
+const SHOT_PLAN_TIME = 0.35;
+const SHOT_MIN_RANGE = 100;
+const SHOT_MAX_RANGE = 420;
+const SHOT_IDEAL_RANGE = 220;
+const PLAYER_HIT_PATH_PADDING = 36;
 
 const DEFAULT_AI = {
   reactionDelay: 0.22,
@@ -20,10 +29,192 @@ const DEFAULT_AI = {
   dodgeSkill: 0.55,
   aggression: 0.7,
   pickupGreed: 0.65,
+  blockBreakPreference: 0,
 };
 
 function ai() {
   return { ...DEFAULT_AI, ...(state.npc.ai || {}) };
+}
+
+function cellKey(c, r) {
+  return `${c},${r}`;
+}
+
+function worldToCell(x, y) {
+  return {
+    c: Math.max(0, Math.min(GRID_COLS - 1, Math.floor(x / TILE))),
+    r: Math.max(0, Math.min(GRID_ROWS - 1, Math.floor(y / TILE))),
+  };
+}
+
+function cellToWorld(c, r, radius) {
+  return {
+    x: Math.max(radius, Math.min(W - radius, c * TILE + TILE / 2)),
+    y: Math.max(radius, Math.min(H - radius, r * TILE + TILE / 2)),
+  };
+}
+
+function pointBlocked(x, y, radius) {
+  if (x - radius < 0 || x + radius > W || y - radius < 0 || y + radius > H) return true;
+  const obs = state.obstacles ?? OBSTACLES;
+  return obs.some(o => o.hp > 0 &&
+    x + radius > o.x && x - radius < o.x + o.w &&
+    y + radius > o.y && y - radius < o.y + o.h);
+}
+
+function isWalkableCell(c, r, radius) {
+  if (c < 0 || c >= GRID_COLS || r < 0 || r >= GRID_ROWS) return false;
+  const p = cellToWorld(c, r, radius);
+  return !pointBlocked(p.x, p.y, radius);
+}
+
+function nearestWalkableCell(cell, radius) {
+  if (isWalkableCell(cell.c, cell.r, radius)) return cell;
+  const maxRadius = Math.max(GRID_COLS, GRID_ROWS);
+  for (let ring = 1; ring <= maxRadius; ring++) {
+    let best = null;
+    let bestDist = Infinity;
+    for (let r = cell.r - ring; r <= cell.r + ring; r++) {
+      for (let c = cell.c - ring; c <= cell.c + ring; c++) {
+        if (Math.max(Math.abs(c - cell.c), Math.abs(r - cell.r)) !== ring) continue;
+        if (!isWalkableCell(c, r, radius)) continue;
+        const d = Math.hypot(c - cell.c, r - cell.r);
+        if (d < bestDist) {
+          best = { c, r };
+          bestDist = d;
+        }
+      }
+    }
+    if (best) return best;
+  }
+  return null;
+}
+
+function heuristic(a, b) {
+  const dx = Math.abs(a.c - b.c);
+  const dy = Math.abs(a.r - b.r);
+  return 10 * Math.max(dx, dy) + 4 * Math.min(dx, dy);
+}
+
+function findPath(startPos, goalPos, radius) {
+  const start = worldToCell(startPos.x, startPos.y);
+  const goal = nearestWalkableCell(worldToCell(goalPos.x, goalPos.y), radius);
+  if (!goal) return [];
+
+  const startKey = cellKey(start.c, start.r);
+  const goalKey = cellKey(goal.c, goal.r);
+  if (startKey === goalKey) return [cellToWorld(goal.c, goal.r, radius)];
+
+  const open = [{ ...start, g: 0, f: heuristic(start, goal) }];
+  const scores = new Map([[startKey, 0]]);
+  const cameFrom = new Map();
+  const closed = new Set();
+  const directions = [
+    { dc: 1, dr: 0, cost: 10 }, { dc: -1, dr: 0, cost: 10 },
+    { dc: 0, dr: 1, cost: 10 }, { dc: 0, dr: -1, cost: 10 },
+    { dc: 1, dr: 1, cost: 14 }, { dc: 1, dr: -1, cost: 14 },
+    { dc: -1, dr: 1, cost: 14 }, { dc: -1, dr: -1, cost: 14 },
+  ];
+
+  while (open.length > 0) {
+    open.sort((a, b) => a.f - b.f);
+    const current = open.shift();
+    const currentKey = cellKey(current.c, current.r);
+    if (closed.has(currentKey)) continue;
+    if (currentKey === goalKey) {
+      const cells = [{ c: current.c, r: current.r }];
+      let key = currentKey;
+      while (cameFrom.has(key)) {
+        const prev = cameFrom.get(key);
+        cells.push(prev);
+        key = cellKey(prev.c, prev.r);
+      }
+      cells.reverse();
+      return cells.slice(1).map(p => cellToWorld(p.c, p.r, radius));
+    }
+    closed.add(currentKey);
+
+    for (const dir of directions) {
+      const next = { c: current.c + dir.dc, r: current.r + dir.dr };
+      const nextKey = cellKey(next.c, next.r);
+      if (closed.has(nextKey) || !isWalkableCell(next.c, next.r, radius)) continue;
+      if (dir.dc !== 0 && dir.dr !== 0 &&
+          (!isWalkableCell(current.c + dir.dc, current.r, radius) ||
+           !isWalkableCell(current.c, current.r + dir.dr, radius))) continue;
+
+      const nextG = current.g + dir.cost;
+      if (nextG >= (scores.get(nextKey) ?? Infinity)) continue;
+      scores.set(nextKey, nextG);
+      cameFrom.set(nextKey, { c: current.c, r: current.r });
+      open.push({ ...next, g: nextG, f: nextG + heuristic(next, goal) });
+    }
+  }
+  return [];
+}
+
+function pathLength(start, path) {
+  let total = 0;
+  let prev = start;
+  for (const point of path) {
+    total += Math.hypot(point.x - prev.x, point.y - prev.y);
+    prev = point;
+  }
+  return total;
+}
+
+function canTraverseDirect(from, to, radius) {
+  const len = Math.hypot(to.x - from.x, to.y - from.y);
+  const steps = Math.max(1, Math.ceil(len / 8));
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const x = from.x + (to.x - from.x) * t;
+    const y = from.y + (to.y - from.y) * t;
+    if (pointBlocked(x, y, radius)) return false;
+  }
+  return true;
+}
+
+function navigateTo(target, dt, speed) {
+  const { npc } = state;
+  const goal = nearestWalkableCell(worldToCell(target.x, target.y), npc.r);
+  if (!goal) return false;
+
+  const goalKey = cellKey(goal.c, goal.r);
+  npc.navRepathTimer = (npc.navRepathTimer ?? 0) - dt;
+  const pathBlocked = npc.navPath?.length > 0 &&
+    !canTraverseDirect(npc, npc.navPath[0], npc.r);
+  if (!npc.navPath || npc.navGoalKey !== goalKey || npc.navRepathTimer <= 0 || pathBlocked) {
+    npc.navPath = findPath(npc, target, npc.r);
+    npc.navGoalKey = goalKey;
+    npc.navRepathTimer = NAV_REPATH_TIME;
+  }
+
+  while (npc.navPath.length > 0 && dist(npc, npc.navPath[0]) <= NAV_REACHED_DIST) {
+    npc.navPath.shift();
+  }
+  if (npc.navPath.length === 0) {
+    if (!canTraverseDirect(npc, target, npc.r)) return false;
+    return moveNPCSmart(target.x - npc.x, target.y - npc.y, speed);
+  }
+
+  let waypointIndex = 0;
+  for (let i = npc.navPath.length - 1; i > 0; i--) {
+    if (canTraverseDirect(npc, npc.navPath[i], npc.r)) {
+      waypointIndex = i;
+      break;
+    }
+  }
+  if (waypointIndex > 0) npc.navPath.splice(0, waypointIndex);
+  const waypoint = npc.navPath[0];
+  const dx = waypoint.x - npc.x;
+  const dy = waypoint.y - npc.y;
+  const d = Math.hypot(dx, dy) || 1;
+  const px = npc.x;
+  const py = npc.y;
+  setFacing(npc, dx, dy);
+  moveEntity(npc, dx / d, dy / d, speed);
+  if (npc.x !== px || npc.y !== py) return true;
+  return moveNPCSmart(dx, dy, speed);
 }
 
 /** 이동 방향 벡터로 NPC facing 갱신 (지수 평활) */
@@ -49,19 +240,15 @@ function tryMove(entity, dx, dy, speed) {
   return progress > speed * 0.35;
 }
 
-function wouldOpenShot(x, y, player) {
-  return hasLOS({ x, y }, player);
-}
-
-// 투척 경로가 공 반지름까지 고려해 비어 있는지 검사한다. hasLOS(점 기준)와 달리
-// 공 몸통이 장애물 모서리에 스치는 경우까지 막아 "장애물에 헛던지는" 행동을 차단한다.
-function clearThrowPath(from, to) {
+// 투척 경로가 공 반지름까지 고려해 비어 있는지 검사한다.
+function clearThrowPath(from, to, endPadding = 0) {
   const obs = state.obstacles ?? OBSTACLES;
   const r = state.ball.r;
   const len = Math.hypot(to.x - from.x, to.y - from.y);
-  const steps = Math.max(8, Math.ceil(len / 10));
+  const checkedLen = Math.max(0, len - endPadding);
+  const steps = Math.max(1, Math.ceil(checkedLen / 10));
   for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
+    const t = len > 0 ? (i / steps) * (checkedLen / len) : 0;
     const x = from.x + (to.x - from.x) * t;
     const y = from.y + (to.y - from.y) * t;
     if (obs.some(o => o.hp > 0 &&
@@ -70,54 +257,115 @@ function clearThrowPath(from, to) {
   return true;
 }
 
-function lineIntersectsRect(a, b, o) {
-  // hasLOS와 동일하게 샘플 간격을 ~12px로 유지 — 먼 거리에서 장애물을 건너뛰어
-  // 우회 대상(blocker)을 못 찾는 일을 막는다.
-  const len = Math.hypot(b.x - a.x, b.y - a.y);
-  const steps = Math.max(8, Math.ceil(len / 12));
-  for (let i = 1; i < steps; i++) {
-    const t = i / steps;
-    const x = a.x + (b.x - a.x) * t;
-    const y = a.y + (b.y - a.y) * t;
-    if (x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.h) return true;
-  }
-  return false;
-}
-
-function blockingObstacle(a, b) {
+function firstBlockingObstacle(from, to) {
   const obs = state.obstacles ?? OBSTACLES;
-  return obs.find(o => o.hp > 0 && lineIntersectsRect(a, b, o)) || null;
+  const r = state.ball.r;
+  const len = Math.hypot(to.x - from.x, to.y - from.y);
+  const steps = Math.max(8, Math.ceil(len / 8));
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const x = from.x + (to.x - from.x) * t;
+    const y = from.y + (to.y - from.y) * t;
+    const blocker = obs.find(o => o.hp > 0 &&
+      x + r > o.x && x - r < o.x + o.w &&
+      y + r > o.y && y - r < o.y + o.h);
+    if (blocker) return blocker;
+  }
+  return null;
 }
 
-function clampPoint(p) {
-  return {
-    x: Math.max(36, Math.min(W - 36, p.x)),
-    y: Math.max(36, Math.min(H - 36, p.y)),
+function throwOriginAt(position) {
+  return { x: position.x, y: position.y - 32 };
+}
+
+function isValidShootingPosition(position, playerCenter) {
+  const origin = throwOriginAt(position);
+  const range = Math.hypot(playerCenter.x - origin.x, playerCenter.y - origin.y);
+  return range >= SHOT_MIN_RANGE &&
+    range <= SHOT_MAX_RANGE &&
+    !pointBlocked(origin.x, origin.y, state.ball.r) &&
+    clearThrowPath(origin, playerCenter, PLAYER_HIT_PATH_PADDING);
+}
+
+function findShootingPlan(playerCenter) {
+  const { npc } = state;
+  const candidates = [];
+
+  for (let r = 0; r < GRID_ROWS; r++) {
+    for (let c = 0; c < GRID_COLS; c++) {
+      if (!isWalkableCell(c, r, npc.r)) continue;
+      const position = cellToWorld(c, r, npc.r);
+      if (!isValidShootingPosition(position, playerCenter)) continue;
+      candidates.push({
+        position,
+        directDist: Math.hypot(position.x - npc.x, position.y - npc.y),
+      });
+    }
+  }
+
+  candidates.sort((a, b) => a.directDist - b.directDist);
+  let best = null;
+  for (const candidate of candidates.slice(0, 80)) {
+    const path = findPath(npc, candidate.position, npc.r);
+    if (path.length === 0 && !canTraverseDirect(npc, candidate.position, npc.r)) continue;
+    const cost = pathLength(npc, path);
+    const origin = throwOriginAt(candidate.position);
+    const range = Math.hypot(playerCenter.x - origin.x, playerCenter.y - origin.y);
+    const score = cost + Math.abs(range - SHOT_IDEAL_RANGE) * 0.35;
+    if (!best || score < best.score) {
+      best = { target: candidate.position, cost, score };
+    }
+  }
+  return best;
+}
+
+function getShootingPlan(dt, playerCenter) {
+  const { npc } = state;
+  npc.shotPlanTimer = (npc.shotPlanTimer ?? 0) - dt;
+  const playerCell = worldToCell(playerCenter.x, playerCenter.y);
+  const playerCellKey = cellKey(playerCell.c, playerCell.r);
+  const targetValid = npc.shotTarget &&
+    isValidShootingPosition(npc.shotTarget, playerCenter);
+  if (!targetValid || npc.shotPlayerCellKey !== playerCellKey || npc.shotPlanTimer <= 0) {
+    const plan = findShootingPlan(playerCenter);
+    npc.shotTarget = plan?.target ?? null;
+    npc.shotPathCost = plan?.cost ?? Infinity;
+    npc.shotPlayerCellKey = playerCellKey;
+    npc.shotPlanTimer = SHOT_PLAN_TIME;
+  }
+  return npc.shotTarget
+    ? { target: npc.shotTarget, cost: npc.shotPathCost }
+    : null;
+}
+
+function shouldBreakBlock(blocker, routeCost, cfg) {
+  if (!blocker || blocker.type !== 'soft' || cfg.blockBreakPreference <= 0) return false;
+  const hitDamage = STATUS.npc.str * 0.4;
+  if (hitDamage < 25) return false;
+  if (cfg.blockBreakPreference >= 1) return true;
+  const hitsNeeded = hitDamage >= 72 ? 1 : blocker.hp;
+  const breakCost = hitsNeeded * 180;
+  return !Number.isFinite(routeCost) ||
+    routeCost * cfg.blockBreakPreference >= breakCost;
+}
+
+function tryBreakBlock(blocker, origin, cfg) {
+  const { npc } = state;
+  if (!blocker || blocker.hp <= 0) return false;
+  const target = {
+    x: blocker.x + blocker.w / 2,
+    y: blocker.y + blocker.h / 2,
   };
-}
+  const firstBlocker = firstBlockingObstacle(origin, target);
+  if (firstBlocker !== blocker) return false;
 
-function getBypassTarget(blocker) {
-  const { npc, player } = state;
-  if (!blocker) return null;
-  const pad = npc.r + 34;
-  const corners = [
-    { x: blocker.x - pad, y: blocker.y - pad },
-    { x: blocker.x + blocker.w + pad, y: blocker.y - pad },
-    { x: blocker.x - pad, y: blocker.y + blocker.h + pad },
-    { x: blocker.x + blocker.w + pad, y: blocker.y + blocker.h + pad },
-  ].map(clampPoint);
-
-  const sideBias = npc.sideBias || 1;
-  const scored = corners.map(p => {
-    const open = wouldOpenShot(p.x, p.y, player) ? 0 : 600;
-    const toNpc = Math.hypot(p.x - npc.x, p.y - npc.y);
-    const toPlayer = Math.hypot(p.x - player.x, p.y - player.y);
-    const side = Math.sign((player.x - npc.x) * (p.y - npc.y) - (player.y - npc.y) * (p.x - npc.x)) || 1;
-    const sidePenalty = side === sideBias ? 0 : 90;
-    return { p, score: open + toNpc + toPlayer * 0.25 + sidePenalty };
-  }).sort((a, b) => a.score - b.score);
-
-  return scored[0]?.p ?? null;
+  npc.state = 'break-block';
+  setFacing(npc, target.x - origin.x, target.y - origin.y);
+  if (npc.aimTimer <= 0) {
+    doThrow(npc, target.x, target.y, STATUS.npc.velocity, 'npc');
+    npc.aimTimer = Math.max(0.35, 1.1 - cfg.aggression * 0.6);
+  }
+  return true;
 }
 
 function moveNPCSmart(dx, dy, speed) {
@@ -188,7 +436,11 @@ function escapeCorner(dt) {
     const nd = Math.hypot(ex, ey) || 1;
     ex /= nd; ey /= nd;
   }
-  moveNPCSmart(ex, ey, STATUS.npc.spd * dt);
+  navigateTo(
+    { x: npc.x + ex * 220, y: npc.y + ey * 220 },
+    dt,
+    STATUS.npc.spd * dt
+  );
 }
 
 function calcBallDodgeDir() {
@@ -219,39 +471,39 @@ function runFromPlayer(dt, speedMult) {
   const cx = (W / 2 - npc.x) * 0.0014;
   const cy = (H / 2 - npc.y) * 0.0014;
   const ex = dx / d + cx, ey = dy / d + cy, ed = Math.hypot(ex, ey) || 1;
-  moveNPCSmart(ex / ed, ey / ed, STATUS.npc.spd * (speedMult || 1) * dt);
+  navigateTo(
+    { x: npc.x + (ex / ed) * 180, y: npc.y + (ey / ed) * 180 },
+    dt,
+    STATUS.npc.spd * (speedMult || 1) * dt
+  );
 }
 
 function repositionForShot(dt) {
   const { npc, player } = state;
-  if (npc.bypassTarget && (hasLOS(npc, player) || Math.hypot(npc.bypassTarget.x - npc.x, npc.bypassTarget.y - npc.y) < 18)) {
-    npc.bypassTarget = null;
+  const playerCenter = {
+    x: player.x,
+    y: player.spriteCenterY ?? player.y,
+  };
+  const origin = {
+    x: npc.x,
+    y: npc.spriteCenterY ?? npc.y,
+  };
+  const cfg = ai();
+  const plan = getShootingPlan(dt, playerCenter);
+  const blocker = firstBlockingObstacle(origin, playerCenter);
+
+  if (shouldBreakBlock(blocker, plan?.cost ?? Infinity, cfg) &&
+      tryBreakBlock(blocker, origin, cfg)) {
+    return;
   }
-  const blocker = blockingObstacle(npc, player);
-  const target = npc.bypassTarget || getBypassTarget(blocker);
-  if (target) {
-    npc.bypassTarget = target;
-    const tx = target.x - npc.x, ty = target.y - npc.y;
-    if (Math.hypot(tx, ty) > 10) {
-      moveNPCSmart(tx, ty, STATUS.npc.spd * dt);
-      return;
-    }
+  if (plan) {
+    npc.state = 'reposition';
+    navigateTo(plan.target, dt, STATUS.npc.spd * dt);
+    return;
   }
 
-  const dx = player.x - npc.x, dy = player.y - npc.y;
-  const d = Math.hypot(dx, dy) || 1;
-  const nx = dx / d, ny = dy / d;
-  const sideBias = npc.sideBias || 1;
-  const step = 96;
-  const sides = [
-    { x: -ny * sideBias, y: nx * sideBias },
-    { x: ny * sideBias, y: -nx * sideBias },
-  ];
-  const preferred = sides.find(s => wouldOpenShot(npc.x + s.x * step, npc.y + s.y * step, player)) || sides[0];
-  const pullToMid = { x: (W / 2 - npc.x) * 0.002, y: (H / 2 - npc.y) * 0.002 };
-  const mx = preferred.x + nx * 0.35 + pullToMid.x;
-  const my = preferred.y + ny * 0.35 + pullToMid.y;
-  moveNPCSmart(mx, my, STATUS.npc.spd * dt);
+  npc.state = 'escape';
+  escapeCorner(dt);
 }
 
 export function updateNPC(dt) {
@@ -261,29 +513,31 @@ export function updateNPC(dt) {
   npc.aimTimer -= dt;
 
   const cornered = isCornered(npc);
+  const npcThrowOrigin = { x: npc.x, y: npc.spriteCenterY ?? npc.y };
+  const playerAimCenter = { x: player.x, y: player.spriteCenterY ?? player.y };
 
   if (npc.hasBall) {
     npc.dodgeDir = null;
-    if (hasLOS(npc, player)) {
-      npc.bypassTarget = null;
+    if (clearThrowPath(npcThrowOrigin, playerAimCenter, PLAYER_HIT_PATH_PADDING)) {
       npc.state = 'aim';
       const d = dist(npc, player);
-      if (d > 200) {
-        const dx = player.x - npc.x, dy = player.y - npc.y, dd = Math.hypot(dx, dy) || 1;
-        moveNPCSmart(dx / dd, dy / dd, STATUS.npc.spd * dt);
-      } else if (d < 100) {
-        const dx = npc.x - player.x, dy = npc.y - player.y, dd = Math.hypot(dx, dy) || 1;
-        moveNPCSmart(dx / dd, dy / dd, STATUS.npc.spd * dt);
+      if (d < SHOT_MIN_RANGE) {
+        runFromPlayer(dt);
       } else {
         // 제자리 조준 — 플레이어 쪽을 바라봄
-        const dx = player.x - npc.x, dy = player.y - npc.y;
+        const dx = playerAimCenter.x - npcThrowOrigin.x;
+        const dy = playerAimCenter.y - npcThrowOrigin.y;
         setFacing(npc, dx, dy);
       }
       if (npc.aimTimer <= 0) {
         const aimX = player.x + (Math.random() - 0.5) * cfg.aimError;
         const aimY = (player.spriteCenterY ?? player.y) + (Math.random() - 0.5) * cfg.aimError;
         // 실제 조준점까지 경로가 비어 있을 때만 던진다 — 장애물에 멍청하게 던지지 않음.
-        if (clearThrowPath(npc, { x: aimX, y: aimY })) {
+        if (clearThrowPath(
+          npcThrowOrigin,
+          { x: aimX, y: aimY },
+          PLAYER_HIT_PATH_PADDING
+        )) {
           doThrow(npc, aimX, aimY, STATUS.npc.velocity, 'npc');
           npc.aimTimer = Math.max(0.3, 1.2 - cfg.aggression * 0.7) + Math.random() * (0.7 - cfg.aggression * 0.35);
         } else {
@@ -291,12 +545,9 @@ export function updateNPC(dt) {
         }
       }
     } else if (cornered) {
-      // 막혔는데 코너에 갇혔으면 재배치보다 탈출 우선
-      npc.state = 'escape';
-      npc.bypassTarget = null;
-      escapeCorner(dt);
+      // 공을 들고 있을 때는 코너에서도 먼저 사격 위치 또는 파괴 가능한 블록을 찾는다.
+      repositionForShot(dt);
     } else {
-      npc.state = 'reposition';
       repositionForShot(dt);
     }
     return;
@@ -310,7 +561,6 @@ export function updateNPC(dt) {
 
   // 날아오는 공 회피 — 회피 자체가 탈출이므로 코너 탈출보다 먼저 처리한다.
   if (ballIncoming) {
-    npc.bypassTarget = null;
     npc.state = 'dodge';
     npc.reactionTimer = (npc.reactionTimer ?? cfg.reactionDelay) - dt;
     if (npc.reactionTimer > 0) return;
@@ -334,10 +584,8 @@ export function updateNPC(dt) {
   // 공 줍기 — 목표가 분명하므로 코너 탈출보다 먼저(코너의 공도 주우러 간다).
   if ((ballFree || ballBouncing) && (npcCloser || cfg.pickupGreed > 0.78) && !fastBounce1) {
     npc.state = 'fetch';
-    const dx = ball.x - npc.x, dy = ball.y - npc.y, d = Math.hypot(dx, dy) || 1;
-    if (d > 12) {
-      moveNPCSmart(dx / d, dy / d, STATUS.npc.spd * dt);
-    }
+    const d = dist(ball, npc);
+    if (d > 12) navigateTo(ball, dt, STATUS.npc.spd * dt);
     if (dist(ball, npc) < ball.r + npc.r + 12) pickUpBall('npc');
     return;
   }
@@ -345,7 +593,6 @@ export function updateNPC(dt) {
   // 코너 탈출 — 도망/관찰 상태에서 코너에 박히는 문제를 최우선으로 해결한다.
   if (cornered) {
     npc.state = 'escape';
-    npc.bypassTarget = null;
     escapeCorner(dt);
     return;
   }
@@ -362,9 +609,10 @@ export function updateNPC(dt) {
     if (d < SAFE_DIST) {
       runFromPlayer(dt, 0.8);
     } else {
-      const dx = ball.x - npc.x, dy = ball.y - npc.y, dd = Math.hypot(dx, dy) || 1;
-      // dd가 한 프레임 이동거리보다 작으면 overshoot→oscillation 방지
-      if (dd > STATUS.npc.spd * 0.5 * dt + 1) moveNPCSmart(dx / dd, dy / dd, STATUS.npc.spd * 0.5 * dt);
+      // 한 프레임 이동거리보다 가까우면 overshoot→oscillation 방지
+      if (dist(npc, ball) > STATUS.npc.spd * 0.5 * dt + 1) {
+        navigateTo(ball, dt, STATUS.npc.spd * 0.5 * dt);
+      }
     }
     return;
   }

@@ -51,7 +51,9 @@ export function initState() {
                    charge: { active: false, value: 0 } };
   state.npc    = { x: nx,  y: ny,  r: 16, hp: STATUS.npc.hp,    maxHp: STATUS.npc.hp, hasBall: false, invTime: 0, grogyTime: 0,
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 }, isMoving: false, animTime: 0,
-                   sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null };
+                   sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null,
+                   navPath: [], navGoalKey: null, navRepathTimer: 0,
+                   shotTarget: null, shotPathCost: Infinity, shotPlayerCellKey: null, shotPlanTimer: 0 };
   state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0,
                    power: 1, throwStr: BASE.player.str, throwSpd: 0 };
   const obsGroups = _pendingObstacleGroups ?? FLOOR_OBSTACLE_GROUPS[1];
