@@ -21,7 +21,7 @@ export const state = {
   player: null,
   npc: null,
   balls: [],          // 멀티볼: 모든 공의 배열 (held/flying/free 모두 포함)
-  keys: null,
+  keys: {},
   mouse: { x: 0, y: 0 },
   gameState: null,
   animId: null,
@@ -91,6 +91,7 @@ export function initState() {
                    sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null,
                    navPath: [], navGoalKey: null, navRepathTimer: 0,
                    shotTarget: null, shotPathCost: Infinity, shotPlayerCellKey: null, shotPlanTimer: 0,
+                   threatBall: null, reactionTimer: null, dodgeDecided: false,
                    looseTarget: null, looseBallWaitTime: 0,
                    chatterLines: _pendingNpcChatter?.chatter ?? [],
                    hitLines: _pendingNpcChatter?.hit ?? [],

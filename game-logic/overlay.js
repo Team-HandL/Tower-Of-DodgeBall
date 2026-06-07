@@ -492,7 +492,7 @@ function renderEndingCutscene(data, onDone) {
         ${visual}
         ${caption}
       </div>
-      <button class="ov-btn primary" id="ov-cine-next">${last ? '엔딩 보기 ▶' : '다음 ▶'}</button>
+      <button class="ov-btn primary" id="ov-cine-next">${last ? '결과 보기 ▶' : '다음 ▶'}</button>
     `, 'cine');
     document.getElementById('ov-cine-next').onclick = () => {
       i++;

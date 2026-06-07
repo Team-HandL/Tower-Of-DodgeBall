@@ -615,6 +615,12 @@ export function updateNPC(dt) {
   // 탈출이므로 코너 탈출보다 먼저 처리한다.
   const incoming = incomingThreatBall();
   if (incoming) {
+    if (npc.threatBall !== incoming) {
+      npc.threatBall = incoming;
+      npc.reactionTimer = cfg.reactionDelay;
+      npc.dodgeDecided = false;
+      npc.dodgeDir = null;
+    }
     npc.state = 'dodge';
     npc.reactionTimer = (npc.reactionTimer ?? cfg.reactionDelay) - dt;
     if (npc.reactionTimer > 0) return;
@@ -629,6 +635,7 @@ export function updateNPC(dt) {
     }
     return;
   }
+  npc.threatBall = null;
   npc.dodgeDir = null;
   npc.dodgeDecided = false;
   npc.reactionTimer = null;
