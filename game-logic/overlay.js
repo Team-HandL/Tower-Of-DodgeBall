@@ -30,9 +30,9 @@ const IMG = './design/assets/images';
 // 업그레이드 카드 정의 — 새 카드 추가 시 여기에만 항목 추가
 // key는 status.js의 BUFF_STAT 키와 일치해야 함
 const CARDS = [
-  { key: 'str',        emoji: '💪', title: '힘 강화',      desc: '데미지',  amount: 0.2 },
-  { key: 'moveSpeed',  emoji: '⚡', title: '이동속도 강화', desc: '이동속도', amount: 0.2 },
-  { key: 'throwPower', emoji: '💥', title: '투척 강화',    desc: '공 속도', amount: 0.2 },
+  { key: 'str',        emoji: '💪', title: '힘 강화',      desc: '데미지',  amount: 0.12 },
+  { key: 'moveSpeed',  emoji: '⚡', title: '이동속도 강화', desc: '이동속도', amount: 0.10 },
+  { key: 'throwPower', emoji: '💥', title: '투척 강화',    desc: '공 속도', amount: 0.12 },
 ];
 
 // 층별 컨셉/대사.

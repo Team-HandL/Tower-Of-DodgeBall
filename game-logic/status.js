@@ -1,12 +1,11 @@
 export const BASE = {
-  player: { hp: 120, str: 100, spd: 180, velocity: 500, catchRange: 24, catchMinSpd: 200,
-            chargeRate: 0.85, minPower: 0.65, maxPower: 1.45 },
-  npc:    { hp: 120, str: 100, spd: 180, velocity: 500 },
+  player: { hp: 120, str: 100, spd: 210, velocity: 560, catchRange: 24, catchMinSpd: 200,
+            chargeRate: 1.0, minPower: 0.75, maxPower: 1.40 },
 };
 
 export const STATUS = {
   player: { ...BASE.player },
-  npc:    { ...BASE.npc },
+  npc:    {},
 };
 
 let _pendingNpcStats = null;
@@ -17,7 +16,7 @@ export function setNextNPCStats(stats) {
 
 export function initStatus() {
   STATUS.player = { ...BASE.player };
-  STATUS.npc    = _pendingNpcStats ? { ...BASE.npc, ..._pendingNpcStats } : { ...BASE.npc };
+  STATUS.npc    = { ...(_pendingNpcStats ?? {}) };
   _pendingNpcStats = null;
 }
 
