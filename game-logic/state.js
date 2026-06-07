@@ -3,17 +3,38 @@ import { FLOOR_OBSTACLE_GROUPS, TILE, OBSTACLES } from '../design/map-01/obstacl
 
 export const W = 1200, H = 768;
 export const SAFE_DIST = 250;
+export const BALL_R = 20;
+
+// 게임플레이 튜닝값 — 한 곳에서 조정.
+// blockBreakBallChance: soft 블록 파괴 시 추가 공이 떨어질 확률(0~1).
+// maxBalls: 동시에 존재할 수 있는 공의 최대 개수.
+export const CONFIG = {
+  blockBreakBallChance: 0.5,
+  maxBalls: 4,
+};
 
 export const state = {
   player: null,
   npc: null,
-  ball: null,
+  balls: [],          // 멀티볼: 모든 공의 배열 (held/flying/free 모두 포함)
   keys: null,
   mouse: { x: 0, y: 0 },
   gameState: null,
   animId: null,
   last: null,
 };
+
+// 공 1개 생성 (자유 상태). 블록 파괴 스폰과 initState가 공유.
+export function makeBall(x, y) {
+  return { x, y, r: BALL_R, vx: 0, vy: 0, owner: null, thrownBy: null,
+           flying: false, bounces: 0, animTime: 0,
+           power: 1, throwStr: BASE.player.str, throwSpd: 0 };
+}
+
+// who('player'|'npc')가 들고 있는 공 (없으면 null)
+export function heldBall(who) {
+  return state.balls.find(b => b.owner === who) || null;
+}
 
 // 다음 라운드에 스폰할 NPC의 스프라이트 시트 prefix (예: 'soccer', 'nerd').
 // 층 진입 시 overlay가 설정하며, initState가 npc.sprite로 적용한다.
@@ -54,8 +75,7 @@ export function initState() {
                    sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null,
                    navPath: [], navGoalKey: null, navRepathTimer: 0,
                    shotTarget: null, shotPathCost: Infinity, shotPlayerCellKey: null, shotPlanTimer: 0 };
-  state.ball   = { x: W / 2, y: H / 2, r: 20, vx: 0, vy: 0, owner: null, thrownBy: null, flying: false, bounces: 0, animTime: 0,
-                   power: 1, throwStr: BASE.player.str, throwSpd: 0 };
+  state.balls  = [ makeBall(W / 2, H / 2) ];
   const obsGroups = _pendingObstacleGroups ?? FLOOR_OBSTACLE_GROUPS[1];
   state.obstacleGroups = obsGroups;
   state.obstacles = obsGroups.flat()

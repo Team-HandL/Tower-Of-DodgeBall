@@ -3,8 +3,9 @@ import { IMGS } from './assets.js';
 // 공 애니메이션: ball_basic ↔ ball_180 교대 속도 (초)
 const ANIM_INTERVAL = 0.1;
 
-export function drawBall(ctx, ball, player, npc) {
-  if (player.hasBall || npc.hasBall) return;
+export function drawBall(ctx, ball) {
+  // 들고 있는 공은 캐릭터 스프라이트(*_ball_*)로 그려지므로 여기선 생략.
+  if (ball.owner === 'player' || ball.owner === 'npc') return;
   // 날아가는 중엔 animTime 기준으로 두 이미지 교대, 정지 시 ball_basic 고정
   const frameIndex = ball.flying
     ? Math.floor(ball.animTime / ANIM_INTERVAL) % 2

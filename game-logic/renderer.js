@@ -17,11 +17,11 @@ function drawMap(ctx) {
 }
 
 export function draw(ctx) {
-  const { ball, player, npc } = state;
+  const { player, npc } = state;
   ctx.clearRect(0, 0, W, H);
   drawMap(ctx);
-  drawBall(ctx, ball, player, npc);
-  drawPlayer(ctx, player, npc, ball);
+  state.balls.forEach(b => drawBall(ctx, b));
+  drawPlayer(ctx, player, npc);
   drawNPC(ctx, npc);
 
   // 타이머

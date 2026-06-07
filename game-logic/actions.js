@@ -1,4 +1,4 @@
-import { state } from './state.js';
+import { state, heldBall } from './state.js';
 import { BASE, STATUS } from './status.js';
 
 function clamp01(v) {
@@ -18,8 +18,9 @@ export function getThrowVelocity(who, gauge) {
   return stats.velocity * getPowerMultiplier(who, gauge) * strSpeedBonus;
 }
 
-export function catchBall() {
-  const { ball, player } = state;
+export function catchBall(ball) {
+  const { player } = state;
+  if (!ball) return;
   ball.flying   = false;
   ball.vx       = 0;
   ball.vy       = 0;
@@ -31,7 +32,8 @@ export function catchBall() {
 }
 
 export function doThrow(from, tx, ty, spd, who, power = 1) {
-  const { ball } = state;
+  const ball = heldBall(who);
+  if (!ball) return;
   const oy = from.spriteCenterY ?? from.y;
   const dx = tx - from.x, dy = ty - oy, d = Math.hypot(dx, dy) || 1;
   ball.x = from.x;
@@ -53,8 +55,9 @@ export function doThrow(from, tx, ty, spd, who, power = 1) {
   from.invTime = Math.max(from.invTime, 0.3);
 }
 
-export function pickUpBall(who) {
-  const { ball, player, npc } = state;
+export function pickUpBall(who, ball) {
+  const { player, npc } = state;
+  if (!ball) return;
   ball.owner = who;
   ball.flying = false;
   ball.vx = 0;
@@ -70,12 +73,24 @@ export function pickUpBall(who) {
   }
 }
 
-export function applyHit(target, isPlayer, damage = 40) {
-  const { ball } = state;
+export function applyHit(target, isPlayer, damage = 40, ball = null) {
   target.hp = Math.max(0, target.hp - damage);
   target.invTime = 1.5;
   target.grogyTime = 0.7;
   target.hasBall = false;
+
+  // 피격으로 그로기 — 들고 있던 공이 있으면 제자리에 떨어뜨린다.
+  const heldByTarget = heldBall(isPlayer ? 'player' : 'npc');
+  if (heldByTarget && heldByTarget !== ball) {
+    heldByTarget.owner = null;
+    heldByTarget.flying = false;
+    heldByTarget.vx = 0;
+    heldByTarget.vy = 0;
+    heldByTarget.x = target.x;
+    heldByTarget.y = target.y;
+  }
+
+  if (!ball) return;
   ball.flying = false;
   ball.vx = 0;
   ball.vy = 0;

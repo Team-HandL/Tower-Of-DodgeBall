@@ -1,4 +1,4 @@
-import { state, SAFE_DIST, W, H } from './state.js';
+import { state, SAFE_DIST, W, H, BALL_R } from './state.js';
 import { STATUS } from './status.js';
 import { moveEntity, dist } from './physics.js';
 import { doThrow, pickUpBall } from './actions.js';
@@ -243,7 +243,7 @@ function tryMove(entity, dx, dy, speed) {
 // 투척 경로가 공 반지름까지 고려해 비어 있는지 검사한다.
 function clearThrowPath(from, to, endPadding = 0) {
   const obs = state.obstacles ?? OBSTACLES;
-  const r = state.ball.r;
+  const r = BALL_R;
   const len = Math.hypot(to.x - from.x, to.y - from.y);
   const checkedLen = Math.max(0, len - endPadding);
   const steps = Math.max(1, Math.ceil(checkedLen / 10));
@@ -259,7 +259,7 @@ function clearThrowPath(from, to, endPadding = 0) {
 
 function firstBlockingObstacle(from, to) {
   const obs = state.obstacles ?? OBSTACLES;
-  const r = state.ball.r;
+  const r = BALL_R;
   const len = Math.hypot(to.x - from.x, to.y - from.y);
   const steps = Math.max(8, Math.ceil(len / 8));
   for (let i = 1; i <= steps; i++) {
@@ -283,7 +283,7 @@ function isValidShootingPosition(position, playerCenter) {
   const range = Math.hypot(playerCenter.x - origin.x, playerCenter.y - origin.y);
   return range >= SHOT_MIN_RANGE &&
     range <= SHOT_MAX_RANGE &&
-    !pointBlocked(origin.x, origin.y, state.ball.r) &&
+    !pointBlocked(origin.x, origin.y, BALL_R) &&
     clearThrowPath(origin, playerCenter, PLAYER_HIT_PATH_PADDING);
 }
 
@@ -443,8 +443,38 @@ function escapeCorner(dt) {
   );
 }
 
-function calcBallDodgeDir() {
-  const { ball, npc } = state;
+// npc를 향해 날아오는(아직 1바운드 전) 공 중 가장 가까운 것 — 회피 대상.
+function incomingThreatBall() {
+  const { npc } = state;
+  let best = null, bestDist = Infinity;
+  for (const b of state.balls) {
+    if (!(b.flying && b.thrownBy === 'player' && b.bounces === 0)) continue;
+    const bspd = Math.hypot(b.vx, b.vy);
+    if (bspd < 1) continue;
+    const toNx = npc.x - b.x, toNy = npc.y - b.y;
+    if (toNx * (b.vx / bspd) + toNy * (b.vy / bspd) < 0) continue; // 이미 지나감
+    const d = Math.hypot(toNx, toNy);
+    if (d < bestDist) { bestDist = d; best = b; }
+  }
+  return best;
+}
+
+// 주울 수 있는 공(자유 또는 바운싱) 중 npc에서 가장 가까운 것 — 줍기/관찰 대상.
+function nearestLooseBall() {
+  const { npc } = state;
+  let best = null, bestDist = Infinity;
+  for (const b of state.balls) {
+    const free = !b.flying && b.owner === null;
+    const bouncing = b.flying && b.bounces > 0;
+    if (!free && !bouncing) continue;
+    const d = dist(npc, b);
+    if (d < bestDist) { bestDist = d; best = b; }
+  }
+  return best;
+}
+
+function calcBallDodgeDir(ball) {
+  const { npc } = state;
   const cfg = ai();
   const bspd = Math.hypot(ball.vx, ball.vy);
   if (bspd < 1) return null;
@@ -507,7 +537,7 @@ function repositionForShot(dt) {
 }
 
 export function updateNPC(dt) {
-  const { npc, player, ball } = state;
+  const { npc, player } = state;
   const cfg = ai();
   if (npc.grogyTime > 0) return;
   npc.aimTimer -= dt;
@@ -553,19 +583,17 @@ export function updateNPC(dt) {
     return;
   }
 
-  const ballFree      = !ball.flying && ball.owner === null;
-  const ballBouncing  = ball.flying && ball.bounces > 0;
-  const ballIncoming  = ball.flying && ball.thrownBy === 'player' && ball.bounces === 0;
   const playerHasBall = player.hasBall;
-  const npcCloser     = dist(npc, ball) < dist(player, ball);
 
-  // 날아오는 공 회피 — 회피 자체가 탈출이므로 코너 탈출보다 먼저 처리한다.
-  if (ballIncoming) {
+  // 날아오는 공 회피 — 여러 공 중 가장 위협적인 하나를 대상으로. 회피 자체가
+  // 탈출이므로 코너 탈출보다 먼저 처리한다.
+  const incoming = incomingThreatBall();
+  if (incoming) {
     npc.state = 'dodge';
     npc.reactionTimer = (npc.reactionTimer ?? cfg.reactionDelay) - dt;
     if (npc.reactionTimer > 0) return;
     if (!npc.dodgeDecided) {
-      npc.dodgeDir = calcBallDodgeDir();
+      npc.dodgeDir = calcBallDodgeDir(incoming);
       npc.dodgeDecided = true;
     }
     if (npc.dodgeDir) {
@@ -579,14 +607,17 @@ export function updateNPC(dt) {
   npc.dodgeDecided = false;
   npc.reactionTimer = null;
 
-  const fastBounce1 = ball.flying && ball.bounces === 1 && Math.hypot(ball.vx, ball.vy) >= STATUS.player.catchMinSpd;
+  // 주울 대상 공(자유/바운싱) 중 가장 가까운 하나를 고른다.
+  const loose = nearestLooseBall();
+  const npcCloser  = loose && dist(npc, loose) < dist(player, loose);
+  const looseSpd   = loose ? Math.hypot(loose.vx, loose.vy) : 0;
+  const fastBounce1 = loose && loose.flying && loose.bounces === 1 && looseSpd >= STATUS.player.catchMinSpd;
 
   // 공 줍기 — 목표가 분명하므로 코너 탈출보다 먼저(코너의 공도 주우러 간다).
-  if ((ballFree || ballBouncing) && (npcCloser || cfg.pickupGreed > 0.78) && !fastBounce1) {
+  if (loose && (npcCloser || cfg.pickupGreed > 0.78) && !fastBounce1) {
     npc.state = 'fetch';
-    const d = dist(ball, npc);
-    if (d > 12) navigateTo(ball, dt, STATUS.npc.spd * dt);
-    if (dist(ball, npc) < ball.r + npc.r + 12) pickUpBall('npc');
+    if (dist(loose, npc) > 12) navigateTo(loose, dt, STATUS.npc.spd * dt);
+    if (dist(loose, npc) < loose.r + npc.r + 12) pickUpBall('npc', loose);
     return;
   }
 
@@ -603,15 +634,15 @@ export function updateNPC(dt) {
     return;
   }
 
-  if (ballFree || ballBouncing) {
+  if (loose) {
     npc.state = 'watch';
     const d = dist(npc, player);
     if (d < SAFE_DIST) {
       runFromPlayer(dt, 0.8);
     } else {
       // 한 프레임 이동거리보다 가까우면 overshoot→oscillation 방지
-      if (dist(npc, ball) > STATUS.npc.spd * 0.5 * dt + 1) {
-        navigateTo(ball, dt, STATUS.npc.spd * 0.5 * dt);
+      if (dist(npc, loose) > STATUS.npc.spd * 0.5 * dt + 1) {
+        navigateTo(loose, dt, STATUS.npc.spd * 0.5 * dt);
       }
     }
     return;

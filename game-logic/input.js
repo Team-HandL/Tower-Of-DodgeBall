@@ -5,24 +5,36 @@ import { pickUpBall, catchBall, startPlayerCharge, releasePlayerCharge } from '.
 
 function tryInteract() {
   if (state.gameState !== 'playing') return;
-  const { player, ball } = state;
+  const { player, balls } = state;
   if (player.grogyTime > 0) return;
 
-  const ballSpd = Math.hypot(ball.vx, ball.vy);
   const { catchRange, catchMinSpd } = STATUS.player;
-  const fastBounce1 = ball.flying && ball.bounces === 1 && ballSpd >= catchMinSpd;
 
-  if (player.hasBall) {
-    startPlayerCharge();
-  } else if (ball.flying && ball.thrownBy === 'npc' &&
-             (ball.bounces === 0 || fastBounce1) &&
-             dist(ball, player) < ball.r + player.r + catchRange) {
-    catchBall();
-  } else if (ball.owner !== 'npc' && dist(ball, player) < ball.r + player.r + 32) {
-    if (!ball.flying || ball.bounces > 1 || (ball.bounces === 1 && ballSpd < catchMinSpd)) {
-      pickUpBall('player');
-    }
-  }
+  // 이미 공을 들고 있으면 차징(던지기 준비)부터.
+  if (player.hasBall) { startPlayerCharge(); return; }
+
+  // 1) 캐치 가능한, 날아오는 npc 공 (1바운드 이내 + 캐치 범위). 가장 가까운 것.
+  const catchable = balls
+    .filter(b => {
+      if (!(b.flying && b.thrownBy === 'npc')) return false;
+      const spd = Math.hypot(b.vx, b.vy);
+      const fastBounce1 = b.bounces === 1 && spd >= catchMinSpd;
+      return (b.bounces === 0 || fastBounce1) &&
+             dist(b, player) < b.r + player.r + catchRange;
+    })
+    .sort((a, b) => dist(a, player) - dist(b, player))[0];
+  if (catchable) { catchBall(catchable); return; }
+
+  // 2) 주울 수 있는 공 (npc 소유 아님, 픽업 범위, 빠르게 날아가는 1바운드 공 제외). 가장 가까운 것.
+  const pickable = balls
+    .filter(b => {
+      if (b.owner === 'npc' || b.owner === 'player') return false;
+      if (dist(b, player) >= b.r + player.r + 32) return false;
+      const spd = Math.hypot(b.vx, b.vy);
+      return !b.flying || b.bounces > 1 || (b.bounces === 1 && spd < catchMinSpd);
+    })
+    .sort((a, b) => dist(a, player) - dist(b, player))[0];
+  if (pickable) pickUpBall('player', pickable);
 }
 
 export function setupInput() {

@@ -64,12 +64,13 @@ function loop(ts) {
   const md = Math.hypot(mdx, mdy);
   if (md > 5) player.facing = { x: mdx / md, y: mdy / md };
 
-  if (player.hasBall) { state.ball.x = player.x; state.ball.y = player.y; }
-  if (npc.hasBall)    { state.ball.x = npc.x;    state.ball.y = npc.y; }
-
-  // 공이 날아가는 동안 애니메이션 타이머 누적
-  if (state.ball.flying) state.ball.animTime += dt;
-  else state.ball.animTime = 0;
+  // 들고 있는 공은 소유자를 따라가고, 날아가는 공은 애니메이션 타이머를 누적한다.
+  for (const b of state.balls) {
+    if (b.owner === 'player')   { b.x = player.x; b.y = player.y; }
+    else if (b.owner === 'npc') { b.x = npc.x;    b.y = npc.y; }
+    if (b.flying) b.animTime += dt;
+    else b.animTime = 0;
+  }
 
   state.timer -= dt;
   if (state.timer <= 0) { state.timer = 0; endGame('timeout'); return; }
