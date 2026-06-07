@@ -262,6 +262,7 @@ function tryMove(entity, dx, dy, speed) {
 function clearThrowPath(from, to, endPadding = 0) {
   const obs = state.obstacles ?? OBSTACLES;
   const r = BALL_R;
+  if (pointBlocked(from.x, from.y, r)) return false;
   const len = Math.hypot(to.x - from.x, to.y - from.y);
   const checkedLen = Math.max(0, len - endPadding);
   const steps = Math.max(1, Math.ceil(checkedLen / 10));
@@ -598,10 +599,8 @@ export function updateNPC(dt) {
           npc.aimTimer = 0.12; // 막혔으면 잠깐 뒤 다시 조준
         }
       }
-    } else if (cornered) {
-      // 공을 들고 있을 때는 코너에서도 먼저 사격 위치 또는 파괴 가능한 블록을 찾는다.
-      repositionForShot(dt);
     } else {
+      // 공의 실제 출발점까지 포함해 경로가 막혔으면 같은 자리에서 재시도하지 않는다.
       repositionForShot(dt);
     }
     return;

@@ -1,6 +1,6 @@
 export const BASE = {
-  player: { hp: 120, str: 100, spd: 210, velocity: 560, catchRange: 24, catchMinSpd: 200,
-            chargeRate: 1.0, minPower: 0.75, maxPower: 1.40 },
+  player: { hp: 120, str: 100, spd: 210, velocity: 560, catchRange: 30, catchMinSpd: 200,
+            chargeRate: 1.6, minPower: 0.75, maxPower: 1.40 },
 };
 
 export const STATUS = {

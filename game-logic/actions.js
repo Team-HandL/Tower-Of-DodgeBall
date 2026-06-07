@@ -1,5 +1,31 @@
-import { state, heldBall, CONFIG } from './state.js';
+import { state, heldBall, CONFIG, W, H } from './state.js';
 import { BASE, STATUS } from './status.js';
+
+// 공이 살아있는 블록과 겹치면 가장 얕은 축으로 '가장 가까운 면' 밖으로 밀어낸다.
+// 던지는 방향으로 밀면 벽을 통과해 반대편에서 발사되므로, 최단 축 밀어내기를 쓴다.
+function pushBallOutOfObstacles(ball) {
+  const obs = state.obstacles ?? [];
+  for (let iter = 0; iter < 4; iter++) {
+    let moved = false;
+    for (const o of obs) {
+      if (o.hp <= 0) continue;
+      if (!(ball.x + ball.r > o.x && ball.x - ball.r < o.x + o.w &&
+            ball.y + ball.r > o.y && ball.y - ball.r < o.y + o.h)) continue;
+      const left   = ball.x + ball.r - o.x;
+      const right  = o.x + o.w - (ball.x - ball.r);
+      const top    = ball.y + ball.r - o.y;
+      const bottom = o.y + o.h - (ball.y - ball.r);
+      const minX = Math.min(left, right);
+      const minY = Math.min(top, bottom);
+      if (minX < minY) ball.x += left < right ? -left : right;
+      else             ball.y += top < bottom ? -top : bottom;
+      moved = true;
+    }
+    if (!moved) break;
+  }
+  ball.x = Math.max(ball.r, Math.min(W - ball.r, ball.x));
+  ball.y = Math.max(ball.r, Math.min(H - ball.r, ball.y));
+}
 
 function clamp01(v) {
   return Math.max(0, Math.min(1, v));
@@ -36,10 +62,14 @@ export function doThrow(from, tx, ty, spd, who, power = 1) {
   if (!ball) return;
   const oy = from.spriteCenterY ?? from.y;
   const dx = tx - from.x, dy = ty - oy, d = Math.hypot(dx, dy) || 1;
+  const ux = dx / d, uy = dy / d;
   ball.x = from.x;
   ball.y = oy;
-  ball.vx = (dx / d) * spd;
-  ball.vy = (dy / d) * spd;
+  // 발사 위치가 블록과 겹치면(스프라이트 중심이 블록 모서리/아래에 박힌 경우)
+  // 가장 가까운 면 밖으로 밀어 깨끗한 지점에서 출발시킨다 — 발사 직후 튕김/벽 통과 방지.
+  pushBallOutOfObstacles(ball);
+  ball.vx = ux * spd;
+  ball.vy = uy * spd;
   ball.owner = null;
   ball.thrownBy = who;
   ball.flying = true;
