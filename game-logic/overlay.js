@@ -1,4 +1,4 @@
-import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions } from './state.js';
+import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions, setNextNPCChatter } from './state.js';
 import { FLOOR_OBSTACLE_GROUPS } from '../design/map-01/obstacles.js';
 import { BASE, STATUS, setNextNPCStats, applyBuffsToStatus } from './status.js';
 
@@ -55,12 +55,23 @@ const FLOORS = {
     ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55, blockBreakPreference: 0 },
     introLines: [
       '어... 안녕?',
-      '피구는 간단해. 공을 맞히면 데미지!\n상대 체력을 먼저 0으로 만들면 이겨.\n이동은 WASD, 조준은 마우스.\n좌클릭(또는 스페이스)으로 공을 줍고, 던지고, 캐치까지 다 할 수 있어.',
-      '탑 어딘가에... 피구에 미친 안드로이드가 있다던데?\n대체 어떤 로직으로 공을 피하고 던지는 건지 너무 궁금해!',
+      '여기가 뭐하는 곳이냐구?',
+      '나도 잘 모르지만, 뭔가.. 피구를 하게 되는 곳이야 다들 왜인지 꼭대기에 가고싶어해.',
+      '난 이 탑 어딘가의 피구에 미친 안드로이드의 동작원리를 알고싶어서 여기에 왔어.',
+      '방법은 간단해. 상대를 공으로 맞혀 쓰러뜨리고 올라가면 돼\n자세한 방법은 화면 상단에 적혀있으니 확인해봐.',
+      '나도 모르는 것들이 여기저기에 많아. 그건 직접 확인하는 수 밖에 없어'
     ],
     timeoutLine: '시간이 다 됐네!\n날 못 쓰러뜨렸구나.\n뭐, 데이터는 충분히 봤으니 난 만족이야.',
     defeatLine: '어라, 너 쓰러졌어?\n실력 없는 나한테 지다니...\n다시 도전해봐, 응원할게!',
     victoryLine: '우와, 역시!\n너의 그 회피 패턴, 잘 기록해뒀어.\n그럼 안녕.',
+    chatterLines: [
+      '오, 방금 그 움직임 기록했어!',
+      '데이터, 데이터가 쌓인다...',
+      '이거 생각보다 재밌는데?',
+      '음, 다음엔 이렇게 던져볼까?',
+      '너 꽤 하는구나?',
+    ],
+    hitLines: ['아얏!', '오, 제법인데!', '그것도 데이터지 뭐.'],
   },
   2: {
     title: '2F — CEO',
@@ -70,12 +81,21 @@ const FLOORS = {
     stats: { hp: 120, str: 105, spd: 170, velocity: 550 },
     ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60, blockBreakPreference: 0.3 },
     introLines: [
-      '음? 여긴 어떻게 들어왔지.',
-      '내 시간은 비싸. 짧게 끝내주겠어.',
+      '아… 칩을 얻으면 큰 돈을 벌 수 있는데…',
+      '응? 넌 뭐지? ',
+      '이몸은 바쁘시단 말이다. 널 상대할 시간이 없어.'
     ],
     timeoutLine: '시간 초과군.\n마감도 못 지키는 자와는 거래하지 않아.',
     defeatLine: '수고했네.\n자네의 패배, 좋은 데이터로 잘 쓰지.',
     victoryLine: '이런, 내가 졌다고?\n좋아 — 자네, 스카우트하지.',
+    chatterLines: [
+      '시간은 곧 돈이야...',
+      '이 정도 ROI면 나쁘지 않군.',
+      '효율적으로 끝내지.',
+      '자네, 시야가 좁군.',
+      '협상의 여지는 없다.',
+    ],
+    hitLines: ['큭.. 손실이군.', '이건 계산에 없었어.', '감히.. 넌 해고야!'],
   },
   3: {
     title: '3F — 트레이너',
@@ -85,12 +105,21 @@ const FLOORS = {
     stats: { hp: 170, str: 240, spd: 200, velocity: 600 },
     ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66, blockBreakPreference: 1.0 },
     introLines: [
-      '어이 거기, 몸은 좀 풀었나?',
-      '자, 오늘 운동량 제대로 채워주마. 덤벼!',
+      '거기 너! 몸이 부실하군!',
+      '나에게 PT를 받아라 너의 몸을 개조해주마!',
+      '나만큼 힘이 세면, 공으로 벽을 한 번에 부술 수도 있다구!!'
     ],
     timeoutLine: '시간 안에 못 끝내?\n지구력이 부족하군. 더 뛰어!',
-    defeatLine: '벌써 지쳤어?\n기초 체력부터 다시다.',
+    defeatLine: '벌써 지쳤어?\n기초 체력부터 다시다!',
     victoryLine: '제법인데!\n합격이야. 다음 층으로 가봐.',
+    chatterLines: [
+      '하나! 둘! 좋아, 페이스 유지!',
+      '그 정도로 지치면 안 되지!',
+      '근성! 근성을 보여줘!',
+      '땀이 곧 실력이다!',
+      '자, 한 세트 더 간다!',
+    ],
+    hitLines: ['크윽! 좋은 근육이군!', '이 정도 자극은 환영이다!', '한 대 더 쳐봐!'],
   },
   4: {
     title: '4F — 축구선수',
@@ -101,13 +130,21 @@ const FLOORS = {
     ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72, blockBreakPreference: 0.25 },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     introLines: [
-      '...왜 축구가 아니라 피구를 하는거지?',
-      '이상한 안드로이드잖아.\n축구를 하는 안드로이드로 개조해주겠어.',
-      '다음 층으로 가는 건 네가 아니라 나다.',
+      '이 위에 피구를 하는 이상한 로봇이 있다는데 알아?',
+      '축구가 더 재밌는데… 이런게 뭐가 재밌다는 건지.',
+      '역시 이상한 안드로이드잖아.\n얼른 가서 축구를 하게 만들어야겠어!',
     ],
-    timeoutLine: '시간 안에 끝내지도 못하다니. 스피드가 부족하군.',
-    defeatLine: '느려 터졌어. 축구부터 배우고 와라.',
-    victoryLine: '...스피드 하나는 인정해주지.',
+    timeoutLine: '시간 안에 끝내지도 못하다니. 많이 느린데?',
+    defeatLine: '느려 터졌어. 축구를 하지 않아서 그래!',
+    victoryLine: '...공 좀 차는데?',
+    chatterLines: [
+      '느려.',
+      '이건 드리블이 아니라 피구지만...',
+      '스피드로 찍어 누른다!',
+      '따라올 수 있겠어?',
+      '슛! ...아니 던지기였지.',
+    ],
+    hitLines: ['심판! VAR 확인해!!', '이건 침대... 피구다!', '운이 좋았어.'],
   },
   5: {
     title: '5F — 피구로이드',
@@ -117,13 +154,21 @@ const FLOORS = {
     stats: { hp: 210, str: 260, spd: 300, velocity: 700 },
     ai: { reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92, pickupGreed: 0.82, blockBreakPreference: 0.9 },
     introLines: [
-      '누구야..? 드디어 여기까지 올라왔구나.',
-      '나는 피구로이드.\n피구 하나만 보고 만들어진 안드로이드야.\n피하고, 받고, 던지는 건 누구한테도 안 져.',
-      '여기가 탑의 꼭대기야.\n가진 거 전부 보여줘 봐.\n날 이긴다면... 네가 진짜 최고인 거야.',
+      '.. 누구?',
+      '나, 피구로이드.\n피구, 학습데이터 확보, 탑... 세웠다.',
+      '너, 전투 데이터, 유용할 것 같다.',
     ],
     timeoutLine: '시간 초과네.\n이번엔 날 못 이겼구나.\n다시 와서 도전해 봐.',
     defeatLine: '아, 졌다...\n아직 정상은 좀 이른가 보네.',
     victoryLine: '졌어...\n시스템... 정지...',
+    chatterLines: [
+      '목표 포착. 승률 계산 중… 귀찮으니 100%',
+      '패턴 학습, 완료.',
+      '회피 알고리즘, 실행.',
+      '공 재장전, 양심 미장착.',
+      '이 정도, 예측 범위 안.',
+    ],
+    hitLines: ['경고. 상대, 주인공 보정 감지.', '...오차 범위 내.', '시스템 과열. 원인: 너, 생각보다 잘함.'],
   },
 };
 
@@ -241,6 +286,7 @@ function startRound() {
   if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
   if (data?.ai) setNextNPCAI(data.ai);
   setNextSpawnPositions(data?.spawn ?? null);
+  setNextNPCChatter({ chatter: data?.chatterLines ?? [], hit: data?.hitLines ?? [] });
   setNextObstacles(FLOOR_OBSTACLE_GROUPS[flow.floor] ?? FLOOR_OBSTACLE_GROUPS[1]);
   hideOverlay();
   flow.startGameFn();             // → initState() → initStatus() (STATUS 초기화)

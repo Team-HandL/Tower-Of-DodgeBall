@@ -1,4 +1,4 @@
-import { state, heldBall } from './state.js';
+import { state, heldBall, CONFIG } from './state.js';
 import { BASE, STATUS } from './status.js';
 
 function clamp01(v) {
@@ -78,6 +78,12 @@ export function applyHit(target, isPlayer, damage = 40, ball = null) {
   target.invTime = 1.5;
   target.grogyTime = 0.7;
   target.hasBall = false;
+
+  // NPC가 맞으면 피격 전용 대사를 띄운다 (일상 대사보다 우선).
+  if (!isPlayer && target.hp > 0 && target.hitLines?.length) {
+    target.speech = target.hitLines[Math.floor(Math.random() * target.hitLines.length)];
+    target.speechTime = CONFIG.speechDuration;
+  }
 
   // 피격으로 그로기 — 들고 있던 공이 있으면 제자리에 떨어뜨린다.
   const heldByTarget = heldBall(isPlayer ? 'player' : 'npc');

@@ -1,5 +1,5 @@
 import './game-logic/debug.js'; // DEV ONLY — 배포 전 이 줄 삭제
-import { state, initState, W, H } from './game-logic/state.js';
+import { state, initState, W, H, CONFIG } from './game-logic/state.js';
 import { STATUS } from './game-logic/status.js';
 import { movePlayer } from './game-logic/physics.js';
 import { updateNPC } from './game-logic/npcAI.js';
@@ -23,6 +23,25 @@ const ctx = canvas.getContext('2d');
 function endGame(result) {
   state.gameState = result;
   showOverlay(result, startGame);
+}
+
+// NPC 인게임 대사: 표시 시간 차감 후, 일정 간격마다 확률적으로 한 마디.
+// 피격 대사(grogy)나 이미 말하는 중이면 일상 대사로 덮어쓰지 않는다.
+function updateNpcSpeech(dt) {
+  const { npc } = state;
+  if (npc.speechTime > 0) {
+    npc.speechTime -= dt;
+    if (npc.speechTime <= 0) npc.speech = null;
+  }
+  npc.chatterTimer -= dt;
+  if (npc.chatterTimer <= 0) {
+    npc.chatterTimer = CONFIG.chatterInterval;
+    if (npc.grogyTime <= 0 && npc.speechTime <= 0 &&
+        npc.chatterLines.length && Math.random() < CONFIG.chatterChance) {
+      npc.speech = npc.chatterLines[Math.floor(Math.random() * npc.chatterLines.length)];
+      npc.speechTime = CONFIG.speechDuration;
+    }
+  }
 }
 
 function startGame() {
@@ -79,6 +98,7 @@ function loop(ts) {
   updateNPC(dt);
   if (npc.isMoving) npc.animTime += dt;
   else npc.animTime = 0;
+  updateNpcSpeech(dt);
   const result = updateBall(dt);
   if (result) { endGame(result); return; }
 

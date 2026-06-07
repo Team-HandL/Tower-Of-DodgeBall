@@ -11,6 +11,10 @@ export const BALL_R = 20;
 export const CONFIG = {
   blockBreakBallChance: 0.5,
   maxBalls: 4,
+  // NPC 인게임 대사
+  chatterInterval: 5,    // 대사 시도 간격(초)
+  chatterChance: 0.6,    // 시도할 때 실제로 말할 확률 (나머지는 침묵)
+  speechDuration: 2.5,   // 말풍선 표시 시간(초)
 };
 
 export const state = {
@@ -42,6 +46,7 @@ let _pendingNpcSprite = 'soccer';
 let _pendingNpcAI = null;
 let _pendingObstacleGroups = null;
 let _pendingSpawnPositions = null;
+let _pendingNpcChatter = null;
 
 export function setNextObstacles(groups) {
   _pendingObstacleGroups = groups ? [...groups] : null;
@@ -59,6 +64,11 @@ export function setNextSpawnPositions(pos) {
   _pendingSpawnPositions = pos ? { ...pos } : null;
 }
 
+// NPC 인게임 대사 묶음 — { chatter: [...일상 대사], hit: [...피격 대사] }
+export function setNextNPCChatter(lines) {
+  _pendingNpcChatter = lines ? { ...lines } : null;
+}
+
 export function initState() {
   initStatus();
   const spawn = _pendingSpawnPositions;
@@ -74,7 +84,11 @@ export function initState() {
                    state: 'aim', aimTimer: 1.0, dodgeDir: null, facing: { x: -1, y: 0 }, isMoving: false, animTime: 0,
                    sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null,
                    navPath: [], navGoalKey: null, navRepathTimer: 0,
-                   shotTarget: null, shotPathCost: Infinity, shotPlayerCellKey: null, shotPlanTimer: 0 };
+                   shotTarget: null, shotPathCost: Infinity, shotPlayerCellKey: null, shotPlanTimer: 0,
+                   chatterLines: _pendingNpcChatter?.chatter ?? [],
+                   hitLines: _pendingNpcChatter?.hit ?? [],
+                   chatterTimer: CONFIG.chatterInterval, speech: null, speechTime: 0 };
+  _pendingNpcChatter = null;
   state.balls  = [ makeBall(W / 2, H / 2) ];
   const obsGroups = _pendingObstacleGroups ?? FLOOR_OBSTACLE_GROUPS[1];
   state.obstacleGroups = obsGroups;
