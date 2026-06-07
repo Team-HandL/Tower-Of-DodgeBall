@@ -91,7 +91,7 @@ const FLOORS = {
     hasCards: true,
     stats: { hp: 120, str: 105, spd: 200, velocity: 550 },
     ai: {
-      reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.72,
+      reactionDelay: 0.3, aimError: 52, dodgeSkill: 0.48, aggression: 0.72,
       pickupGreed: 0.75, blockBreakPreference: 0.3,
       attackRangePreference: { short: 0.70, mid: 0.80, long: 0.50 },
     },
@@ -119,7 +119,7 @@ const FLOORS = {
     hasCards: true,
     stats: { hp: 170, str: 200, spd: 200, velocity: 520 },
     ai: {
-      reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70,
+      reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.6, aggression: 0.70,
       pickupGreed: 0.66, blockBreakPreference: 1.0,
       attackRangePreference: { short: 0.95, mid: 0.55, long: 0.20 },
     },
@@ -147,10 +147,11 @@ const FLOORS = {
     hasCards: true,
     stats: { hp: 150, str: 120, spd: 280, velocity: 640 },
     ai: {
-      reactionDelay: 0.18, aimError: 40, dodgeSkill: 0.75, aggression: 0.78,
-      pickupGreed: 0.72, blockBreakPreference: 0.4,
+      reactionDelay: 0.18, aimError: 40, dodgeSkill: 0.75, aggression: 0.88,
+      pickupGreed: 0.82, blockBreakPreference: 0.4,
+      pickupAimDelay: { min: 0.12, max: 0.32 },
       idealRange: 170,   // 중거리(220)보다 가까이 붙어서 사격 — 스피드로 들이대는 히트앤런
-      attackRangePreference: { short: 0.80, mid: 0.55, long: 0.45 },
+      attackRangePreference: { short: 0.90, mid: 0.70, long: 0.65 },
     },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     balls: [{ c: 3, r: 8 }, { c: 21, r: 8 }],   // 플레이어 오른쪽 / NPC 왼쪽에 공 1개씩
