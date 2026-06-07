@@ -16,23 +16,23 @@ export const FLOOR_OBSTACLE_GROUPS = {
   // 중앙 책등(spine) + 좌/우 페이지(윗변/아랫변 곡선 + 글줄). 공 스폰(12,8)·좌우 스폰 십자는 비움. (총 32: hard 12 / soft 20)
   1: [
     // 책등 (hard, 세로 도미노) — 위/아래 바인딩, 가운데(공 스폰 12,8)는 열린 골
-    [{c:11,r:6, type:'hard'},{c:12,r:6, type:'hard'},{c:13,r:6, type:'hard'}],
-    [{c:11,r:10,type:'hard'},{c:12,r:10,type:'hard'},{c:13,r:10,type:'hard'}],
+    [{c:11,r:3, type:'hard'},{c:12,r:3, type:'hard'},{c:13,r:3, type:'hard'}],
+    [{c:11,r:13,type:'hard'},{c:12,r:13,type:'hard'},{c:13,r:13,type:'hard'}],
     // 페이지 바깥 가장자리 (hard, 세로 도미노)
     [{c:3, r:5, type:'hard'},{c:3, r:6, type:'hard'}],
     [{c:3, r:10,type:'hard'},{c:3, r:11,type:'hard'}],
     [{c:21,r:5, type:'hard'},{c:21,r:6, type:'hard'}],
     [{c:21,r:10,type:'hard'},{c:21,r:11,type:'hard'}],
     // 페이지 윗변 (soft, 가로 도미노) — 바깥은 높고 책등 쪽으로 내려가는 곡선
-    [{c:5, r:4, type:'soft'},{c:6, r:4, type:'soft'}],
-    [{c:9, r:5, type:'soft'},{c:10,r:5, type:'soft'}],
-    [{c:18,r:4, type:'soft'},{c:19,r:4, type:'soft'}],
-    [{c:14,r:5, type:'soft'},{c:15,r:5, type:'soft'}],
+    [{c:5, r:3, type:'soft'},{c:6, r:3, type:'soft'}],
+    [{c:9, r:4, type:'soft'},{c:10,r:4, type:'soft'}],
+    [{c:14,r:4, type:'soft'},{c:15,r:4, type:'soft'}],
+    [{c:18,r:3, type:'soft'},{c:19,r:3, type:'soft'}],
     // 페이지 아랫변 (soft, 가로 도미노) — 윗변 미러
-    [{c:5, r:12,type:'soft'},{c:6, r:12,type:'soft'}],
-    [{c:9, r:11,type:'soft'},{c:10,r:11,type:'soft'}],
-    [{c:18,r:12,type:'soft'},{c:19,r:12,type:'soft'}],
-    [{c:14,r:11,type:'soft'},{c:15,r:11,type:'soft'}],
+    [{c:5, r:13,type:'soft'},{c:6, r:13,type:'soft'}],
+    [{c:9, r:12,type:'soft'},{c:10,r:12,type:'soft'}],
+    [{c:18,r:13,type:'soft'},{c:19,r:13,type:'soft'}],
+    [{c:14,r:12,type:'soft'},{c:15,r:12,type:'soft'}],
     // 페이지 글줄 (soft, 가로 도미노) — 좌/우 페이지 중앙 라인 (r8)
     [{c:6, r:8, type:'soft'},{c:7, r:8, type:'soft'}],
     [{c:17,r:8, type:'soft'},{c:18,r:8, type:'soft'}],
@@ -64,13 +64,13 @@ export const FLOOR_OBSTACLE_GROUPS = {
   // 중앙 그립(hard)=바. 큰 원판=hard, 중/작은 원판=soft. (총 54: hard 26 / soft 28)
   3: [
     // 중앙 바 그립 (hard) — 가운데(12,8)는 공 스폰 자리라 비움
-    [{c:9, r:8, type:'hard'},{c:10,r:8, type:'hard'},{c:11,r:8, type:'hard'},{c:13,r:8, type:'hard'},{c:14,r:8, type:'hard'},{c:15,r:8, type:'hard'}],
+    [{c:9, r:7, type:'hard'},{c:10,r:7, type:'hard'},{c:11,r:7, type:'hard'},{c:13,r:7, type:'hard'},{c:14,r:7, type:'hard'},{c:15,r:7, type:'hard'}],
     // 왼쪽 원판 — 큰(col8) / 중(col5) / 작은(col2), 플레이트 간격 2칸·위상 어긋나게. 각 원판은 세로 2칸 블록(r, r+1)
-    [{c:8, r:2, type:'hard'},{c:8, r:3, type:'hard'},{c:8, r:5, type:'hard'},{c:8, r:6, type:'hard'},{c:8, r:8, type:'hard'},{c:8, r:10, type:'hard'},{c:8, r:11,type:'hard'},{c:8, r:13,type:'hard'},{c:8, r:14,type:'hard'}],
+    [{c:8, r:2, type:'hard'},{c:8, r:3, type:'hard'},{c:8, r:5, type:'hard'},{c:8, r:6, type:'hard'},{c:8, r:7, type:'hard'},{c:8, r:10, type:'hard'},{c:8, r:11,type:'hard'},{c:8, r:13,type:'hard'},{c:8, r:14,type:'hard'}],
     [{c:5, r:3, type:'soft'},{c:5, r:4, type:'soft'},{c:5, r:6, type:'soft'},{c:5, r:7, type:'soft'},{c:5, r:9,type:'soft'},{c:5, r:10,type:'soft'},{c:5, r:12,type:'soft'},{c:5, r:13,type:'soft'}],
     [{c:2, r:5, type:'soft'},{c:2, r:6, type:'soft'},{c:2, r:8, type:'soft'},{c:2, r:9,type:'soft'},{c:2, r:11,type:'soft'},{c:2, r:12,type:'soft'}], // r8은 플레이어 스폰(1,8) 보호로 비움
     // 오른쪽 원판 (미러)
-    [{c:16,r:2, type:'hard'},{c:16,r:3, type:'hard'},{c:16,r:5, type:'hard'},{c:16,r:6, type:'hard'},{c:16,r:8, type:'hard'},{c:16,r:10, type:'hard'},{c:16,r:11,type:'hard'},{c:16,r:13,type:'hard'},{c:16,r:14,type:'hard'}],
+    [{c:16,r:2, type:'hard'},{c:16,r:3, type:'hard'},{c:16,r:5, type:'hard'},{c:16,r:6, type:'hard'},{c:16,r:7, type:'hard'},{c:16,r:10, type:'hard'},{c:16,r:11,type:'hard'},{c:16,r:13,type:'hard'},{c:16,r:14,type:'hard'}],
     [{c:19,r:3, type:'soft'},{c:19,r:4, type:'soft'},{c:19,r:6, type:'soft'},{c:19,r:7, type:'soft'},{c:19,r:9, type:'soft'},{c:19,r:10,type:'soft'},{c:19,r:12,type:'soft'},{c:19,r:13,type:'soft'}],
     [{c:22,r:5, type:'soft'},{c:22,r:6, type:'soft'},{c:22,r:8, type:'soft'},{c:22,r:9,type:'soft'},{c:22,r:11,type:'soft'},{c:22,r:12,type:'soft'}], // r8은 NPC 스폰(23,8) 보호로 비움
   ],
@@ -80,17 +80,17 @@ export const FLOOR_OBSTACLE_GROUPS = {
   // 센터 서클은 양옆(r8)이 열린 출입구라 가운데 공을 막지 않음. (총 42: hard 12 / soft 30)
   4: [
     // 좌 골대 ㄷ (back=col0, 오른쪽 개방) — 플레이어 스폰(2,8)이 골 입구
-    [{c:1, r:6, type:'hard'},{c:1, r:7, type:'soft'},{c:1, r:9, type:'soft'},{c:1, r:10,type:'hard'}], // 골 뒷면 (가운데 r8=골문 비움, 스폰 보호)
-    [{c:2, r:6, type:'soft'},{c:3, r:6, type:'hard'}],   // 상단 포스트
-    [{c:2, r:10,type:'soft'},{c:3, r:10,type:'hard'}],   // 하단 포스트
+    [{c:0, r:6, type:'hard'},{c:0, r:7, type:'soft'},{c:0, r:8, type:'soft'},{c:0, r:9,type:'hard'}], // 골 뒷면 (가운데 r8=골문 비움, 스폰 보호)
+    [{c:1, r:6, type:'soft'}],   // 상단 포스트
+    [{c:1, r:9,type:'soft'}],   // 하단 포스트
     // 우 골대 ㄷ (back=col24, 왼쪽 개방) — NPC 스폰(22,8)이 골 입구
-    [{c:23,r:6, type:'hard'},{c:23,r:7, type:'soft'},{c:23,r:9, type:'soft'},{c:23,r:10,type:'hard'}], // 골 뒷면 (가운데 r8=골문 비움, 스폰 보호)
-    [{c:22,r:6, type:'soft'},{c:21,r:6, type:'hard'}],   // 상단 포스트
-    [{c:22,r:10,type:'soft'},{c:21,r:10,type:'hard'}],   // 하단 포스트
+    [{c:24,r:6, type:'hard'},{c:24,r:7, type:'soft'},{c:24,r:8, type:'soft'},{c:24,r:9,type:'hard'}], // 골 뒷면 (가운데 r8=골문 비움, 스폰 보호)
+    [{c:23,r:6, type:'soft'}],   // 상단 포스트
+    [{c:23,r:9,type:'soft'}],   // 하단 포스트
     // 센터 서클 (soft) — 더 크게 + 양옆 r8에 출입구(빈칸)를 둬 가운데 공이 막히지 않음
-    [{c:12,r:5, type:'soft'},{c:10,r:6, type:'soft'},{c:14,r:6, type:'soft'},{c:9, r:7, type:'soft'},{c:15,r:7, type:'soft'},{c:9, r:9, type:'soft'},{c:15,r:9, type:'soft'},{c:10,r:10,type:'soft'},{c:14,r:10,type:'soft'},{c:12,r:11,type:'soft'}],
+    [{c:12,r:4, type:'soft'},{c:10,r:5, type:'soft'},{c:14,r:5, type:'soft'},{c:9, r:6, type:'soft'},{c:15,r:6, type:'soft'},{c:9, r:9, type:'soft'},{c:15,r:9, type:'soft'},{c:10,r:10,type:'soft'},{c:14,r:10,type:'soft'},{c:12,r:11,type:'soft'}],
     // 하프라인 (soft) — 서클 위/아래로 이어지는 중앙선 (서클과 겹치지 않게)
-    [{c:12,r:2, type:'hard'},{c:12,r:3, type:'soft'},{c:12,r:4, type:'hard'}],
+    [{c:12,r:1, type:'hard'},{c:12,r:2, type:'soft'},{c:12,r:3, type:'hard'}],
     [{c:12,r:12,type:'hard'},{c:12,r:13,type:'soft'},{c:12,r:14,type:'hard'}],
     // 코너 아크 (soft)
     [{c:0, r:1, type:'soft'}, {c:1, r:0, type:'soft'}, {c:1, r:1, type:'soft'}],
