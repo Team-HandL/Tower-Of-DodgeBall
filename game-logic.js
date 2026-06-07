@@ -1,7 +1,7 @@
 import './game-logic/debug.js'; // DEV ONLY — 배포 전 이 줄 삭제
 import { state, initState, W, H } from './game-logic/state.js';
 import { STATUS } from './game-logic/status.js';
-import { moveEntity } from './game-logic/physics.js';
+import { movePlayer } from './game-logic/physics.js';
 import { updateNPC } from './game-logic/npcAI.js';
 import { updateBall } from './game-logic/ballPhysics.js';
 import { draw } from './game-logic/renderer.js';
@@ -54,7 +54,7 @@ function loop(ts) {
     if (state.keys['KeyS']) dy = 1;
     if (state.keys['KeyA']) dx = -1;
     if (state.keys['KeyD']) dx = 1;
-    if (dx || dy) { const d = Math.hypot(dx, dy); moveEntity(player, dx / d, dy / d, STATUS.player.spd * dt); }
+    if (dx || dy) { const d = Math.hypot(dx, dy); movePlayer(player, dx / d, dy / d, STATUS.player.spd * dt); }
   }
   if (player.isMoving) player.animTime += dt;
   else player.animTime = 0;
