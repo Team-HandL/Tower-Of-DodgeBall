@@ -32,6 +32,9 @@ const DEFAULT_AI = {
   aggression: 0.7,
   pickupGreed: 0.65,
   blockBreakPreference: 0,
+  centerBias: 0.0014,
+  wallAvoidMargin: 0,
+  wallAvoidBias: 0,
   attackRangePreference: { short: 0.6, mid: 0.7, long: 0.5 },
 };
 
@@ -516,12 +519,19 @@ function calcBallDodgeDir(ball) {
 
 function runFromPlayer(dt, speedMult) {
   const { player, npc } = state;
+  const cfg = ai();
   const dx = npc.x - player.x, dy = npc.y - player.y, d = Math.hypot(dx, dy) || 1;
   // 중앙으로 약하게 당겨 벽·코너로 도망치는 것을 줄인다. 상수가 크면 flee 벡터(크기 1)를
   // centering force가 역전시켜 flip point(x≈650)에서 facing이 left↔right 매 프레임 교번하는
-  // 버그가 생기므로 0.0014 유지.
-  const cx = (W / 2 - npc.x) * 0.0014;
-  const cy = (H / 2 - npc.y) * 0.0014;
+  // 버그가 생기므로 기본값은 낮게 유지하고, 특정 NPC만 AI 옵션으로 보정한다.
+  let bias = cfg.centerBias;
+  const margin = cfg.wallAvoidMargin;
+  if (margin > 0 &&
+      (npc.x < margin || npc.x > W - margin || npc.y < margin || npc.y > H - margin)) {
+    bias += cfg.wallAvoidBias;
+  }
+  const cx = (W / 2 - npc.x) * bias;
+  const cy = (H / 2 - npc.y) * bias;
   const ex = dx / d + cx, ey = dy / d + cy, ed = Math.hypot(ex, ey) || 1;
   navigateTo(
     { x: npc.x + (ex / ed) * 180, y: npc.y + (ey / ed) * 180 },

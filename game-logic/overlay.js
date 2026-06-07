@@ -93,6 +93,7 @@ const FLOORS = {
     ai: {
       reactionDelay: 0.3, aimError: 52, dodgeSkill: 0.48, aggression: 0.72,
       pickupGreed: 0.75, blockBreakPreference: 0.3,
+      centerBias: 0.0022, wallAvoidMargin: 170, wallAvoidBias: 0.0016,
       attackRangePreference: { short: 0.70, mid: 0.80, long: 0.50 },
     },
     introLines: [
