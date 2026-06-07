@@ -13,7 +13,7 @@ export const CONFIG = {
   maxBalls: 4,
   // NPC 인게임 대사
   chatterInterval: 5,    // 대사 시도 간격(초)
-  chatterChance: 0.6,    // 시도할 때 실제로 말할 확률 (나머지는 침묵)
+  chatterChance: 0.9,    // 시도할 때 실제로 말할 확률 (나머지는 침묵)
   speechDuration: 2.5,   // 말풍선 표시 시간(초)
 };
 

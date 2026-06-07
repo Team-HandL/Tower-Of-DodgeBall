@@ -10,10 +10,11 @@ function hpColor(hpRate) {
   return `rgb(${Math.round(220 - 160 * r)},${Math.round(40 + 160 * r)},40)`;
 }
 
-// 픽셀 스타일 말풍선 — 흰 본체 + 검은 테두리/텍스트, 아래쪽 꼬리.
-// cx: 가리키는 대상의 x, bottomY: 꼬리 끝이 닿을 y(스프라이트 위쪽).
-function drawSpeechBubble(ctx, cx, bottomY, text) {
-  const FONT = 13, padX = 8, padY = 6, border = 2, tail = 6;
+// 픽셀 스타일 말풍선 — 흰 본체 + 검은 테두리/텍스트 + 꼬리.
+// cx: 가리키는 대상의 x. aboveY: 스프라이트 위쪽 꼬리점(기본 위치),
+// belowY: 위 공간이 부족할 때 뒤집어 그릴 스프라이트 아래쪽 꼬리점.
+function drawSpeechBubble(ctx, cx, aboveY, belowY, text) {
+  const FONT = 17, padX = 9, padY = 7, border = 2, tail = 6, MARGIN = 4;
   ctx.font = `${FONT}px 'PFStardust', monospace`;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
@@ -22,8 +23,11 @@ function drawSpeechBubble(ctx, cx, bottomY, text) {
   const bw = tw + padX * 2;
   const bh = FONT + padY * 2;
   let x = Math.round(cx - bw / 2);
-  const y = Math.round(bottomY - tail - bh);
   x = Math.max(border + 2, Math.min(W - bw - border - 2, x)); // 좌우 화면 클램프
+
+  // 위쪽에 공간이 충분하면 위(꼬리 아래쪽), 아니면 아래로 뒤집어 그린다(꼬리 위쪽).
+  const above = (aboveY - tail - bh - border) >= MARGIN;
+  const y = above ? Math.round(aboveY - tail - bh) : Math.round(belowY + tail);
 
   // 테두리(검정) → 본체(흰색)
   ctx.fillStyle = '#000';
@@ -33,20 +37,39 @@ function drawSpeechBubble(ctx, cx, bottomY, text) {
 
   // 꼬리 — 대상 쪽을 가리키되 말풍선 폭 안으로 클램프
   const tcx = Math.max(x + tail + 2, Math.min(x + bw - tail - 2, Math.round(cx)));
-  ctx.fillStyle = '#000';
-  ctx.beginPath();
-  ctx.moveTo(tcx - tail, y + bh);
-  ctx.lineTo(tcx + tail, y + bh);
-  ctx.lineTo(tcx, y + bh + tail + border);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.moveTo(tcx - tail + 2, y + bh - 1);
-  ctx.lineTo(tcx + tail - 2, y + bh - 1);
-  ctx.lineTo(tcx, y + bh + tail - 2);
-  ctx.closePath();
-  ctx.fill();
+  if (above) {
+    // 본체 아래 변에서 아래로 향하는 꼬리
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.moveTo(tcx - tail, y + bh);
+    ctx.lineTo(tcx + tail, y + bh);
+    ctx.lineTo(tcx, y + bh + tail + border);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.moveTo(tcx - tail + 2, y + bh - 1);
+    ctx.lineTo(tcx + tail - 2, y + bh - 1);
+    ctx.lineTo(tcx, y + bh + tail - 2);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    // 본체 위 변에서 위로 향하는 꼬리
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.moveTo(tcx - tail, y);
+    ctx.lineTo(tcx + tail, y);
+    ctx.lineTo(tcx, y - tail - border);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.moveTo(tcx - tail + 2, y + 1);
+    ctx.lineTo(tcx + tail - 2, y + 1);
+    ctx.lineTo(tcx, y - tail + 2);
+    ctx.closePath();
+    ctx.fill();
+  }
 
   // 텍스트
   ctx.fillStyle = '#000';
@@ -104,8 +127,8 @@ export function drawNPC(ctx, npc) {
     ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, hpRate)), bh);
   }
 
-  // 인게임 대사 말풍선 (스프라이트 위, 그로기 게이지보다 더 위)
+  // 인게임 대사 말풍선 — 기본은 스프라이트 위, 위 공간이 부족하면 HP 바 아래로 뒤집어 표시
   if (npc.speech && npc.speechTime > 0) {
-    drawSpeechBubble(ctx, npc.x, spriteTop - 10, npc.speech);
+    drawSpeechBubble(ctx, npc.x, spriteTop - 10, spriteTop + SIZE + 12, npc.speech);
   }
 }
