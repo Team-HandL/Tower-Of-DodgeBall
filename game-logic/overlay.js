@@ -1,7 +1,7 @@
-import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions, setNextNPCChatter } from './state.js';
+import { state, setNextNPCSprite, setNextNPCAI, setNextObstacles, setNextSpawnPositions, setNextNPCChatter, setNextBalls } from './state.js';
 import { FLOOR_OBSTACLE_GROUPS } from '../design/map-01/obstacles.js';
 import { BASE, STATUS, setNextNPCStats, applyBuffsToStatus } from './status.js';
-
+import { startBGM } from './bgm.js'
 // ─── HP UI (게임 루프가 매 프레임 호출) ────────────────────────────
 
 function hpColor(hp, maxHp) {
@@ -145,6 +145,7 @@ const FLOORS = {
       attackRangePreference: { short: 0.40, mid: 0.90, long: 0.65 },
     },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
+    balls: [{ c: 3, r: 8 }, { c: 21, r: 8 }],   // 플레이어 오른쪽 / NPC 왼쪽에 공 1개씩
     introLines: [
       '이 위에 피구를 하는 이상한 로봇이 있다는데 알아?',
       '축구가 더 재밌는데… 이런게 뭐가 재밌다는 건지.',
@@ -305,11 +306,13 @@ function renderFloorIntro() {
 }
 
 function startRound() {
+  startBGM();
   const data = FLOORS[flow.floor];
   if (data?.stats) setNextNPCStats(data.stats);
   if (data?.npcSprite) setNextNPCSprite(data.npcSprite);
   if (data?.ai) setNextNPCAI(data.ai);
   setNextSpawnPositions(data?.spawn ?? null);
+  setNextBalls(data?.balls ?? null);
   setNextNPCChatter({ chatter: data?.chatterLines ?? [], hit: data?.hitLines ?? [] });
   setNextObstacles(FLOOR_OBSTACLE_GROUPS[flow.floor] ?? FLOOR_OBSTACLE_GROUPS[1]);
   hideOverlay();

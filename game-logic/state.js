@@ -47,6 +47,7 @@ let _pendingNpcAI = null;
 let _pendingObstacleGroups = null;
 let _pendingSpawnPositions = null;
 let _pendingNpcChatter = null;
+let _pendingBalls = null;
 
 export function setNextObstacles(groups) {
   _pendingObstacleGroups = groups ? [...groups] : null;
@@ -67,6 +68,11 @@ export function setNextSpawnPositions(pos) {
 // NPC 인게임 대사 묶음 — { chatter: [...일상 대사], hit: [...피격 대사] }
 export function setNextNPCChatter(lines) {
   _pendingNpcChatter = lines ? { ...lines } : null;
+}
+
+// 라운드 시작 시 놓을 공들의 타일 좌표 배열 [{c, r}, ...]. 미지정 시 중앙 1개.
+export function setNextBalls(list) {
+  _pendingBalls = list ? list.map(b => ({ ...b })) : null;
 }
 
 export function initState() {
@@ -90,7 +96,10 @@ export function initState() {
                    hitLines: _pendingNpcChatter?.hit ?? [],
                    chatterTimer: CONFIG.chatterInterval, speech: null, speechTime: 0 };
   _pendingNpcChatter = null;
-  state.balls  = [ makeBall(W / 2, H / 2) ];
+  state.balls  = _pendingBalls
+    ? _pendingBalls.map(({ c, r }) => makeBall(c * TILE + TILE / 2, r * TILE + TILE / 2))
+    : [ makeBall(W / 2, H / 2) ];
+  _pendingBalls = null;
   const obsGroups = _pendingObstacleGroups ?? FLOOR_OBSTACLE_GROUPS[1];
   state.obstacleGroups = obsGroups;
   state.obstacles = obsGroups.flat()
