@@ -11,59 +11,68 @@ export const TILE = 48; // 타일 한 칸 크기 (background.js 와 동일)
 
 export const FLOOR_OBSTACLE_GROUPS = {
 
-  // 1F 너드 — 컴퓨터실 / 회로 기판
-  // 펼쳐진 책 (open book) 모양으로 만들고 싶음
+  // 1F 너드 — 펼쳐진 책 (open book)
+  // 모든 장애물을 1×2 / 2×1 덩어리(도미노)로, 서로 2행·2열 이상 띄워 배치. 넓게 펼침(col 3~21, row 3~13).
+  // 중앙 책등(spine) + 좌/우 페이지(윗변/아랫변 곡선 + 글줄). 공 스폰(12,8)·좌우 스폰 십자는 비움. (총 32: hard 12 / soft 20)
   1: [
-// Hard: 서버 랙
-    [{c:6,  r:4,  type:'hard'},{c:6,  r:5,  type:'hard'}],
-    [{c:19, r:4,  type:'hard'},{c:19, r:5,  type:'hard'}],
-    [{c:6,  r:12, type:'hard'},{c:6,  r:13, type:'hard'}],
-    [{c:19, r:12, type:'hard'},{c:19, r:13, type:'hard'}],
-    // Soft: 책상 / 박스
-    [{c:10, r:5,  type:'soft'},{c:11, r:5,  type:'soft'}],
-    [{c:14, r:5,  type:'soft'},{c:15, r:5,  type:'soft'}],
-    [{c:10, r:12, type:'soft'},{c:11, r:12, type:'soft'}],
-    [{c:14, r:12, type:'soft'},{c:15, r:12, type:'soft'}],
-    [{c:8,  r:8,  type:'soft'},{c:8,  r:9,  type:'soft'}],
-    [{c:17, r:8,  type:'soft'},{c:17, r:9,  type:'soft'}],
+    // 책등 (hard, 세로 도미노) — 위/아래 바인딩, 가운데(공 스폰 12,8)는 열린 골
+    [{c:11,r:6, type:'hard'},{c:12,r:6, type:'hard'},{c:13,r:6, type:'hard'}],
+    [{c:11,r:10,type:'hard'},{c:12,r:10,type:'hard'},{c:13,r:10,type:'hard'}],
+    // 페이지 바깥 가장자리 (hard, 세로 도미노)
+    [{c:3, r:5, type:'hard'},{c:3, r:6, type:'hard'}],
+    [{c:3, r:10,type:'hard'},{c:3, r:11,type:'hard'}],
+    [{c:21,r:5, type:'hard'},{c:21,r:6, type:'hard'}],
+    [{c:21,r:10,type:'hard'},{c:21,r:11,type:'hard'}],
+    // 페이지 윗변 (soft, 가로 도미노) — 바깥은 높고 책등 쪽으로 내려가는 곡선
+    [{c:5, r:4, type:'soft'},{c:6, r:4, type:'soft'}],
+    [{c:9, r:5, type:'soft'},{c:10,r:5, type:'soft'}],
+    [{c:18,r:4, type:'soft'},{c:19,r:4, type:'soft'}],
+    [{c:14,r:5, type:'soft'},{c:15,r:5, type:'soft'}],
+    // 페이지 아랫변 (soft, 가로 도미노) — 윗변 미러
+    [{c:5, r:12,type:'soft'},{c:6, r:12,type:'soft'}],
+    [{c:9, r:11,type:'soft'},{c:10,r:11,type:'soft'}],
+    [{c:18,r:12,type:'soft'},{c:19,r:12,type:'soft'}],
+    [{c:14,r:11,type:'soft'},{c:15,r:11,type:'soft'}],
+    // 페이지 글줄 (soft, 가로 도미노) — 좌/우 페이지 중앙 라인 (r8)
+    [{c:6, r:8, type:'soft'},{c:7, r:8, type:'soft'}],
+    [{c:17,r:8, type:'soft'},{c:18,r:8, type:'soft'}],
   ],
 
-  // 2F CEO — 사무실 / 회의실
+  // 2F CEO — 사무실 (4 코너 책상 + 중앙 회의 테이블)
+  // 각 코너 책상 = hard 세로 3칸 + 가운데 오른쪽에 soft 서랍 1칸.
+  // 중앙 우측 = 3×2 hard 회의 테이블. (총 22: hard 18 / soft 4)
+  // 스폰 비움: 플레이어(1,8) · CEO(23,8) · 공(12,8).
   2: [
-    // Hard: 기둥
-    [{c:7,  r:4,  type:'hard'}],
-    [{c:7,  r:13, type:'hard'}],
-    [{c:18, r:4,  type:'hard'}],
-    [{c:18, r:13, type:'hard'}],
-    [{c:11, r:6,  type:'hard'}],
-    [{c:14, r:6,  type:'hard'}],
-    [{c:11, r:11, type:'hard'}],
-    [{c:14, r:11, type:'hard'}],
-    // Soft: 파티션
-    [{c:5,  r:7,  type:'soft'},{c:6,  r:7,  type:'soft'},{c:7,  r:7,  type:'soft'},{c:8,  r:7,  type:'soft'}],
-    [{c:5,  r:10, type:'soft'},{c:6,  r:10, type:'soft'},{c:7,  r:10, type:'soft'},{c:8,  r:10, type:'soft'}],
-    [{c:17, r:7,  type:'soft'},{c:18, r:7,  type:'soft'},{c:19, r:7,  type:'soft'},{c:20, r:7,  type:'soft'}],
-    [{c:17, r:10, type:'soft'},{c:18, r:10, type:'soft'},{c:19, r:10, type:'soft'},{c:20, r:10, type:'soft'}],
-    [{c:10, r:3,  type:'soft'},{c:10, r:4,  type:'soft'},{c:10, r:5,  type:'soft'}],
-    [{c:15, r:3,  type:'soft'},{c:15, r:4,  type:'soft'},{c:15, r:5,  type:'soft'}],
-    [{c:10, r:12, type:'soft'},{c:10, r:13, type:'soft'},{c:10, r:14, type:'soft'}],
-    [{c:15, r:12, type:'soft'},{c:15, r:13, type:'soft'},{c:15, r:14, type:'soft'}],
+    // 좌상 책상
+    [{c:4,  r:2,  type:'soft'},{c:4,  r:3,  type:'soft'},{c:4,  r:4,  type:'soft'},{c:5,  r:3,  type:'hard'}],
+    // 좌하 책상
+    [{c:4,  r:12, type:'soft'},{c:4,  r:13, type:'soft'},{c:4,  r:14, type:'soft'},{c:5,  r:13, type:'hard'}],
+    // 중상 책상
+    [{c:9,  r:2,  type:'soft'},{c:9,  r:3,  type:'soft'},{c:9,  r:4,  type:'soft'},{c:10, r:3,  type:'hard'}],
+    // 중하 책상
+    [{c:9,  r:12, type:'soft'},{c:9,  r:13, type:'soft'},{c:9,  r:14, type:'soft'},{c:10, r:13, type:'hard'}],
+    // 우상 책상
+    [{c:14, r:2,  type:'soft'},{c:14, r:3,  type:'soft'},{c:14, r:4,  type:'soft'},{c:15, r:3,  type:'hard'}],
+    // 우하 책상
+    [{c:14, r:12, type:'soft'},{c:14, r:13, type:'soft'},{c:14, r:14, type:'soft'},{c:15, r:13, type:'hard'}],
+    // 중앙 우측 대표 책상
+    [{c:19, r:7,  type:'soft'},{c:20, r:7,  type:'soft'},{c:19, r:8,  type:'soft'},{c:20, r:8,  type:'soft'},{c:19, r:9,  type:'soft'},{c:20, r:9,  type:'soft'}],
   ],
 
   // 3F 트레이너 — 바벨 바 + 다양한 무게의 플레이트
   // 원판을 점선(흩뿌린) 세로열로, 크기·높이를 다르게 양옆에 벌려 배치(작은·중간·큰).
-  // 중앙 그립(hard)=바. 큰 원판=hard, 중/작은 원판=soft. (총 30: hard 16 / soft 14)
+  // 중앙 그립(hard)=바. 큰 원판=hard, 중/작은 원판=soft. (총 54: hard 26 / soft 28)
   3: [
     // 중앙 바 그립 (hard) — 가운데(12,8)는 공 스폰 자리라 비움
     [{c:9, r:8, type:'hard'},{c:10,r:8, type:'hard'},{c:11,r:8, type:'hard'},{c:13,r:8, type:'hard'},{c:14,r:8, type:'hard'},{c:15,r:8, type:'hard'}],
-    // 왼쪽 원판 (점선) — 큰(col8) / 중(col6) / 작은(col4), 위상 어긋나게 흩뿌림
-    [{c:8, r:4, type:'hard'},{c:8, r:6, type:'hard'},{c:8, r:8, type:'hard'},{c:8, r:10,type:'hard'},{c:8, r:12,type:'hard'}],
-    [{c:6, r:5, type:'soft'},{c:6, r:7, type:'soft'},{c:6, r:9, type:'soft'},{c:6, r:11,type:'soft'}],
-    [{c:4, r:6, type:'soft'},{c:4, r:8, type:'soft'},{c:4, r:10,type:'soft'}],
+    // 왼쪽 원판 — 큰(col8) / 중(col5) / 작은(col2), 플레이트 간격 2칸·위상 어긋나게. 각 원판은 세로 2칸 블록(r, r+1)
+    [{c:8, r:2, type:'hard'},{c:8, r:3, type:'hard'},{c:8, r:5, type:'hard'},{c:8, r:6, type:'hard'},{c:8, r:8, type:'hard'},{c:8, r:10, type:'hard'},{c:8, r:11,type:'hard'},{c:8, r:13,type:'hard'},{c:8, r:14,type:'hard'}],
+    [{c:5, r:3, type:'soft'},{c:5, r:4, type:'soft'},{c:5, r:6, type:'soft'},{c:5, r:7, type:'soft'},{c:5, r:9,type:'soft'},{c:5, r:10,type:'soft'},{c:5, r:12,type:'soft'},{c:5, r:13,type:'soft'}],
+    [{c:2, r:5, type:'soft'},{c:2, r:6, type:'soft'},{c:2, r:8, type:'soft'},{c:2, r:9,type:'soft'},{c:2, r:11,type:'soft'},{c:2, r:12,type:'soft'}], // r8은 플레이어 스폰(1,8) 보호로 비움
     // 오른쪽 원판 (미러)
-    [{c:16,r:4, type:'hard'},{c:16,r:6, type:'hard'},{c:16,r:8, type:'hard'},{c:16,r:10,type:'hard'},{c:16,r:12,type:'hard'}],
-    [{c:18,r:5, type:'soft'},{c:18,r:7, type:'soft'},{c:18,r:9, type:'soft'},{c:18,r:11,type:'soft'}],
-    [{c:20,r:6, type:'soft'},{c:20,r:8, type:'soft'},{c:20,r:10,type:'soft'}],
+    [{c:16,r:2, type:'hard'},{c:16,r:3, type:'hard'},{c:16,r:5, type:'hard'},{c:16,r:6, type:'hard'},{c:16,r:8, type:'hard'},{c:16,r:10, type:'hard'},{c:16,r:11,type:'hard'},{c:16,r:13,type:'hard'},{c:16,r:14,type:'hard'}],
+    [{c:19,r:3, type:'soft'},{c:19,r:4, type:'soft'},{c:19,r:6, type:'soft'},{c:19,r:7, type:'soft'},{c:19,r:9, type:'soft'},{c:19,r:10,type:'soft'},{c:19,r:12,type:'soft'},{c:19,r:13,type:'soft'}],
+    [{c:22,r:5, type:'soft'},{c:22,r:6, type:'soft'},{c:22,r:8, type:'soft'},{c:22,r:9,type:'soft'},{c:22,r:11,type:'soft'},{c:22,r:12,type:'soft'}], // r8은 NPC 스폰(23,8) 보호로 비움
   ],
 
   // 4F 축구선수 — 축구장 (양옆 골대 + 큰 센터 서클 + 하프라인 + 코너)
