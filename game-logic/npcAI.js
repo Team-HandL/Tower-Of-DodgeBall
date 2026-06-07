@@ -612,9 +612,32 @@ export function updateNPC(dt) {
   const npcCloser  = loose && dist(npc, loose) < dist(player, loose);
   const looseSpd   = loose ? Math.hypot(loose.vx, loose.vy) : 0;
   const fastBounce1 = loose && loose.flying && loose.bounces === 1 && looseSpd >= STATUS.player.catchMinSpd;
+  const playerGuardingBall = loose &&
+    dist(player, loose) < loose.r + player.r + 72;
+
+  // 같은 공이 계속 방치되면 거리 열세를 무시하고 회수한다.
+  // pickupGreed가 높은 NPC일수록 눈치를 보는 시간이 짧다.
+  if (loose !== npc.looseTarget) {
+    npc.looseTarget = loose;
+    npc.looseBallWaitTime = 0;
+  } else if (loose && !fastBounce1 && !playerGuardingBall) {
+    npc.looseBallWaitTime += dt;
+  } else {
+    npc.looseBallWaitTime = 0;
+  }
+  const forcePickupAfter = 1.2 + (1 - cfg.pickupGreed) * 4;
+  const tiredOfWaiting = loose && npc.looseBallWaitTime >= forcePickupAfter;
+
+  // 플레이어가 공 바로 앞에서 지키고 있으면 함정으로 보고 접근하지 않는다.
+  // 너무 가까울 때만 후퇴하고, 안전거리가 확보되면 현재 위치에서 대기한다.
+  if (playerGuardingBall) {
+    npc.state = 'guard';
+    if (dist(npc, player) < SAFE_DIST) runFromPlayer(dt);
+    return;
+  }
 
   // 공 줍기 — 목표가 분명하므로 코너 탈출보다 먼저(코너의 공도 주우러 간다).
-  if (loose && (npcCloser || cfg.pickupGreed > 0.78) && !fastBounce1) {
+  if (loose && (npcCloser || cfg.pickupGreed > 0.78 || tiredOfWaiting) && !fastBounce1) {
     npc.state = 'fetch';
     if (dist(loose, npc) > 12) navigateTo(loose, dt, STATUS.npc.spd * dt);
     if (dist(loose, npc) < loose.r + npc.r + 12) pickUpBall('npc', loose);

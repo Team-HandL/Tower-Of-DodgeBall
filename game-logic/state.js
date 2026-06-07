@@ -85,6 +85,7 @@ export function initState() {
                    sprite: _pendingNpcSprite, ai: _pendingNpcAI ? { ..._pendingNpcAI } : null,
                    navPath: [], navGoalKey: null, navRepathTimer: 0,
                    shotTarget: null, shotPathCost: Infinity, shotPlayerCellKey: null, shotPlanTimer: 0,
+                   looseTarget: null, looseBallWaitTime: 0,
                    chatterLines: _pendingNpcChatter?.chatter ?? [],
                    hitLines: _pendingNpcChatter?.hit ?? [],
                    chatterTimer: CONFIG.chatterInterval, speech: null, speechTime: 0 };
