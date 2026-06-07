@@ -47,7 +47,13 @@ function updateNpcSpeech(dt) {
     npc.chatterTimer = CONFIG.chatterInterval;
     if (npc.grogyTime <= 0 && npc.speechTime <= 0 &&
         npc.chatterLines.length && Math.random() < CONFIG.chatterChance) {
-      npc.speech = npc.chatterLines[Math.floor(Math.random() * npc.chatterLines.length)];
+      if (npc.chatterOrdered) {
+        // 순서대로 출력(끝까지 가면 처음부터 반복) — 2F 등 대사 흐름이 있는 NPC용
+        npc.speech = npc.chatterLines[npc.chatterIdx % npc.chatterLines.length];
+        npc.chatterIdx++;
+      } else {
+        npc.speech = npc.chatterLines[Math.floor(Math.random() * npc.chatterLines.length)];
+      }
       npc.speechTime = CONFIG.speechDuration;
     }
   }

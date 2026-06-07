@@ -67,21 +67,21 @@ const FLOORS = {
     introLines: [
       '어... 안녕?',
       '여기가 뭐 하는 곳이냐고?',
-      '나도 잘 모르지만, 뭔가.. 피구를 하게 되는 곳이야 다들 왜인지 꼭대기에 가고 싶어 해.',
-      '난 이 탑 어딘가의 피구에 미친 안드로이드의 동작 원리를 알고 싶어서 여기에 왔어.',
-      '나도 모르는 것들이 여기저기에 많아. 그건 직접 확인하는 수밖에 없어'
+      '피구를 해야 올라갈 수 있는 탑이야.\n 난 이 탑 어딘가의 피구에 미친 안드로이드의 동작 원리를 알고 싶어서 여기에 왔어.',
+      '나도 모르는 것들이 많아. 그건 직접 확인하는 수밖에 없어.'
     ],
     timeoutLine: '벌써 시간이 다 됐네!\n한 번 더 할꺼야?',
     defeatLine: '어라, 쓰러졌어?\n괜찮아, 금방 잘하게 될 거야!\n다시 도전해봐, 응원할게!',
     victoryLine: '우와, 역시!\n금방 배우는 타입이구나?\n다음 층에서도 파이팅해!',
+    chatterOrdered: true,   // 1F는 튜토리얼 안내를 순서대로 출력
     chatterLines: [
-      '오, 방금 그 움직임 좋았어!',
       'W A S D로 이동할 수 있어.',
+      '마우스를 움직여서 공의 조준 방향을 정할 수 있어.',
       '클릭/SPACE로 공을 줍고 던질 수 있어.',
       '클릭/SPACE를 길게 누르면 공을 더 강하게 던질 수 있지.',
-      '마우스를 움직여서 공의 조준 방향을 정할 수 있어.',
       '날아오는 공을 타이밍 맞춰 잡아봐.',
-      '장애물을 부수면 공을 추가로 얻을 수도 있어.'
+      '장애물을 부수면 공을 추가로 얻을 수도 있어.',
+      '오, 방금 그 움직임 좋았어!',
     ],
     hitLines: ['아얏!', '오, 제법인데!', '너 꽤 하는구나?'],
   },
@@ -106,7 +106,7 @@ const FLOORS = {
     victoryLine: '이런, 내가 졌다고?\n자네, 나랑 일해볼 생각 없나?',
     chatterLines: [
       '시간은 곧 돈이야...',
-      '이번에 투자 받았는데.. 제육 먹으러 가자고',
+      '이번에 투자 받았는데.. 제육 먹으러 가자고.',
       '우리 직원들은 일하는 시간이 너무 적은 것 같아.',
       '자네, 시야가 좁군..',
       '탕비실에 커피와 과자가 왜 필요하지?',
@@ -190,7 +190,7 @@ const FLOORS = {
       '너, 전투 데이터, 유용할 것 같다.',
     ],
     timeoutLine: '시간 초과.',
-    defeatLine: '너, 패배\n데이터, 무쓸모',
+    defeatLine: '너, 패배\n데이터, 무쓸모.',
     victoryLine: '너, 승리\n시스템... 정지...',
     chatterLines: [
       '목표 포착. 승률 계산 중… 귀찮으니 100%',
@@ -335,7 +335,7 @@ function startRound() {
   if (data?.ai) setNextNPCAI(data.ai);
   setNextSpawnPositions(data?.spawn ?? null);
   setNextBalls(data?.balls ?? null);
-  setNextNPCChatter({ chatter: data?.chatterLines ?? [], hit: data?.hitLines ?? [] });
+  setNextNPCChatter({ chatter: data?.chatterLines ?? [], hit: data?.hitLines ?? [], ordered: data?.chatterOrdered ?? false });
   setNextObstacles(FLOOR_OBSTACLE_GROUPS[flow.floor] ?? FLOOR_OBSTACLE_GROUPS[1]);
   hideOverlay();
   flow.startGameFn();             // → initState() → initStatus() (STATUS 초기화)

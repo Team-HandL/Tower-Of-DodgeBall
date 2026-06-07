@@ -95,6 +95,7 @@ export function initState() {
                    looseTarget: null, looseBallWaitTime: 0,
                    chatterLines: _pendingNpcChatter?.chatter ?? [],
                    hitLines: _pendingNpcChatter?.hit ?? [],
+                   chatterOrdered: _pendingNpcChatter?.ordered ?? false, chatterIdx: 0,
                    chatterTimer: CONFIG.chatterInterval, speech: null, speechTime: 0 };
   _pendingNpcChatter = null;
   state.balls  = _pendingBalls
