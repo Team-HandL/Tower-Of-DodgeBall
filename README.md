@@ -1,20 +1,37 @@
 ## Tower-Of-DodgeBall
 
-캔버스 기반 1:1 피구 게임. 플레이어가 NPC와 대결하며 공을 피하고, 줍고, 던져서 상대방 HP를 먼저 0으로 만들면 승리합니다.
+탑을 오르며 펼쳐지는 캔버스 기반 1:1 피구 게임입니다. 플레이어가 NPC와 대결하며 공을 피하고, 줍고, 던져서 상대방 HP를 먼저 0으로 만들면 한 층을 클리어합니다. 층마다 달라지는 맵과 점점 강해지는 도전 상대를 뚫고, 최상층의 보스 **안드로이드**까지 정복하세요.
+
+🎬 **[게임 데모 영상 보기](https://youtu.be/vJt1AfbSyFg)** &nbsp;·&nbsp; 🎮 **[게임 시작하기](https://team-handl.github.io/Tower-Of-DodgeBall/)**
 
 ---
 
-### 실행 방법
+### 게임 소개
 
-로컬 서버가 필요합니다 (ES Module 사용).
+- 🥎 **줍고 · 던지고 · 캐치** — WASD로 이동하고 마우스로 조준해 공을 줍고 던지며, 날아오는 공을 캐치로 받아칠 수 있습니다.
+- 🏢 **층마다 달라지는 맵** — 각 층의 지형과 장애물을 활용해 전략적으로 공략하세요.
+- 🤖 **다양한 도전 상대** — 층을 오를수록 강해지는 NPC와 박진감 넘치는 대결을 펼칩니다.
+- ⚡ **능력 강화** — 한 층을 클리어할 때마다 원하는 능력을 골라 강화할 수 있습니다.
+- ⏱️ **클리어 타임 단축** — 최종 보스까지 클리어한 뒤, 전체 클리어 시간 단축에 도전하세요.
+
+---
+
+### 개발 버전 실행 방법
+
+로컬 서버가 필요합니다 (ES Module 사용). 아래 명령으로 **프로젝트 루트에서 항상 3000번 포트**로 실행하세요.
 
 ```bash
-npx serve .
+npx serve . -p 3000
 # 또는
-python3 -m http.server 8080
+python3 -m http.server 3000
 ```
 
-브라우저에서 `http://localhost:포트` 접속
+| 접속 | 주소 |
+|---|---|
+| 게임 | `http://localhost:3000` |
+| 프로모 슬라이드쇼 | `http://localhost:3000/promo/` |
+
+> 프로모(`/promo/`)는 게임을 소개하는 슬라이드쇼입니다. **프로젝트 루트**에서 서버를 실행해야 프로모가 참조하는 에셋(`../design`)과 "▶ 지금 플레이" 링크(`../index.html`)가 올바르게 연결됩니다. 슬라이드는 `←` / `→` 또는 화면 클릭으로 넘길 수 있습니다.
 
 ---
 
@@ -31,7 +48,6 @@ python3 -m http.server 8080
 ### 파일 구조
 
 ```
-.
 ├── index.html                  # HTML 구조, CSS 스타일, 게임 엔트리포인트
 ├── game-logic.js               # 게임 루프, 시작/종료 처리, 모듈 부트스트랩
 ├── game-logic/
@@ -43,16 +59,28 @@ python3 -m http.server 8080
 │   ├── npcAI.js                # NPC 조준, 회피, 추적, 대기 상태머신
 │   ├── ballPhysics.js          # 공 이동, 반사, 감속, 명중 판정
 │   ├── overlay.js              # 시작/층 진입/승패/강화 오버레이 UI
-│   └── renderer.js             # 캔버스 렌더링
-└── design/
-    ├── assets.js               # 이미지 에셋 사전 로딩
-    ├── ball.js                 # 공과 궤적 가이드선 렌더링
-    ├── player.js               # 플레이어 캐릭터 렌더링
-    ├── map-01/
-    │   ├── background.js       # 맵 배경 렌더링
-    │   ├── obstacles.js        # 장애물 데이터와 렌더링
-    │   └── npc.js              # NPC 캐릭터 렌더링
-    └── assets/
-        ├── fonts/              # 게임 폰트
-        └── images/             # 캐릭터, 공, 탑 이미지
+│   ├── renderer.js             # 캔버스 렌더링
+│   ├── bgm.js                  # 배경음악 재생 관리
+│   ├── analytics.js            # GA4 플레이 지표 수집
+│   └── debug.js                # (개발용) 층 즉시 이동 패널
+├── design/
+│   ├── assets.js               # 이미지 에셋 사전 로딩
+│   ├── ball.js                 # 공과 궤적 가이드선 렌더링
+│   ├── player.js               # 플레이어 캐릭터 렌더링
+│   ├── map-01/                 # 1층 맵 로직 + 배경
+│   │   ├── background.js       # 맵 배경 렌더링
+│   │   ├── obstacles.js        # 장애물 데이터와 렌더링
+│   │   ├── npc.js              # NPC 캐릭터 렌더링
+│   │   └── background_01.png   # 1층 배경 이미지
+│   ├── map-02 ~ map-05/        # 2~5층 배경 이미지 (background_0X.png)
+│   └── assets/
+│       ├── fonts/              # 게임 폰트 (PFStardust 계열)
+│       ├── images/             # 캐릭터별 스프라이트, 공, 탑 이미지
+│       └── music/              # 배경음악 (bgm_tod.mp3)
+└── promo/                      # 게임 소개 슬라이드쇼 (/promo/)
+    ├── index.html              # ▶ 로 넘기는 슬라이드쇼 진행 로직
+    ├── base.css                # 프로모 공통 스타일·변수
+    ├── 03_challengers.html     # 도전 상대 소개 장면 (iframe)
+    ├── serve.command           # 더블클릭 실행용 로컬 서버 스크립트
+    └── clips/                  # 슬라이드용 영상·이미지 클립
 ```
