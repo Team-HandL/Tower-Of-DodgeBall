@@ -37,14 +37,14 @@ const CARDS = [
 
 // 층별 컨셉/대사.
 // npcSprite: 인게임 스프라이트 시트 prefix. stats.spd는 NPC 이동속도
-// (player 기본 spd = 150). nerd는 player와 동일한 150, soccer는 더 빠른 200.
+// player 기본 spd = 210. 층별 역할에 따라 NPC 이동속도와 전투 스탯을 차등 적용한다.
 const FLOORS = {
   1: {
     title: '1F — 너드',
     sprite: 'nerd/nerd_portrait',
     npcSprite: 'nerd',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 130, velocity: 500 },
+    stats: { hp: 120, str: 100, spd: 170, velocity: 520 },
     ai: { reactionDelay: 0.36, aimError: 62, dodgeSkill: 0.25, aggression: 0.55, pickupGreed: 0.55 },
     introLines: [
       '어... 안녕.',
@@ -60,7 +60,7 @@ const FLOORS = {
     sprite: 'ceo/ceo_portrait',
     npcSprite: 'ceo',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 150, velocity: 510 },
+    stats: { hp: 120, str: 105, spd: 170, velocity: 550 },
     ai: { reactionDelay: 0.30, aimError: 52, dodgeSkill: 0.38, aggression: 0.62, pickupGreed: 0.60 },
     introLines: [
       '음? 여긴 어떻게 들어왔지.',
@@ -75,7 +75,7 @@ const FLOORS = {
     sprite: 'trainer/trainer_portrait',
     npcSprite: 'trainer',
     hasCards: true,
-    stats: { hp: 120, str: 105, spd: 180, velocity: 520 },
+    stats: { hp: 170, str: 240, spd: 200, velocity: 600 },
     ai: { reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70, pickupGreed: 0.66 },
     introLines: [
       '어이 거기, 몸은 좀 풀었나?',
@@ -90,7 +90,7 @@ const FLOORS = {
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
     hasCards: true,
-    stats: { hp: 120, str: 100, spd: 200, velocity: 500 },
+    stats: { hp: 150, str: 115, spd: 280, velocity: 640 },
     ai: { reactionDelay: 0.18, aimError: 34, dodgeSkill: 0.6, aggression: 0.78, pickupGreed: 0.72 },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     introLines: [
@@ -107,7 +107,7 @@ const FLOORS = {
     sprite: 'robot/robot_portrait',
     npcSprite: 'robot',
     isFinal: true,                  // 마지막 층: 승리 시 엔딩 오버레이
-    stats: { hp: 150, str: 110, spd: 220, velocity: 560 },
+    stats: { hp: 210, str: 260, spd: 300, velocity: 700 },
     ai: { reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92, pickupGreed: 0.82 },
     introLines: [
       '누구야..? 드디어 여기까지 올라왔구나.',
