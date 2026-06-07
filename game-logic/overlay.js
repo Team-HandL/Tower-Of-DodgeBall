@@ -313,41 +313,58 @@ function renderFloorIntro() {
   const speaker = (data.title.split('—')[1] || '').trim();
   let idx = 0;
 
-  const render = () => {
+  // 정적 레이아웃(특히 portrait)은 층 진입 시 1회만 그린다.
+  // 대사 이동 시엔 텍스트/점/버튼만 갱신하므로 stage-sprite <img>가 재생성되지 않고,
+  // stage-sprite-in 페이드인 애니메이션도 대사마다 다시 재생되지 않는다.
+  paint(`
+    <div class="stage-title">${data.title}</div>
+    <button class="stage-nav left hidden" id="ov-prev" aria-label="이전">◀</button>
+    <button class="stage-nav right" id="ov-next" aria-label="다음">▶</button>
+    <div class="stage-bottom">
+      <img class="stage-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
+      <div class="stage-dialogue">
+        ${speaker ? `<div class="stage-speaker">${esc(speaker)}</div>` : ''}
+        <div class="stage-text" id="ov-intro-text"></div>
+        <div class="stage-dots" id="ov-intro-dots"></div>
+      </div>
+    </div>
+  `, 'intro');
+
+  const prevBtn = document.getElementById('ov-prev');
+  const nextBtn = document.getElementById('ov-next');
+  const textEl  = document.getElementById('ov-intro-text');
+  const dotsEl  = document.getElementById('ov-intro-dots');
+
+  // 대사만 갱신 — portrait/타이틀/화자 등 정적 요소는 건드리지 않는다.
+  const update = () => {
     const total = data.introLines.length;
     const last  = idx >= total - 1;
     const first = idx === 0;
     const loading = last && !assetsReady;   // 마지막 대사인데 에셋이 아직이면 시작 버튼을 잠근다
-    const dots  = data.introLines
+
+    prevBtn.classList.toggle('hidden', first);
+    textEl.textContent = data.introLines[idx];   // white-space:pre-line이 \n을 줄바꿈으로 렌더
+    dotsEl.innerHTML = data.introLines
       .map((_, i) => `<span class="dot${i === idx ? ' on' : ''}"></span>`)
       .join('');
-    const nextBtn = loading
-      ? `<button class="stage-nav right is-loading" id="ov-next" aria-label="에셋 로딩 중" disabled><span class="nav-spinner"></span><span class="nav-label">로딩 중…</span></button>`
-      : `<button class="stage-nav right" id="ov-next" aria-label="${last ? '도전 시작' : '다음'}">▶${last ? '<span class="nav-label">도전 시작</span>' : ''}</button>`;
-    paint(`
-      <div class="stage-title">${data.title}</div>
-      <button class="stage-nav left${first ? ' hidden' : ''}" id="ov-prev" aria-label="이전">◀</button>
-      ${nextBtn}
-      <div class="stage-bottom">
-        <img class="stage-sprite" src="${IMG}/${data.sprite}.png" alt=""/>
-        <div class="stage-dialogue">
-          ${speaker ? `<div class="stage-speaker">${esc(speaker)}</div>` : ''}
-          <div class="stage-text">${esc(data.introLines[idx])}</div>
-          <div class="stage-dots">${dots}</div>
-        </div>
-      </div>
-    `, 'intro');
-    document.getElementById('ov-prev').onclick = () => { if (idx > 0) { idx--; render(); } };
-    document.getElementById('ov-next').onclick = () => {
+
+    nextBtn.className = loading ? 'stage-nav right is-loading' : 'stage-nav right';
+    nextBtn.disabled = loading;
+    nextBtn.setAttribute('aria-label', loading ? '에셋 로딩 중' : (last ? '도전 시작' : '다음'));
+    nextBtn.innerHTML = loading
+      ? `<span class="nav-spinner"></span><span class="nav-label">로딩 중…</span>`
+      : `▶${last ? '<span class="nav-label">도전 시작</span>' : ''}`;
+    nextBtn.onclick = () => {
       if (loading) return;            // 로딩 중엔 무시(disabled 속성 보강)
       if (last) startRound();
-      else { idx++; render(); }
+      else { idx++; update(); }
     };
   };
-  render();
-  // 에셋 로딩이 끝나면 잠겨 있던 '도전 시작' 버튼을 다시 그려 활성화한다.
-  // (인트로를 벗어나려면 그 버튼을 눌러야 하므로, 콜백 시점엔 항상 같은 인트로 화면이다.)
-  if (!assetsReady) assetsPromise.then(() => render());
+
+  prevBtn.onclick = () => { if (idx > 0) { idx--; update(); } };
+  update();
+  // 에셋 로딩이 끝나면 잠겨 있던 '도전 시작' 버튼을 다시 활성화한다.
+  if (!assetsReady) assetsPromise.then(() => update());
 }
 
 function startRound() {
