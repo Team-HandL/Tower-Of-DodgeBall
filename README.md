@@ -29,9 +29,23 @@ python3 -m http.server 3000
 | 접속 | 주소 |
 |---|---|
 | 게임 | `http://localhost:3000` |
-| 프로모 슬라이드쇼 | `http://localhost:3000/promo/` |
+| 프로모 슬라이드쇼 (로컬 전용) | `http://localhost:3000/promo/` |
 
-> 프로모(`/promo/`)는 게임을 소개하는 슬라이드쇼입니다. **프로젝트 루트**에서 서버를 실행해야 프로모가 참조하는 에셋(`../design`)과 "▶ 지금 플레이" 링크(`../index.html`)가 올바르게 연결됩니다. 슬라이드는 `←` / `→` 또는 화면 클릭으로 넘길 수 있습니다.
+> 프로모(`/promo/`)는 게임을 소개하는 슬라이드쇼로 **로컬 전용**입니다. 무거운 영상 클립이 포함돼 있어 라이브 사이트(GitHub Pages) 배포에서는 제외되며(아래 [배포](#배포) 참고), 로컬에서만 위 주소로 볼 수 있습니다. **프로젝트 루트**에서 서버를 실행해야 프로모가 참조하는 에셋(`../design`)과 "▶ 지금 플레이" 링크(`../index.html`)가 올바르게 연결됩니다. 슬라이드는 `←` / `→` 또는 화면 클릭으로 넘길 수 있습니다.
+
+---
+
+### 배포
+
+라이브 사이트는 GitHub Pages로 자동 배포됩니다 → **[team-handl.github.io/Tower-Of-DodgeBall](https://team-handl.github.io/Tower-Of-DodgeBall/)**
+
+`main` 브랜치에 푸시하면 빌드·배포됩니다. 단, `promo/`는 무거운 영상 클립(합 ~38MB) 때문에 Pages 아티팩트 업로드가 취소(`Error: The operation was canceled`)되므로, 루트의 `_config.yml`에서 배포 대상에서 제외합니다.
+
+```yaml
+# _config.yml
+exclude:
+  - promo
+```
 
 ---
 
@@ -48,6 +62,7 @@ python3 -m http.server 3000
 ### 파일 구조
 
 ```
+├── _config.yml                 # GitHub Pages(Jekyll) 빌드 설정 — promo 배포 제외
 ├── index.html                  # HTML 구조, CSS 스타일, 게임 엔트리포인트
 ├── game-logic.js               # 게임 루프, 시작/종료 처리, 모듈 부트스트랩
 ├── game-logic/
@@ -77,7 +92,7 @@ python3 -m http.server 3000
 │       ├── fonts/              # 게임 폰트 (PFStardust 계열)
 │       ├── images/             # 캐릭터별 스프라이트, 공, 탑 이미지
 │       └── music/              # 배경음악 (bgm_tod.mp3)
-└── promo/                      # 게임 소개 슬라이드쇼 (/promo/)
+└── promo/                      # 게임 소개 슬라이드쇼 (로컬 전용, 배포 제외)
     ├── index.html              # ▶ 로 넘기는 슬라이드쇼 진행 로직
     ├── base.css                # 프로모 공통 스타일·변수
     ├── 03_challengers.html     # 도전 상대 소개 장면 (iframe)

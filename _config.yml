@@ -1,0 +1,7 @@
+# GitHub Pages(Jekyll) 빌드 설정
+# promo/ 는 로컬 전용 소개 슬라이드쇼로, 무거운 영상 클립(.mov/.mp4, 합 ~38MB)을 포함한다.
+# 이 영상까지 함께 배포하면 Pages 아티팩트 업로드가 중간에 취소되어 빌드가 실패한다
+# 데모 영상은 YouTube에 있으므로 promo 는 배포에서 제외한다.
+# 로컬에서는 그대로 http://localhost:3000/promo/ 또는 promo/serve.command 로 확인할 수 있다.
+exclude:
+  - promo
