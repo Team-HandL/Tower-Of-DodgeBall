@@ -34,9 +34,8 @@ export function doThrow(from, tx, ty, spd, who, power = 1) {
   const { ball } = state;
   const oy = from.spriteCenterY ?? from.y;
   const dx = tx - from.x, dy = ty - oy, d = Math.hypot(dx, dy) || 1;
-  const offset = from.r + ball.r + 10;
-  ball.x = from.x + (dx / d) * offset;
-  ball.y = oy + (dy / d) * offset;
+  ball.x = from.x;
+  ball.y = oy;
   ball.vx = (dx / d) * spd;
   ball.vy = (dy / d) * spd;
   ball.owner = null;
