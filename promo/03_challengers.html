@@ -1,0 +1,115 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+<style>
+.bg{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #261c11 0%, #140e09 48%, #0a0706 100%);
+}
+.bg-grid{
+  position:absolute; inset:0; opacity:.05;
+  background-image:linear-gradient(rgba(255,210,90,.6) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,210,90,.6) 1px,transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(80% 70% at 50% 40%, #000 30%, transparent 80%);
+}
+.head{ position:absolute; top:64px; left:0; right:0; text-align:center; }
+.head .k{ font-family:'PFStardustBold'; letter-spacing:14px; font-size:26px; color:var(--gold); opacity:.9; }
+.head .t{ font-family:'PFStardustXB'; font-size:84px; color:#fff; margin-top:14px;
+  text-shadow:0 4px 20px rgba(0,0,0,.6); }
+.head .t b{ color:var(--gold); text-shadow:0 0 24px rgba(255,210,90,.5); }
+
+.row{
+  position:absolute; left:60px; right:60px; bottom:128px; top:300px;
+  display:flex; gap:26px; align-items:stretch;
+}
+.card{
+  flex:1; position:relative; border-radius:18px;
+  background:linear-gradient(180deg, rgba(40,30,18,.85), rgba(18,13,9,.92));
+  border:2px solid rgba(255,210,90,.28);
+  box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden; display:flex; flex-direction:column;
+}
+.card .floor{
+  font-family:'PFStardustXB'; font-size:34px; color:var(--gold);
+  letter-spacing:3px; padding:20px 0 6px; text-align:center;
+  text-shadow:0 0 16px rgba(255,210,90,.4);
+}
+.card .pic{
+  flex:1; position:relative; display:flex; align-items:center; justify-content:center;
+}
+.card .pic::before{
+  content:""; position:absolute; left:18%; bottom:34px; width:64%; height:34px;
+  background:radial-gradient(50% 100% at 50% 50%, rgba(0,0,0,.5), transparent 70%);
+}
+.card .pic img{ max-width:84%; max-height:300px; object-fit:contain;
+  filter:drop-shadow(0 12px 16px rgba(0,0,0,.5)); position:relative; }
+.card .name{
+  font-family:'PFStardustBold'; font-size:40px; color:#fff; text-align:center;
+  padding:8px 0 8px;
+}
+.card .role{ text-align:center; font-size:22px; color:#cbb890; padding-bottom:20px; letter-spacing:2px; }
+
+/* 최종 보스 강조 */
+.card.final{
+  border-color:rgba(90,200,255,.65);
+  background:linear-gradient(180deg, rgba(18,34,48,.9), rgba(10,16,24,.95));
+  box-shadow:0 18px 46px rgba(0,80,140,.35), inset 0 0 50px rgba(60,170,255,.10);
+}
+.card.final .floor{ color:#7fd4ff; text-shadow:0 0 18px rgba(90,200,255,.6); }
+.card.final .role{ color:#8fd0ff; }
+.card.final .badge{
+  position:absolute; top:14px; right:14px; z-index:3;
+  font-family:'PFStardustXB'; font-size:20px; letter-spacing:3px; color:#06121c;
+  background:#7fd4ff; padding:5px 12px; border-radius:8px;
+  box-shadow:0 0 18px rgba(90,200,255,.7);
+}
+.foot{ position:absolute; left:0; right:0; bottom:46px; text-align:center;
+  font-size:24px; letter-spacing:4px; color:#b9a878; }
+.foot b{ color:var(--gold); }
+</style></head>
+<body>
+<div class="stage">
+  <div class="bg"></div>
+  <div class="bg-grid"></div>
+
+  <div class="head">
+    <div class="k">THE CHALLENGERS</div>
+    <div class="t">5층, <b>5명의 도전 상대</b></div>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <div class="floor">1F</div>
+      <div class="pic"><img src="../design/assets/images/nerd/nerd_portrait.png"></div>
+      <div class="name">너드</div>
+      <div class="role">호기심 많은 탐구자</div>
+    </div>
+    <div class="card">
+      <div class="floor">2F</div>
+      <div class="pic"><img src="../design/assets/images/ceo/ceo_portrait.png"></div>
+      <div class="name">CEO</div>
+      <div class="role">시간이 곧 돈</div>
+    </div>
+    <div class="card">
+      <div class="floor">3F</div>
+      <div class="pic"><img src="../design/assets/images/trainer/trainer_portrait.png"></div>
+      <div class="name">트레이너</div>
+      <div class="role">근성의 파괴력</div>
+    </div>
+    <div class="card">
+      <div class="floor">4F</div>
+      <div class="pic"><img src="../design/assets/images/soccer/soccer_portrait.png"></div>
+      <div class="name">축구선수</div>
+      <div class="role">압도적인 스피드</div>
+    </div>
+    <div class="card final">
+      <div class="badge">FINAL</div>
+      <div class="floor">5F</div>
+      <div class="pic"><img src="../design/assets/images/robot/robot_portrait.png"></div>
+      <div class="name">로봇</div>
+      <div class="role">피구에 미친 안드로이드</div>
+    </div>
+  </div>
+</div>
+</body></html>

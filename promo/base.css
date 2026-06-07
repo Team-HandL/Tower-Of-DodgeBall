@@ -1,0 +1,65 @@
+/* ── Tower of DodgeBall — 홍보 키아트 공통 스타일 ─────────────── */
+@font-face{
+  font-family:'PFStardust';
+  src:url('../design/assets/fonts/PFStardust.ttf') format('truetype');
+  font-weight:normal; font-display:block;
+}
+@font-face{
+  font-family:'PFStardustBold';
+  src:url('../design/assets/fonts/PFStardustBold.ttf') format('truetype');
+  font-weight:normal; font-display:block;
+}
+@font-face{
+  font-family:'PFStardustXB';
+  src:url('../design/assets/fonts/PFStardustExtraBold.ttf') format('truetype');
+  font-weight:normal; font-display:block;
+}
+
+:root{
+  --gold:#FFE3A0;
+  --gold-bright:#FFF3CF;
+  --gold-deep:#E0A94C;
+  --ink:#0a0807;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{width:1920px;height:1080px;overflow:hidden;}
+body{
+  font-family:'PFStardust',sans-serif;
+  background:var(--ink);
+  color:#fff;
+  position:relative;
+}
+
+.stage{
+  position:absolute; inset:0;
+  width:1920px; height:1080px;
+  overflow:hidden;
+}
+
+/* 공통 글로우 타이틀 */
+.t-xb{ font-family:'PFStardustXB','PFStardust',sans-serif; }
+.t-bold{ font-family:'PFStardustBold','PFStardust',sans-serif; }
+
+.gold{ color:var(--gold); }
+.glow-gold{
+  color:var(--gold);
+  text-shadow:0 0 18px rgba(255,210,90,.65), 0 0 42px rgba(255,210,90,.35), 0 4px 10px rgba(0,0,0,.6);
+}
+
+/* 부드러운 비네팅 */
+.vignette{
+  position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 38%, rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%);
+}
+
+img{ -webkit-user-drag:none; }
+.pixel{ image-rendering:auto; }
+
+/* 워터마크 / 작은 라벨 */
+.kicker{
+  font-family:'PFStardustBold','PFStardust',sans-serif;
+  letter-spacing:8px; font-size:24px; color:var(--gold);
+  opacity:.92;
+}

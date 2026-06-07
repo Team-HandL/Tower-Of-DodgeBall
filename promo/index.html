@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tower of DodgeBall — Promo</title>
+<link rel="stylesheet" href="base.css">
+<style>
+/* ── Promo: ▶ 로 넘기는 슬라이드쇼 (장면 HTML + 플레이 영상) ──────── */
+:root{ --s:1; }
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ width:100%; height:100%; overflow:hidden; background:#0a0807; }
+body{ color:#fff; }
+
+#stage{ position:fixed; inset:0; background:#0a0807; }
+
+/* 각 슬라이드: 스택으로 겹쳐두고 active 만 보이게 */
+.slide{
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  opacity:0; transform: translateX(7vw) scale(.985);
+  transition: opacity .26s ease, transform .34s cubic-bezier(.22,.61,.36,1);
+  pointer-events:none;
+}
+.slide.active{ opacity:1; transform:none; pointer-events:auto; z-index:2; }
+.slide.before{ transform: translateX(-7vw) scale(.985); }   /* 지나간 슬라이드는 왼쪽으로 */
+.slide.after { transform: translateX(7vw)  scale(.985); }   /* 다가올 슬라이드는 오른쪽에 */
+
+/* 16:9 박스 — 모든 슬라이드 동일 프레이밍 */
+.box{
+  position:relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height:min(100vh, calc(100vw * 9 / 16));
+  overflow:hidden;
+}
+
+/* 커버/일반 이미지 */
+.box img.full{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* 플레이 영상 */
+.box video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; }
+
+/* 장면 iframe — 1920×1080 원본을 중앙에 비율 유지로 스케일 */
+.frame{
+  position:absolute; top:50%; left:50%;
+  width:1920px; height:1080px; border:0;
+  transform: translate(-50%, -50%) scale(var(--s));
+  transform-origin:center center;
+  pointer-events:none;
+}
+
+/* 영상/이미지 위 캡션 밴드 */
+.cap{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:120px 8% 46px; text-align:center;
+  background:linear-gradient(0deg, rgba(6,4,3,.86) 0%, rgba(6,4,3,.55) 45%, rgba(6,4,3,0) 100%);
+  font-family:'PFStardustBold','PFStardust',sans-serif;
+  font-size:clamp(20px, 2.6vw, 40px); line-height:1.5; letter-spacing:1px;
+  color:#fff; text-shadow:0 3px 14px rgba(0,0,0,.7);
+}
+.cap b{ color:var(--gold); }
+
+/* CTA / 시작 버튼 */
+.cta-btn{
+  position:absolute; left:50%; bottom:9%; transform:translateX(-50%);
+  display:inline-block; padding:clamp(14px,1.6vw,22px) clamp(40px,5vw,84px);
+  border-radius:16px; cursor:pointer; text-decoration:none;
+  font-family:'PFStardustXB','PFStardust',sans-serif;
+  font-size:clamp(28px,3.4vw,52px); letter-spacing:6px; color:#1a1206;
+  background:linear-gradient(180deg, #FFEDC0, #E7A93F);
+  box-shadow:0 0 36px rgba(255,210,90,.55), 0 14px 30px rgba(0,0,0,.5), inset 0 2px 0 rgba(255,255,255,.6);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{ 0%,100%{ transform:translateX(-50%) scale(1);} 50%{ transform:translateX(-50%) scale(1.04);} }
+
+/* 시작 화면 힌트 */
+.start-hint{
+  position:absolute; left:50%; bottom:8%; transform:translateX(-50%);
+  font-family:'PFStardustBold','PFStardust',sans-serif;
+  font-size:clamp(16px,1.8vw,26px); letter-spacing:6px; color:var(--gold);
+  text-shadow:0 0 18px rgba(255,210,90,.5);
+  animation: pulse2 1.6s ease-in-out infinite;
+}
+@keyframes pulse2{ 0%,100%{ opacity:.7;} 50%{ opacity:1;} }
+
+/* 진행 점 */
+.dots{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+  display:flex; gap:10px; z-index:30;
+}
+.dots i{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.28);
+  transition:background .25s, transform .25s; }
+.dots i.on{ background:var(--gold); transform:scale(1.35); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<div class="dots" id="dots"></div>
+
+<audio id="bgm" src="../design/assets/music/bgm_tod.mp3" loop preload="auto"></audio>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────
+   SLIDES: 슬라이드 순서.
+   - { image:'clips/x.png' }        이미지 (커버 등)
+   - { clip:'clips/x.mp4' }         플레이 영상 (clips/ 폴더, 음소거·루프)
+   - { scene:'x.html' }             기존 장면 HTML (iframe)
+   옵션:
+   - caption:'<b>강조</b> 문구'      영상/이미지 위 캡션
+   - start:true                      시작 힌트 표시
+   - cta:'../index.html'             "지금 플레이" 버튼 → 링크
+   ───────────────────────────────────────────────────────────────── */
+const SLIDES = [
+  { image:'clips/TowerOfDodgeBall_cover.png', start:true },
+  { clip:'clips/00_start.mov' },
+  { image:'clips/01_control.png',
+    caption:'<b>WASD</b> 이동 · <b>마우스</b> 조준 · <b>클릭</b>으로 줍고 던지기'
+   },
+  { clip:'clips/02_nerd.mp4',
+    caption:'<b>조작법</b>을 배우며 1층부터 클리어!'
+   },
+  { clip:'clips/04_catch.mp4',
+    caption:'<b>캐치와 장애물</b>을 활용해 다양한 플레이를 할 수 있어요'
+   },
+  { clip:'clips/05_variable_map.mov',
+    caption:'<b>층마다 달라지는 맵</b>과 지형을 활용해 공략하세요'
+   },
+  { scene:'03_challengers.html',
+    caption:'다양한 도전 상대와의 박진감 넘치는 대결'
+   },
+  { clip:'clips/03_choose_stat.mp4',
+    caption:'층을 클리어하며 <b>원하는 능력을 강화</b>해보세요' },
+  { clip:'clips/06_clear.mov',
+    caption:'강력한 보스 <b>안드로이드</b>를 클리어하고, <b>최종 클리어 시간</b>을 단축해보세요!' },
+  { image:'clips/TowerOfDodgeBall_cover.png', cta:'../index.html' },
+];
+
+const stage = document.getElementById('stage');
+const dots  = document.getElementById('dots');
+const els = [];
+
+SLIDES.forEach((s, i) => {
+  const slide = document.createElement('section');
+  slide.className = 'slide';
+  const box = document.createElement('div');
+  box.className = 'box';
+
+  if (s.scene){
+    const f = document.createElement('iframe');
+    f.className = 'frame'; f.src = s.scene; f.setAttribute('scrolling','no');
+    box.appendChild(f);
+  } else if (s.clip){
+    const v = document.createElement('video');
+    v.src = s.clip; v.muted = true; v.loop = false; v.playsInline = true; v.preload = 'auto';
+    box.appendChild(v);
+  } else if (s.image){
+    const img = document.createElement('img');
+    img.className = 'full'; img.src = s.image; img.alt = '';
+    box.appendChild(img);
+  }
+
+  if (s.caption){
+    const c = document.createElement('div');
+    c.className = 'cap'; c.innerHTML = s.caption;
+    box.appendChild(c);
+  }
+  if (s.cta){
+    const a = document.createElement('a');
+    a.className = 'cta-btn'; a.href = s.cta; a.textContent = '▶ 지금 플레이';
+    box.appendChild(a);
+  }
+  if (s.start){
+    const h = document.createElement('div');
+    h.className = 'start-hint'; 
+    box.appendChild(h);
+  }
+
+  slide.appendChild(box);
+  stage.appendChild(slide);
+  els.push(slide);
+
+  const dot = document.createElement('i');
+  dots.appendChild(dot);
+});
+
+/* iframe 스케일: 뷰포트 16:9 박스에 1920×1080 맞춤 */
+function fit(){
+  const w = Math.min(innerWidth, innerHeight * 16 / 9);
+  document.documentElement.style.setProperty('--s', String(w / 1920));
+}
+fit(); addEventListener('resize', fit);
+
+/* ── 슬라이드 전환 ─────────────────────────────────────────────── */
+let idx = 0;
+function render(){
+  els.forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+    el.classList.toggle('before', i < idx);
+    el.classList.toggle('after',  i > idx);
+    const v = el.querySelector('video');
+    if (v){
+      if (i === idx){ v.currentTime = 0; v.play().catch(()=>{}); }
+      else v.pause();
+    }
+  });
+  dots.querySelectorAll('i').forEach((d, i) => d.classList.toggle('on', i === idx));
+}
+function go(n){
+  idx = Math.max(0, Math.min(els.length - 1, n));
+  render();
+}
+const next = () => go(idx + 1);
+const prev = () => go(idx - 1);
+
+/* 키보드 이동: ← → / Space */
+addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); next(); }
+  else if (e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
+});
+
+/* 마우스 클릭 이동: 화면 왼쪽 25% 클릭 → 이전, 그 외 클릭 → 다음.
+   '▶ 지금 플레이' 같은 링크 클릭은 그대로 동작하도록 제외. */
+addEventListener('click', (e) => {
+  if (e.target.closest('a')) return;
+  if (e.clientX < innerWidth * 0.25) prev();
+  else next();
+});
+
+render();
+
+/* ── BGM(bgm_tod.mp3): 접속 3초 뒤 재생 ─────────────────────────
+   자동재생 정책상 소리 있는 재생은 차단될 수 있어, 차단되면
+   첫 키 입력(방향키) 때 다시 재생한다. 키보드 이동이 곧 재생 트리거. */
+const bgm = document.getElementById('bgm');
+bgm.volume = 0.45;
+function tryPlayBgm(){ if (bgm.paused) bgm.play().catch(()=>{}); }
+setTimeout(tryPlayBgm, 3000);
+addEventListener('keydown', tryPlayBgm, { passive:true });
+addEventListener('pointerdown', tryPlayBgm, { passive:true });
+</script>
+</body>
+</html>
