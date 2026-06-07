@@ -22,6 +22,8 @@ const SHOT_MIN_RANGE = 100;
 const SHOT_MAX_RANGE = 420;
 const SHOT_IDEAL_RANGE = 220;
 const PLAYER_HIT_PATH_PADDING = 36;
+const ATTACK_RANGE_SHORT_MAX = 220;
+const ATTACK_RANGE_MID_MAX = 420;
 
 const DEFAULT_AI = {
   reactionDelay: 0.22,
@@ -30,10 +32,26 @@ const DEFAULT_AI = {
   aggression: 0.7,
   pickupGreed: 0.65,
   blockBreakPreference: 0,
+  attackRangePreference: { short: 0.6, mid: 0.7, long: 0.5 },
 };
 
 function ai() {
-  return { ...DEFAULT_AI, ...(state.npc.ai || {}) };
+  const npcAI = state.npc.ai || {};
+  return {
+    ...DEFAULT_AI,
+    ...npcAI,
+    attackRangePreference: {
+      ...DEFAULT_AI.attackRangePreference,
+      ...(npcAI.attackRangePreference || {}),
+    },
+  };
+}
+
+function attackPreferenceAt(range, cfg) {
+  const band = range < ATTACK_RANGE_SHORT_MAX ? 'short'
+    : range < ATTACK_RANGE_MID_MAX ? 'mid'
+    : 'long';
+  return Math.max(0, Math.min(1, cfg.attackRangePreference[band]));
 }
 
 function cellKey(c, r) {
@@ -560,6 +578,12 @@ export function updateNPC(dt) {
         setFacing(npc, dx, dy);
       }
       if (npc.aimTimer <= 0) {
+        const attackPreference = attackPreferenceAt(d, cfg);
+        if (Math.random() > attackPreference) {
+          // 선호하지 않는 거리에서도 공격 기회는 계속 생기지만 재조준 시간이 길어진다.
+          npc.aimTimer = 0.2 + (1 - attackPreference) * 0.65;
+          return;
+        }
         const aimX = player.x + (Math.random() - 0.5) * cfg.aimError;
         const aimY = (player.spriteCenterY ?? player.y) + (Math.random() - 0.5) * cfg.aimError;
         // 실제 조준점까지 경로가 비어 있을 때만 던진다 — 장애물에 멍청하게 던지지 않음.
