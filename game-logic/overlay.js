@@ -110,7 +110,7 @@ const FLOORS = {
     sprite: 'trainer/trainer_portrait',
     npcSprite: 'trainer',
     hasCards: true,
-    stats: { hp: 170, str: 240, spd: 200, velocity: 520 },
+    stats: { hp: 170, str: 200, spd: 200, velocity: 520 },
     ai: {
       reactionDelay: 0.24, aimError: 42, dodgeSkill: 0.50, aggression: 0.70,
       pickupGreed: 0.66, blockBreakPreference: 1.0,
@@ -138,11 +138,12 @@ const FLOORS = {
     sprite: 'soccer/soccer_portrait',
     npcSprite: 'soccer',
     hasCards: true,
-    stats: { hp: 150, str: 115, spd: 280, velocity: 640 },
+    stats: { hp: 150, str: 120, spd: 280, velocity: 640 },
     ai: {
-      reactionDelay: 0.18, aimError: 40, dodgeSkill: 0.6, aggression: 0.78,
-      pickupGreed: 0.72, blockBreakPreference: 0.25,
-      attackRangePreference: { short: 0.40, mid: 0.90, long: 0.65 },
+      reactionDelay: 0.18, aimError: 40, dodgeSkill: 0.75, aggression: 0.78,
+      pickupGreed: 0.72, blockBreakPreference: 0.4,
+      idealRange: 170,   // 중거리(220)보다 가까이 붙어서 사격 — 스피드로 들이대는 히트앤런
+      attackRangePreference: { short: 0.80, mid: 0.55, long: 0.45 },
     },
     spawn: { player: { c: 2, r: 8 }, npc: { c: 22, r: 8 } },
     balls: [{ c: 3, r: 8 }, { c: 21, r: 8 }],   // 플레이어 오른쪽 / NPC 왼쪽에 공 1개씩
@@ -168,7 +169,7 @@ const FLOORS = {
     sprite: 'robot/robot_portrait',
     npcSprite: 'robot',
     isFinal: true,                  // 마지막 층: 승리 시 엔딩 오버레이
-    stats: { hp: 210, str: 260, spd: 300, velocity: 700 },
+    stats: { hp: 210, str: 215, spd: 260, velocity: 700 },
     ai: {
       reactionDelay: 0.08, aimError: 18, dodgeSkill: 0.88, aggression: 0.92,
       pickupGreed: 0.82, blockBreakPreference: 0.9,

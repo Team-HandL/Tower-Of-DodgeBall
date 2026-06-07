@@ -308,6 +308,9 @@ function isValidShootingPosition(position, playerCenter) {
 
 function findShootingPlan(playerCenter) {
   const { npc } = state;
+  // 선호 사격 거리 — AI별 idealRange가 있으면 사용(없으면 기본 중거리).
+  // 값이 작을수록 더 가까이 붙어서 쏘는 사격 위치를 선호한다.
+  const idealRange = ai().idealRange ?? SHOT_IDEAL_RANGE;
   const candidates = [];
 
   for (let r = 0; r < GRID_ROWS; r++) {
@@ -330,7 +333,7 @@ function findShootingPlan(playerCenter) {
     const cost = pathLength(npc, path);
     const origin = throwOriginAt(candidate.position);
     const range = Math.hypot(playerCenter.x - origin.x, playerCenter.y - origin.y);
-    const score = cost + Math.abs(range - SHOT_IDEAL_RANGE) * 0.35;
+    const score = cost + Math.abs(range - idealRange) * 0.35;
     if (!best || score < best.score) {
       best = { target: candidate.position, cost, score };
     }
