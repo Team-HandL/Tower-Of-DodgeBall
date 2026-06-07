@@ -128,9 +128,14 @@ export function applyHit(target, isPlayer, damage = 40, ball = null) {
     heldByTarget.vy = 0;
     heldByTarget.x = target.x;
     heldByTarget.y = target.y;
+    pushBallOutOfObstacles(heldByTarget);
   }
 
   if (!ball) return;
+  // 맞은 지점에서 공이 날아온 방향(경로가 비어 있던 쪽)으로 살짝 튕겨 놓은 뒤,
+  // 혹시 남은 겹침은 블록 밖으로 밀어낸다 — 블록에 박히는 현상 방지.
+  const spd = Math.hypot(ball.vx, ball.vy) || 1;
+  const backX = -ball.vx / spd, backY = -ball.vy / spd;
   ball.flying = false;
   ball.vx = 0;
   ball.vy = 0;
@@ -138,8 +143,9 @@ export function applyHit(target, isPlayer, damage = 40, ball = null) {
   ball.thrownBy = null;
   ball.power = 1;
   ball.throwStr = BASE.player.str;
-  ball.x = target.x + (isPlayer ? 1 : -1) * (target.r + ball.r + 6);
-  ball.y = target.y;
+  ball.x += backX * (ball.r + 8);
+  ball.y += backY * (ball.r + 8);
+  pushBallOutOfObstacles(ball);
 }
 
 export function startPlayerCharge() {
