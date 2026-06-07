@@ -82,7 +82,6 @@ export function doThrow(from, tx, ty, spd, who, power = 1) {
     from.charge.active = false;
     from.charge.value = 0;
   }
-  from.invTime = Math.max(from.invTime, 0.3);
 }
 
 export function pickUpBall(who, ball) {

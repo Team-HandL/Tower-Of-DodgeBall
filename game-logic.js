@@ -1,4 +1,3 @@
-import './game-logic/debug.js'; // DEV ONLY — 배포 전 이 줄 삭제
 import { state, initState, W, H, CONFIG } from './game-logic/state.js';
 import { STATUS } from './game-logic/status.js';
 import { movePlayer } from './game-logic/physics.js';
