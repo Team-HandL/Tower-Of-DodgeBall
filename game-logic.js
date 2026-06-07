@@ -29,6 +29,7 @@ function endGame(result) {
     endReason: result,
     playerHpEnd: state.player?.hp ?? 0,
     npcHpEnd: state.npc?.hp ?? 0,
+    abilityCount: window.__todGetAbilityCount?.() ?? 0,
   });
   state.gameState = result;
   showOverlay(result, startGame);
@@ -48,7 +49,7 @@ function updateNpcSpeech(dt) {
     if (npc.grogyTime <= 0 && npc.speechTime <= 0 &&
         npc.chatterLines.length && Math.random() < CONFIG.chatterChance) {
       if (npc.chatterOrdered) {
-        // 순서대로 출력(끝까지 가면 처음부터 반복) — 2F 등 대사 흐름이 있는 NPC용
+        // 순서대로 출력(끝까지 가면 처음부터 반복) — 1F 튜토리얼 등 대사 흐름이 있는 NPC용
         npc.speech = npc.chatterLines[npc.chatterIdx % npc.chatterLines.length];
         npc.chatterIdx++;
       } else {

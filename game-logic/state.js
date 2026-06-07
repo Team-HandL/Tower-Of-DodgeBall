@@ -12,7 +12,8 @@ export const CONFIG = {
   blockBreakBallChance: 0.5,
   maxBalls: 4,
   // NPC 인게임 대사
-  chatterInterval: 5,    // 대사 시도 간격(초)
+  chatterFirstDelay: 2,  // 라운드 시작 후 첫 대사까지(초)
+  chatterInterval: 5,    // 이후 대사 시도 간격(초)
   chatterChance: 0.9,    // 시도할 때 실제로 말할 확률 (나머지는 침묵)
   speechDuration: 2.5,   // 말풍선 표시 시간(초)
 };
@@ -96,7 +97,7 @@ export function initState() {
                    chatterLines: _pendingNpcChatter?.chatter ?? [],
                    hitLines: _pendingNpcChatter?.hit ?? [],
                    chatterOrdered: _pendingNpcChatter?.ordered ?? false, chatterIdx: 0,
-                   chatterTimer: CONFIG.chatterInterval, speech: null, speechTime: 0 };
+                   chatterTimer: CONFIG.chatterFirstDelay, speech: null, speechTime: 0 };
   _pendingNpcChatter = null;
   state.balls  = _pendingBalls
     ? _pendingBalls.map(({ c, r }) => makeBall(c * TILE + TILE / 2, r * TILE + TILE / 2))

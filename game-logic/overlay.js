@@ -245,6 +245,7 @@ export function getPlayTime() { return flow.playTime; }
 window.__todGetCurrentFloor = getCurrentFloor;
 window.__todGetPlayTime = getPlayTime;
 window.__todGetAbilityCombo = getAbilityCombo;
+window.__todGetAbilityCount = getAbilityCount;
 
 // DEV: 특정 층으로 즉시 점프 (인트로 생략, 버프/타이머 리셋 없음)
 export function jumpToFloor(n) {
@@ -385,6 +386,7 @@ function renderDefeat(reason) {
       lastFloor: flow.floor,
       totalDurationSec: flow.playTime,
       abilityCombo: getAbilityCombo(),
+      abilityCount: getAbilityCount(),
     });
     flow.floor = INITIAL_FLOOR;
     flow.buffs = Object.fromEntries(CARDS.map(c => [c.key, 0]));
@@ -548,6 +550,7 @@ function renderFinaleStats(data) {
     lastFloor: flow.floor,
     totalDurationSec: flow.playTime,
     abilityCombo: getAbilityCombo(),
+    abilityCount: getAbilityCount(),
   });
   const statHtml = FINAL_STATS.map(s => {
     const buff  = s.buffKey ? (flow.buffs[s.buffKey] || 0) : 0;
@@ -614,4 +617,8 @@ function pct(v) { return Math.round(v * 100); }
 
 function getAbilityCombo() {
   return flow.abilityChoices.length ? flow.abilityChoices.join('|') : 'none';
+}
+
+function getAbilityCount() {
+  return flow.abilityChoices.length;
 }

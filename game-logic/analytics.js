@@ -61,7 +61,7 @@ export function trackFloorEnter(floor) {
   });
 }
 
-export function trackBattleEnd({ floor, result, endReason, playerHpEnd, npcHpEnd }) {
+export function trackBattleEnd({ floor, result, endReason, playerHpEnd, npcHpEnd, abilityCount }) {
   ensureRun();
   if (result === 'lose') deathCount += 1;
 
@@ -73,6 +73,7 @@ export function trackBattleEnd({ floor, result, endReason, playerHpEnd, npcHpEnd
     duration_sec: Math.round((performance.now() - battleStartedAt) / 1000),
     player_hp_end: Math.round(playerHpEnd ?? 0),
     npc_hp_end: Math.round(npcHpEnd ?? 0),
+    ability_count: Math.round(abilityCount ?? 0),
     attempt_no: floorAttempts.get(floor) || 1,
   });
 }
@@ -97,7 +98,7 @@ export function trackAbilitySelect({ floor, abilityId, abilityType }) {
   });
 }
 
-export function trackGameEnd({ endType, lastFloor, totalDurationSec, abilityCombo }) {
+export function trackGameEnd({ endType, lastFloor, totalDurationSec, abilityCombo, abilityCount }) {
   ensureRun();
   send('game_end', {
     run_id: currentRunId,
@@ -106,5 +107,6 @@ export function trackGameEnd({ endType, lastFloor, totalDurationSec, abilityComb
     total_duration_sec: Math.round(totalDurationSec ?? ((performance.now() - runStartedAt) / 1000)),
     death_count: deathCount,
     ability_combo: abilityCombo || 'none',
+    ability_count: Math.round(abilityCount ?? 0),
   });
 }
