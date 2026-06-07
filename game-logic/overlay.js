@@ -558,7 +558,7 @@ function renderFinaleStats(data) {
       </div>`;
   }).join('');
 
-  const totalBuff = CARDS.reduce((n, c) => n + (flow.buffs[c.key] > 0 ? 1 : 0), 0);
+  const totalBuff = flow.abilityChoices.length;
   const timeStr = formatTime(flow.playTime);
 
   const confetti = Array.from({ length: 24 }, (_, i) => {
