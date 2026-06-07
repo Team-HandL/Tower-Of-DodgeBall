@@ -37,6 +37,14 @@ function tryInteract() {
   if (pickable) pickUpBall('player', pickable);
 }
 
+function resetInputState() {
+  state.keys = {};
+  if (state.player?.charge) {
+    state.player.charge.active = false;
+    state.player.charge.value = 0;
+  }
+}
+
 export function setupInput() {
   const canvas = document.getElementById('gameCanvas');
 
@@ -63,5 +71,10 @@ export function setupInput() {
   document.addEventListener('keyup', e => {
     state.keys[e.code] = false;
     if (e.code === 'Space') releasePlayerCharge();
+  });
+
+  window.addEventListener('blur', resetInputState);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) resetInputState();
   });
 }
