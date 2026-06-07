@@ -1,9 +1,9 @@
 // 게임 BGM — '도전 시작'을 처음 누른 순간부터 재생을 시작하고,
-// 층 전환과 무관하게 파일 끝(약 3:31)까지 끊김 없이 한 번만 이어서 흐른다.
-// 반복(loop) 없음: 끝나면 그대로 정지한다.
+// 층 전환과 무관하게 끊김 없이 이어서 흐른다.
+// 파일 끝(약 3:31)에 도달하면 처음으로 되감아 반복(loop) 재생한다.
 
 const bgm = new Audio('./design/assets/music/bgm_tod.mp3');
-bgm.loop = false;
+bgm.loop = true;
 bgm.preload = 'auto';
 bgm.volume = 0.5;
 
