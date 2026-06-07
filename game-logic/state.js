@@ -1,7 +1,7 @@
 import { initStatus, BASE, STATUS } from './status.js';
 import { FLOOR_OBSTACLE_GROUPS, TILE, OBSTACLES } from '../design/map-01/obstacles.js';
 
-export const W = 1200, H = 800;
+export const W = 1200, H = 768;
 export const SAFE_DIST = 250;
 
 export const state = {
@@ -43,9 +43,9 @@ export function initState() {
   const spawn = _pendingSpawnPositions;
   _pendingSpawnPositions = null;
   const px = spawn?.player ? spawn.player.c * TILE + TILE / 2 : 80;
-  const py = spawn?.player ? spawn.player.r * TILE + TILE / 2 : 400;
+  const py = spawn?.player ? spawn.player.r * TILE + TILE / 2 : H / 2;
   const nx = spawn?.npc    ? spawn.npc.c    * TILE + TILE / 2 : 1120;
-  const ny = spawn?.npc    ? spawn.npc.r    * TILE + TILE / 2 : 400;
+  const ny = spawn?.npc    ? spawn.npc.r    * TILE + TILE / 2 : H / 2;
   console.log('[initState] spawn raw:', spawn, '→ player:', px, py, '/ npc:', nx, ny);
   state.player = { x: px,  y: py,  r: 16, hp: STATUS.player.hp, maxHp: STATUS.player.hp, hasBall: false, invTime: 0, grogyTime: 0, facing: { x: 1, y: 0 }, isMoving: false, animTime: 0,
                    charge: { active: false, value: 0 } };
