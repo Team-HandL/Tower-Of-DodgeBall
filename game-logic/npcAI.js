@@ -281,7 +281,7 @@ export function updateNPC(dt) {
       }
       if (npc.aimTimer <= 0) {
         const aimX = player.x + (Math.random() - 0.5) * cfg.aimError;
-        const aimY = player.y + (Math.random() - 0.5) * cfg.aimError;
+        const aimY = (player.spriteCenterY ?? player.y) + (Math.random() - 0.5) * cfg.aimError;
         // 실제 조준점까지 경로가 비어 있을 때만 던진다 — 장애물에 멍청하게 던지지 않음.
         if (clearThrowPath(npc, { x: aimX, y: aimY })) {
           doThrow(npc, aimX, aimY, STATUS.npc.velocity, 'npc');
