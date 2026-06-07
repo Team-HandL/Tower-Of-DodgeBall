@@ -20,7 +20,23 @@
 <meta name="twitter:title" content="피구의 탑 : Tower Of Dodgeball">
 <meta name="twitter:description" content="탑을 오르며 펼쳐지는 캔버스 기반 1:1 피구 게임. 공을 피하고 줍고 던져 상대 HP를 0으로 만들고 최상층 보스까지 정복하세요.">
 <meta name="twitter:image" content="https://team-handl.github.io/Tower-Of-DodgeBall/design/assets/images/tod_cover.png">
-<!-- Google tag (gtag.js) --> 
+<!-- 소셜 캐시 무효화용 ?v= 파라미터 정리.
+     카톡 등 OG 스크래퍼는 JS를 실행하지 않으므로 ?v= 가 붙은 원본 URL로 새로 스크랩(캐시 갱신)하고,
+     실제 사람이 접속하면 아래 스크립트가 주소창에서 ?v= 만 제거해 클린 URL로 보이게 한다.
+     (GA가 페이지뷰를 기록하기 전에 실행되도록 gtag 블록보다 위에 둔다) -->
+<script>
+  (function () {
+    try {
+      var url = new URL(window.location.href);
+      if (url.searchParams.has('v')) {
+        url.searchParams.delete('v');
+        var qs = url.searchParams.toString();
+        history.replaceState(null, '', url.pathname + (qs ? '?' + qs : '') + url.hash);
+      }
+    } catch (e) {}
+  })();
+</script>
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-526SRQ0M24"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
